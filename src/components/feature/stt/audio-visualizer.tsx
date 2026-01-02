@@ -1,9 +1,9 @@
-import { useRef } from 'react'
-import { useAudioVisualizer } from './use-audio-visualizer'
+import { useRef } from 'react';
+import { useAudioVisualizer } from './use-audio-visualizer';
 
 interface AudioVisualizerProps {
-  stream: MediaStream | null
-  isListening: boolean
+  stream: MediaStream | null;
+  isListening: boolean;
 }
 
 export const AudioVisualizer = ({
@@ -11,8 +11,8 @@ export const AudioVisualizer = ({
   isListening,
 }: AudioVisualizerProps) => {
   // 훅에 전달할 Ref 생성
-  const barsRef = useRef<(HTMLDivElement | null)[]>([])
-  const rippleRef = useRef<HTMLDivElement>(null)
+  const barsRef = useRef<(HTMLDivElement | null)[]>([]);
+  const rippleRef = useRef<HTMLDivElement>(null);
 
   // 비즈니스 로직 주입
   useAudioVisualizer({
@@ -20,7 +20,7 @@ export const AudioVisualizer = ({
     isListening,
     barsRef,
     rippleRef,
-  })
+  });
 
   return (
     <>
@@ -41,7 +41,7 @@ export const AudioVisualizer = ({
           <div
             key={i}
             ref={(el) => {
-              barsRef.current[i] = el
+              barsRef.current[i] = el;
             }}
             className="h-full w-1.5 rounded-full bg-white"
             style={{
@@ -54,5 +54,5 @@ export const AudioVisualizer = ({
         ))}
       </div>
     </>
-  )
-}
+  );
+};

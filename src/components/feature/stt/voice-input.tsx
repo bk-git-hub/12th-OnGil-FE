@@ -1,18 +1,18 @@
-'use client'
-import { useEffect } from 'react'
-import { useSpeechToText } from './use-speech-to-text'
-import { AudioVisualizer } from './audio-visualizer'
-import { MicIcon } from 'lucide-react'
+'use client';
+import { useEffect } from 'react';
+import { useSpeechToText } from './use-speech-to-text';
+import { AudioVisualizer } from './audio-visualizer';
+import { MicIcon } from 'lucide-react';
 
 export const VoiceInput = () => {
   const { isListening, transcript, interimText, start, stop, stream } =
-    useSpeechToText()
+    useSpeechToText();
 
   useEffect(() => {
     if (!isListening && transcript.trim().length > 0) {
-      console.log('추후 검색 실행')
+      console.log('추후 검색 실행');
     }
-  }, [isListening, transcript])
+  }, [isListening, transcript]);
 
   return (
     <div className="flex h-125 w-80 flex-col items-center justify-center rounded-2xl border border-blue-500 bg-white p-10">
@@ -49,5 +49,5 @@ export const VoiceInput = () => {
         </div>
       </div>
     </div>
-  )
-}
+  );
+};
