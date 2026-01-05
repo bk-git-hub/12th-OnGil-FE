@@ -5,8 +5,6 @@ import {
   Carousel,
   CarouselContent,
   CarouselItem,
-  CarouselNext,
-  CarouselPrevious,
   type CarouselApi,
 } from '@/components/ui/carousel';
 import { useCarouselDots } from './use-carousel-dots';
@@ -28,8 +26,6 @@ export function CarouselWithDots() {
             </CarouselItem>
           ))}
         </CarouselContent>
-        <CarouselPrevious />
-        <CarouselNext />
       </Carousel>
       <DotNavigation count={count} current={current} onDotClick={scrollTo} />
     </div>
