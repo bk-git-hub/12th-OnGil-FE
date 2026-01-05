@@ -1,7 +1,12 @@
-@import "tailwindcss";
-@import "tw-animate-css";
+@import 'tailwindcss';
+@import 'tw-animate-css';
 
 @custom-variant dark (&:is(.dark *));
+
+@theme {
+  --color-ongil-mint: #a9ffd7;
+  --color-ongil-teal: #00363d;
+}
 
 @theme inline {
   --color-background: var(--background);
