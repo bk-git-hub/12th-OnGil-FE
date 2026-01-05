@@ -6,6 +6,7 @@
 @theme {
   --color-ongil-mint: #a9ffd7;
   --color-ongil-teal: #00363d;
+  --font-pretendard: 'Pretendard Variable', sans-serif;
 }
 
 @theme inline {
