@@ -1,6 +1,7 @@
-import { auth, signOut } from './auth';
-import SignInKakao from './../components/login/sign-in-kakao';
-import SignInGoogle from './../components/login/sign-in-google';
+import { auth, signOut } from '/auth';
+import SignInKakao from '@/components/login/sign-in-kakao';
+import SignInGoogle from '@/components/login/sign-in-google';
+import SearchBar from '@/components/search-bar';
 
 export default async function Home() {
   const session = await auth(); //
@@ -21,6 +22,7 @@ export default async function Home() {
   return (
     <div className="flex flex-col items-center p-10">
       <h1 className="text-xl font-bold">환영합니다, {session.user?.name}님!</h1>
+      <SearchBar />
 
       {session.user?.image && (
         <img
