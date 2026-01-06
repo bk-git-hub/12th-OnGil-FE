@@ -1,6 +1,7 @@
 import Link from 'next/link';
 import Image from 'next/image';
 import { Product } from '@/mocks/product-data';
+import { ProductActions } from './product-actions';
 
 interface ProductDetailProps {
   product: Product | null;
@@ -33,6 +34,7 @@ export function ProductDetail({ product }: ProductDetailProps) {
             priority
           />
         </div>
+
         <div className="flex flex-col justify-between py-2">
           <div className="space-y-4">
             <div>
@@ -56,14 +58,9 @@ export function ProductDetail({ product }: ProductDetailProps) {
               </div>
             </div>
           </div>
-          <div className="mt-8 flex gap-3">
-            <button className="flex-1 rounded-lg border border-gray-300 py-4 font-bold hover:bg-gray-50">
-              장바구니
-            </button>
-            <button className="flex-1 rounded-lg bg-black py-4 font-bold text-white hover:bg-gray-800">
-              구매하기
-            </button>
-          </div>
+
+          {/* Client Component로 분리하여 사용자 상호작용 처리 */}
+          <ProductActions />
         </div>
       </div>
     </div>
