@@ -1,17 +1,24 @@
-import { useState, useEffect, useCallback, useRef, useTransition } from 'react';
+'use client';
 
-// 현재 보고 있는 카테고리 탭을 자동으로 활성화하고, 탭 클릭시 해당 섹션으로 이동하는 커스텀 훅.
+import { useState, useEffect, useRef, useTransition } from 'react';
+
+// 현재 보고 있는 카테고리 탭을 자동으로 활성화하고, 탭 클릭시 해당 섹션으로 이동하는 커스텀 훅 .
 
 export function useScrollSpy(ids: string[]) {
-  const [activeId, setActiveId] = useState<string>(ids[0]);
+  // ids가 비어있을 경우를 대비 하여 기본값 설정
+  const [activeId, setActiveId] = useState<string>(ids[0] || '');
   const [isPending, startTransition] = useTransition();
+
   const containerRef = useRef<HTMLDivElement>(null);
   const isClickScrolling = useRef(false);
   const observerRef = useRef<IntersectionObserver | null>(null);
-  const timeoutRef = useRef<NodeJS.Timeout | null>(null);
 
-  const scrollToId = useCallback((id: string) => {
+  // 환경에 상관없이 setTimeout 반환 타입을 안전하게 추론 하도록 수정
+  const timeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  const scrollToId = (id: string) => {
     isClickScrolling.current = true;
+
     startTransition(() => {
       setActiveId(id);
     });
@@ -23,13 +30,13 @@ export function useScrollSpy(ids: string[]) {
       if (timeoutRef.current) clearTimeout(timeoutRef.current);
       timeoutRef.current = setTimeout(() => {
         isClickScrolling.current = false;
-      }, 1000); // 모바일 고려.
+      }, 1000); // 모바일 스크롤 고려.
     }
-  }, []);
+  };
 
   useEffect(() => {
     const container = containerRef.current;
-    if (!container) return;
+    if (!container || ids.length === 0) return;
 
     if (observerRef.current) observerRef.current.disconnect();
 
