@@ -1,12 +1,8 @@
-'use client';
-
-// 카테고리별 섹션을 렌더링하고, 각 섹션 내부에 하위 카테고리 리스트를 그리드 형태로 보여주는 컴포넌트
-
-import { memo } from 'react';
 import { Category } from '@/mocks/category-data';
 import { SubCategoryItem } from './subcategory-item';
 
-export const CategoryContentList = memo(function CategoryContentList({
+// 카테고리별 섹션을 렌더링하고, 각 섹션 내부에 하위 카테고리 리스트를 그리드 형태로 보여주는 컴포넌트
+export function CategoryContentList({
   categories,
 }: {
   categories: Category[];
@@ -36,4 +32,4 @@ export const CategoryContentList = memo(function CategoryContentList({
       ))}
     </>
   );
-});
+}
