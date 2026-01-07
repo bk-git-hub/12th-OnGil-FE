@@ -12,11 +12,9 @@ export const useSpeechRecognition = ({
   onClose,
 }: UseSpeechProps) => {
   const [transcript, setTranscript] = useState('');
-
   const timerRef = useRef<NodeJS.Timeout | null>(null);
-  const finalTranscriptRef = useRef(''); // 확정된 텍스트 누적
-  const latestTextRef = useRef(''); // 비동기 타이머 참조용 (state 불일치 방지)
 
+  // 음성 인식 엔진의 생명주기 관리 (Mount 시 시작, Unmount 시 종료)
   useEffect(() => {
     const RecognitionClass =
       window.SpeechRecognition || window.webkitSpeechRecognition;
@@ -31,45 +29,42 @@ export const useSpeechRecognition = ({
     recognition.interimResults = true;
     recognition.continuous = false;
 
-    const resetTimer = () => {
-      if (timerRef.current) clearTimeout(timerRef.current);
-      timerRef.current = setTimeout(() => {
-        const finalOutput = latestTextRef.current.trim();
-        if (finalOutput) onFinalResult(finalOutput);
-        onClose();
-      }, SILENCE_TIME);
-    };
-
     recognition.onresult = (event) => {
-      let interim = '';
-      for (let i = event.resultIndex; i < event.results.length; ++i) {
-        const res = event.results[i];
-        if (res.isFinal) finalTranscriptRef.current += res[0].transcript;
-        else interim += res[0].transcript;
+      // event.results는 현재 세션의 모든 결과를 포함하므로 별도의 Ref 누적이 필요 없음
+      let current = '';
+      for (let i = 0; i < event.results.length; i++) {
+        current += event.results[i][0].transcript;
       }
-
-      const combined = (finalTranscriptRef.current + interim).trim();
-
-      // UI 업데이트와 비동기 참조용 Ref를 동시 갱신
-      setTranscript(combined);
-      latestTextRef.current = combined;
-      resetTimer();
+      setTranscript(current);
     };
 
     recognition.onerror = () => onClose();
-    recognition.onend = () => {
-      /* 필요 시 재시작 로직 추가 가능 */
-    };
 
+    // 컴포넌트 마운트 시 즉시 시작
     recognition.start();
-    resetTimer();
+
+    // 언마운트 시 엔진 중단 (VoiceOverlay가 사라지면 자동으로 꺼짐)
+    return () => {
+      recognition.stop();
+    };
+  }, [onClose]);
+
+  // 침묵 타이머 관리 (반응형 로직)
+  // transcript가 업데이트될 때마다 이 Effect가 실행되어 타이머를 리셋함
+  useEffect(() => {
+    if (!transcript) return;
+
+    if (timerRef.current) clearTimeout(timerRef.current);
+
+    timerRef.current = setTimeout(() => {
+      onFinalResult(transcript.trim());
+      onClose();
+    }, SILENCE_TIME);
 
     return () => {
       if (timerRef.current) clearTimeout(timerRef.current);
-      recognition.stop();
     };
-    // 리액트 컴파일러가 onFinalResult, onClose의 identity를 보장하므로 안전함
-  }, [onFinalResult, onClose]);
+  }, [transcript, onFinalResult, onClose]);
 
   return { transcript };
 };
