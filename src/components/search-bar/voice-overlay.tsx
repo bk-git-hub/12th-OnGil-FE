@@ -1,38 +1,29 @@
-import { useRef, useEffect } from 'react';
+import { useEffect } from 'react';
 import { Mic } from 'lucide-react';
 import { useSpeechRecognition } from './use-speech-recognition';
-import { useAudioLevel } from './use-audio-level';
 
 interface VoiceOverlayProps {
   isListening: boolean;
   onClose: () => void;
   onFinalResult: (text: string) => void;
 }
+
 export const VoiceOverlay = ({
   isListening,
   onClose,
   onFinalResult,
 }: VoiceOverlayProps) => {
-  const rippleOuterRef = useRef<HTMLDivElement>(null);
-  const rippleInnerRef = useRef<HTMLDivElement>(null);
-
-  const { startAnalysis, stopAnalysis } = useAudioLevel((level) => {
-    if (rippleOuterRef.current)
-      rippleOuterRef.current.style.transform = `scale(${1 + level * 0.8})`;
-    if (rippleInnerRef.current)
-      rippleInnerRef.current.style.transform = `scale(${1 + level * 0.5})`;
-  });
-
   const { transcript, start, stop } = useSpeechRecognition({
-    onStart: startAnalysis,
-    onEnd: stopAnalysis,
-    onFinalResult, //  침묵 시 호출됨
-    onClose, //  침묵 시 부모를 닫기 위해 호출됨
+    onFinalResult, // 침묵 시 최종 결과 전달
+    onClose, // 침묵 시 UI 닫기
   });
 
   useEffect(() => {
-    if (isListening) start();
-    else stop();
+    if (isListening) {
+      start();
+    } else {
+      stop();
+    }
   }, [isListening, start, stop]);
 
   if (!isListening) return null;
@@ -40,16 +31,7 @@ export const VoiceOverlay = ({
   return (
     <div className="fixed inset-0 z-100 flex flex-col items-center justify-center bg-black/80 p-6 text-white backdrop-blur-xl">
       <div className="relative mb-12 flex items-center justify-center">
-        <div
-          ref={rippleOuterRef}
-          className="absolute rounded-full bg-red-500/10 transition-transform duration-100 ease-out"
-          style={{ width: '180px', height: '180px', willChange: 'transform' }}
-        />
-        <div
-          ref={rippleInnerRef}
-          className="absolute rounded-full bg-red-500/20 transition-transform duration-100 ease-out"
-          style={{ width: '140px', height: '140px', willChange: 'transform' }}
-        />
+        {/* 시각적 피드백(Ripple) 제거, 마이크 아이콘만 유지 */}
         <div className="relative z-10 rounded-full bg-red-600 p-8 shadow-2xl">
           <Mic size={64} strokeWidth={2.5} />
         </div>

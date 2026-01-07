@@ -4,10 +4,10 @@ interface UseSpeechProps {
   onStart?: () => void;
   onEnd?: () => void;
   onFinalResult: (transcript: string) => void;
-  onClose: () => void; // 부모의 상태를 닫기 위해 필수
+  onClose: () => void;
 }
 
-const SILENCE_TIME = 2000;
+const SILENCE_TIME = 2000; // 2초 침묵 시 종료
 
 export const useSpeechRecognition = ({
   onStart,
@@ -18,7 +18,7 @@ export const useSpeechRecognition = ({
   const [transcript, setTranscript] = useState('');
   const recognitionRef = useRef<SpeechRecognition | null>(null);
   const timerRef = useRef<NodeJS.Timeout | null>(null);
-  const transcriptRef = useRef(''); // 타이머 클로저 문제 해결용
+  const transcriptRef = useRef('');
 
   const clearTimer = () => {
     if (timerRef.current) clearTimeout(timerRef.current);
@@ -33,11 +33,10 @@ export const useSpeechRecognition = ({
     onEnd?.();
   };
 
-  // 3초 침묵 시 실행될 함수
   const handleSilenceTimeout = () => {
-    onFinalResult(transcriptRef.current); // 최종 텍스트 전달
-    stop(); // 하드웨어 정지
-    onClose(); // 부모 UI 닫기
+    onFinalResult(transcriptRef.current);
+    stop();
+    onClose();
   };
 
   const start = () => {
@@ -50,13 +49,12 @@ export const useSpeechRecognition = ({
 
     recognition.lang = 'ko-KR';
     recognition.interimResults = true;
-    recognition.continuous = true; // 문장 판단과 상관없이 계속 듣기
+    recognition.continuous = true;
 
     recognition.onstart = () => {
       setTranscript('');
       transcriptRef.current = '';
       onStart?.();
-      // 시작하자마자 3초 타이머 가동 (아무 말 안 할 경우 대비)
       clearTimer();
       timerRef.current = setTimeout(handleSilenceTimeout, SILENCE_TIME);
     };
@@ -69,7 +67,6 @@ export const useSpeechRecognition = ({
       setTranscript(current);
       transcriptRef.current = current;
 
-      // 소리가 입력될 때마다 타이머 3초 리셋
       clearTimer();
       timerRef.current = setTimeout(handleSilenceTimeout, SILENCE_TIME);
     };
