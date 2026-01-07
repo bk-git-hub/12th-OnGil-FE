@@ -1,60 +1,66 @@
 import { useState, useRef, useEffect } from 'react';
 
 interface UseSpeechProps {
-  onStart?: () => void;
-  onEnd?: () => void;
   onFinalResult: (transcript: string) => void;
   onClose: () => void;
 }
 
-const SILENCE_TIME = 2000; // 2초 침묵 시 종료
+const SILENCE_TIME = 2000;
 
 export const useSpeechRecognition = ({
-  onStart,
-  onEnd,
   onFinalResult,
   onClose,
 }: UseSpeechProps) => {
   const [transcript, setTranscript] = useState('');
   const recognitionRef = useRef<SpeechRecognition | null>(null);
   const timerRef = useRef<NodeJS.Timeout | null>(null);
+
+  const isStarted = useRef(false);
   const transcriptRef = useRef('');
+  const callbacks = useRef({ onFinalResult, onClose });
 
   const clearTimer = () => {
-    if (timerRef.current) clearTimeout(timerRef.current);
-  };
-
-  const stop = () => {
-    if (recognitionRef.current) {
-      recognitionRef.current.abort();
-      recognitionRef.current = null;
+    if (timerRef.current) {
+      clearTimeout(timerRef.current);
+      timerRef.current = null;
     }
-    clearTimer();
-    onEnd?.();
   };
 
   const handleSilenceTimeout = () => {
-    onFinalResult(transcriptRef.current);
+    callbacks.current.onFinalResult(transcriptRef.current);
     stop();
-    onClose();
+    callbacks.current.onClose();
+  };
+
+  const stop = () => {
+    clearTimer();
+    if (recognitionRef.current && isStarted.current) {
+      try {
+        recognitionRef.current.stop();
+      } catch (e) {
+        recognitionRef.current.abort();
+      }
+      isStarted.current = false;
+    }
   };
 
   const start = () => {
     const RecognitionClass =
       window.SpeechRecognition || window.webkitSpeechRecognition;
+
     if (!RecognitionClass) return alert('지원하지 않는 브라우저입니다.');
+    if (isStarted.current) return;
 
     const recognition = new RecognitionClass();
     recognitionRef.current = recognition;
-
     recognition.lang = 'ko-KR';
     recognition.interimResults = true;
     recognition.continuous = true;
 
     recognition.onstart = () => {
+      isStarted.current = true;
       setTranscript('');
       transcriptRef.current = '';
-      onStart?.();
       clearTimer();
       timerRef.current = setTimeout(handleSilenceTimeout, SILENCE_TIME);
     };
@@ -72,16 +78,15 @@ export const useSpeechRecognition = ({
     };
 
     recognition.onerror = () => stop();
-    recognition.onend = () => onEnd?.();
+    recognition.onend = () => {
+      isStarted.current = false;
+    };
 
     recognition.start();
   };
 
   useEffect(() => {
-    return () => {
-      clearTimer();
-      if (recognitionRef.current) recognitionRef.current.abort();
-    };
+    return () => stop();
   }, []);
 
   return { transcript, start, stop };

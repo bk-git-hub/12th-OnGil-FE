@@ -14,8 +14,8 @@ export const VoiceOverlay = ({
   onFinalResult,
 }: VoiceOverlayProps) => {
   const { transcript, start, stop } = useSpeechRecognition({
-    onFinalResult, // 침묵 시 최종 결과 전달
-    onClose, // 침묵 시 UI 닫기
+    onFinalResult,
+    onClose,
   });
 
   useEffect(() => {
@@ -24,14 +24,13 @@ export const VoiceOverlay = ({
     } else {
       stop();
     }
-  }, [isListening, start, stop]);
+  }, [isListening]);
 
   if (!isListening) return null;
 
   return (
-    <div className="fixed inset-0 z-100 flex flex-col items-center justify-center bg-black/80 p-6 text-white backdrop-blur-xl">
+    <div className="fixed inset-0 z-[100] flex flex-col items-center justify-center bg-black/80 p-6 text-white backdrop-blur-xl">
       <div className="relative mb-12 flex items-center justify-center">
-        {/* 시각적 피드백(Ripple) 제거, 마이크 아이콘만 유지 */}
         <div className="relative z-10 rounded-full bg-red-600 p-8 shadow-2xl">
           <Mic size={64} strokeWidth={2.5} />
         </div>
