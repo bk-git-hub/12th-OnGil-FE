@@ -29,7 +29,7 @@ export const useSpeechRecognition = ({
     const recognition = new RecognitionClass();
     recognition.lang = 'ko-KR';
     recognition.interimResults = true;
-    recognition.continuous = true;
+    recognition.continuous = false;
 
     const resetTimer = () => {
       if (timerRef.current) clearTimeout(timerRef.current);
