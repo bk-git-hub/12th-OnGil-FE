@@ -13,11 +13,12 @@ export default function SearchBar() {
       {/* 음성 입력 중에도 SearchBar(부모)는 리렌더링되지 않음.
          오직 최종 결과가 나왔을 때 setQuery가 실행되면서 딱 한 번 다시 그려짐.
       */}
-      <VoiceOverlay
-        isListening={isVoiceActive}
-        onClose={() => setIsVoiceActive(false)}
-        onFinalResult={(text) => setQuery(text)}
-      />
+      {isVoiceActive && (
+        <VoiceOverlay
+          onClose={() => setIsVoiceActive(false)}
+          onFinalResult={(text) => setQuery(text)}
+        />
+      )}
 
       <form
         onSubmit={(e) => e.preventDefault()}
