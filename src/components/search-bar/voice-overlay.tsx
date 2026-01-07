@@ -17,7 +17,7 @@ export const VoiceOverlay = ({ onClose, onFinalResult }: VoiceOverlayProps) => {
   });
 
   return (
-    <div className="fixed inset-0 z-[100] flex flex-col items-center justify-center bg-black/80 p-6 text-white backdrop-blur-xl">
+    <div className="fixed inset-0 z-100 flex flex-col items-center justify-center bg-black/80 p-6 text-white backdrop-blur-xl">
       <div className="relative mb-12 flex items-center justify-center">
         {/* 복잡한 애니메이션 제거, 명확한 마이크 아이콘만 유지 */}
         <div className="relative z-10 rounded-full bg-red-600 p-8 shadow-2xl">
