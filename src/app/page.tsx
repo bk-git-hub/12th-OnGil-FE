@@ -7,11 +7,14 @@ import {
 import { MAIN_CATEGORIES } from '@/mocks/categories';
 import MainHeader from '@/components/layout/main-header';
 import MainNavBar from '@/components/layout/main-nav-bar';
+import NotificationManager from '@/components/pwa/notification-test';
+import InstallPrompt from '@/components/pwa/install-prompt';
 
 export default async function Home() {
   return (
     <div className="flex flex-col items-center">
       <MainHeader />
+      <NotificationManager />
 
       <CarouselWithDots />
       <RecommendCarousel heading="추천 카테고리">
@@ -23,6 +26,7 @@ export default async function Home() {
       </RecommendCarousel>
 
       <MainNavBar />
+      <InstallPrompt />
     </div>
   );
 }
