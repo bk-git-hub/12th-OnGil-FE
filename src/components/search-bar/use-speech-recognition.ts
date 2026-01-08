@@ -1,91 +1,70 @@
 import { useState, useRef, useEffect } from 'react';
 
 interface UseSpeechProps {
-  onStart?: () => void;
-  onEnd?: () => void;
   onFinalResult: (transcript: string) => void;
-  onClose: () => void; // 부모의 상태를 닫기 위해 필수
+  onClose: () => void;
 }
 
 const SILENCE_TIME = 2000;
 
 export const useSpeechRecognition = ({
-  onStart,
-  onEnd,
   onFinalResult,
   onClose,
 }: UseSpeechProps) => {
   const [transcript, setTranscript] = useState('');
-  const recognitionRef = useRef<SpeechRecognition | null>(null);
   const timerRef = useRef<NodeJS.Timeout | null>(null);
-  const transcriptRef = useRef(''); // 타이머 클로저 문제 해결용
 
-  const clearTimer = () => {
-    if (timerRef.current) clearTimeout(timerRef.current);
-  };
-
-  const stop = () => {
-    if (recognitionRef.current) {
-      recognitionRef.current.abort();
-      recognitionRef.current = null;
-    }
-    clearTimer();
-    onEnd?.();
-  };
-
-  // 3초 침묵 시 실행될 함수
-  const handleSilenceTimeout = () => {
-    onFinalResult(transcriptRef.current); // 최종 텍스트 전달
-    stop(); // 하드웨어 정지
-    onClose(); // 부모 UI 닫기
-  };
-
-  const start = () => {
+  // 음성 인식 엔진의 생명주기 관리 (Mount 시 시작, Unmount 시 종료)
+  useEffect(() => {
     const RecognitionClass =
       window.SpeechRecognition || window.webkitSpeechRecognition;
-    if (!RecognitionClass) return alert('지원하지 않는 브라우저입니다.');
+    if (!RecognitionClass) {
+      alert('지원하지 않는 브라우저입니다.');
+      onClose();
+      return;
+    }
 
     const recognition = new RecognitionClass();
-    recognitionRef.current = recognition;
-
     recognition.lang = 'ko-KR';
     recognition.interimResults = true;
-    recognition.continuous = true; // 문장 판단과 상관없이 계속 듣기
+    recognition.continuous = false;
 
-    recognition.onstart = () => {
-      setTranscript('');
-      transcriptRef.current = '';
-      onStart?.();
-      // 시작하자마자 3초 타이머 가동 (아무 말 안 할 경우 대비)
-      clearTimer();
-      timerRef.current = setTimeout(handleSilenceTimeout, SILENCE_TIME);
-    };
-
-    recognition.onresult = (e) => {
-      const current = Array.from(e.results)
-        .map((result) => result[0].transcript)
-        .join('');
-
+    recognition.onresult = (event) => {
+      // event.results는 현재 세션의 모든 결과를 포함하므로 별도의 Ref 누적이 필요 없음
+      let current = '';
+      for (let i = 0; i < event.results.length; i++) {
+        current += event.results[i][0].transcript;
+      }
       setTranscript(current);
-      transcriptRef.current = current;
-
-      // 소리가 입력될 때마다 타이머 3초 리셋
-      clearTimer();
-      timerRef.current = setTimeout(handleSilenceTimeout, SILENCE_TIME);
     };
 
-    recognition.onerror = () => stop();
-    recognition.onend = () => onEnd?.();
+    recognition.onerror = () => onClose();
 
+    // 컴포넌트 마운트 시 즉시 시작
     recognition.start();
-  };
 
-  useEffect(() => {
+    // 언마운트 시 엔진 중단 (VoiceOverlay가 사라지면 자동으로 꺼짐)
     return () => {
-      clearTimer();
-      if (recognitionRef.current) recognitionRef.current.abort();
+      recognition.stop();
     };
-  }, []);
+  }, [onClose]);
 
-  return { transcript, start, stop };
+  // 침묵 타이머 관리 (반응형 로직)
+  // transcript가 업데이트될 때마다 이 Effect가 실행되어 타이머를 리셋함
+  useEffect(() => {
+    if (!transcript) return;
+
+    if (timerRef.current) clearTimeout(timerRef.current);
+
+    timerRef.current = setTimeout(() => {
+      onFinalResult(transcript.trim());
+      onClose();
+    }, SILENCE_TIME);
+
+    return () => {
+      if (timerRef.current) clearTimeout(timerRef.current);
+    };
+  }, [transcript, onFinalResult, onClose]);
+
+  return { transcript };
 };
