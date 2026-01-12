@@ -1,14 +1,15 @@
 import { CarouselWithDots } from '@/components/banner-carousel';
 import {
-  CategoryCarouselCard,
+  RecommendedCategoryCard,
   RecommendCarousel,
   RecommendCarouselItem,
+  RecommendedProductCard,
 } from '@/components/recommend-carousel';
 import { MAIN_CATEGORIES } from '@/mocks/categories';
 import MainHeader from '@/components/layout/main-header';
 import MainNavBar from '@/components/layout/main-nav-bar';
 import NotificationManager from '@/components/pwa/notification-test';
-import InstallPrompt from '@/components/pwa/install-prompt';
+import { MOCK_PRODUCTS } from '@/mocks/brands-and-products';
 
 export default async function Home() {
   return (
@@ -20,13 +21,20 @@ export default async function Home() {
       <RecommendCarousel heading="추천 카테고리">
         {MAIN_CATEGORIES.map((category) => (
           <RecommendCarouselItem key={category.id}>
-            <CategoryCarouselCard category={category} />
+            <RecommendedCategoryCard category={category} />
+          </RecommendCarouselItem>
+        ))}
+      </RecommendCarousel>
+
+      <RecommendCarousel heading="추천 상품">
+        {MOCK_PRODUCTS.map((product) => (
+          <RecommendCarouselItem key={product.id}>
+            <RecommendedProductCard productInfo={product} />
           </RecommendCarouselItem>
         ))}
       </RecommendCarousel>
 
       <MainNavBar />
-      <InstallPrompt />
     </div>
   );
 }
