@@ -1,25 +1,49 @@
-import { Product } from '@/types/products';
+'use client';
+
+import { Product, Brand } from '@/types/products';
 import { useState } from 'react';
+import RecommendedBrandHeader from './recommended-brand-header';
+import RecommendedBrandGridCard from './recommended-brand-grid-card';
 
 interface RecommendedBrandContainerProps {
-  brands: string[];
-  products0: Product[];
-  products1: Product[];
-  products2: Product[];
+  brands: Brand[];
+
+  productLists: Product[][];
 }
 
 export default function RecommendedBrandContainer({
   brands,
-  products0,
-  products1,
-  products2,
+  productLists,
 }: RecommendedBrandContainerProps) {
   const [selectedIndex, setSelectedIndex] = useState<number>(0);
-  const [products, setProducts] = useState<Product[]>(products0);
+
+  const currentBrand = brands[selectedIndex];
+  const currentProducts = productLists[selectedIndex] || [];
 
   return (
-    <div className="flex">
-      <button className="w-25 rounded-l-[10px] px-6 py-3"></button>
+    <div className="flex w-full flex-col p-4">
+      <RecommendedBrandHeader
+        brands={brands}
+        onClick={setSelectedIndex}
+        selectedIndex={selectedIndex}
+      />
+
+      <div className="mt-4">
+        <h2 className="text-xl font-bold">{currentBrand.name}</h2>
+        <div className="mt-2">
+          {currentProducts.length > 0 ? (
+            <ul className="grid grid-cols-2">
+              {currentProducts.map((product) => (
+                <li key={product.id}>
+                  <RecommendedBrandGridCard product={product} />
+                </li>
+              ))}
+            </ul>
+          ) : (
+            <p>No products available for this brand.</p>
+          )}
+        </div>
+      </div>
     </div>
   );
 }
