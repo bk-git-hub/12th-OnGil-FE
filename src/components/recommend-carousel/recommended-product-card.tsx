@@ -6,28 +6,28 @@ export function RecommendedProductCard({
   productInfo: Product;
 }) {
   let priceDisplay;
-  if (productInfo.isOnSale) {
+  if (productInfo.discountPrice !== undefined) {
     priceDisplay = (
       <div className="flex gap-2">
-        <span>{productInfo.price}</span>{' '}
+        <span>{productInfo.finalPrice}</span>{' '}
         <span className="line-through">{productInfo.originalPrice}</span>{' '}
       </div>
     );
   } else {
-    priceDisplay = <span>{productInfo.price}</span>;
+    priceDisplay = <span>{productInfo.finalPrice}</span>;
   }
 
   return (
     <div className="flex flex-col rounded-[10px] border border-[#d9d9d9] pt-6 shadow-md">
       <img
-        src={productInfo.imageUrl}
-        alt={`${productInfo.productName} 이미지`}
+        src={productInfo.thumbnailImageUrl}
+        alt={`${productInfo.name} 이미지`}
         width={238}
         height={264}
       />
       <div className="flex flex-col gap-2 px-4">
-        <span>{productInfo.brand}</span>
-        <span className="truncate">{productInfo.productName}</span>
+        <span>{productInfo.brandName}</span>
+        <span className="truncate">{productInfo.name}</span>
         {priceDisplay}
       </div>
     </div>
