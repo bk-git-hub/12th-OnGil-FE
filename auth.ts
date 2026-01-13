@@ -30,18 +30,22 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
         if (!parsed.success) return null;
         const { provider, code } = parsed.data;
 
-        const backendUrl = `${process.env.BACKEND_API_URL}auth/oauth/${provider}`;
-
+        const backendUrl = `${process.env.BACKEND_API_URL}auth/oauth/${provider}?code=${code}`;
+        console.log(backendUrl);
         try {
           const res = await fetch(backendUrl, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ code }),
+            // body: JSON.stringify({ code:code }),
           });
 
-          if (!res.ok) throw new Error('Backend verification failed');
+          if (!res.ok) {
+            const error = await res.json();
+            console.log(error);
+            throw new Error('Backend verification failed');
+          }
           const { data } = await res.json();
-
+          console.log(data);
           // Normalize to BackendUser shape
           return {
             userId: data.userId,
@@ -86,7 +90,7 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
 
           if (!res.ok) throw new Error('Invalid credentials'); // Or handle specific backend errors
           const { data } = await res.json();
-
+          console.log(data);
           // CRITICAL: Must return the SAME shape (BackendUser) as the social login
           return {
             userId: data.userId,
