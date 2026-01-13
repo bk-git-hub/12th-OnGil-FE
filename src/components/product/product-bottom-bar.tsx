@@ -30,16 +30,6 @@ export function ProductBottomBar() {
         찜하기
       </Button>
 
-      {/* 장바구니 버튼 */}
-      <Button
-        variant="ghost"
-        onClick={() => handleOpenOption('cart')}
-        className="flex h-auto flex-col items-center gap-1 hover:bg-gray-50"
-      >
-        <Image src="/icons/cart.svg" alt="장바구니" width={36} height={36} />
-        장바구니
-      </Button>
-
       {/* 구매하기 버튼 */}
       <Button
         variant="ghost"
@@ -48,6 +38,16 @@ export function ProductBottomBar() {
       >
         <Image src="/icons/tag.svg" alt="구매하기" width={36} height={36} />
         구매하기
+      </Button>
+
+      {/* 장바구니 버튼 */}
+      <Button
+        variant="ghost"
+        onClick={() => handleOpenOption('cart')}
+        className="flex h-auto flex-col items-center gap-1 hover:bg-gray-50"
+      >
+        <Image src="/icons/cart.svg" alt="장바구니" width={36} height={36} />
+        장바구니
       </Button>
     </div>
   );
