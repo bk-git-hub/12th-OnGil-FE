@@ -1,68 +1,118 @@
-import Link from 'next/link';
-import Image from 'next/image';
+'use client';
+
+import { useState, useRef, useEffect } from 'react';
 import { Product } from '@/mocks/product-data';
-import { ProductActions } from './product-actions';
+import { ProductImageSlider } from './product-image-slider';
+import { ProductInfo } from './product-info';
+import { ProductTab } from './product-tab';
+import { ProductBottomBar } from './product-bottom-bar';
+import { ProductDescription } from './sections/product-description';
+import { ScrollToTop } from '@/components/ui/scroll-to-top';
+import { cn } from '@/lib/utils';
+import { CompactProductHeader } from './compact-product-header';
 
 interface ProductDetailProps {
-  product: Product | null;
+  product: Product;
 }
 
+type TabType = 'desc' | 'size' | 'inquiry' | 'review';
+
 export function ProductDetail({ product }: ProductDetailProps) {
-  if (!product) {
-    return (
-      <div className="flex h-[50vh] flex-col items-center justify-center gap-4">
-        <p className="text-gray-500">상품 정보를 찾을 수 없습니다.</p>
-        <Link
-          href="/category"
-          className="rounded-md bg-black px-4 py-2 text-sm font-bold text-white"
-        >
-          목록으로 돌아가기
-        </Link>
-      </div>
+  const [activeTab, setActiveTab] = useState<TabType>('desc');
+  const [isTabSticky, setIsTabSticky] = useState(false);
+
+  // 위치 감지 및 스크롤 타겟용 Ref
+  const sentinelRef = useRef<HTMLDivElement>(null);
+
+  // 탭 변경 핸들러 (자동 스크롤 기능 포함)
+  const handleTabChange = (tab: TabType) => {
+    setActiveTab(tab);
+
+    if (sentinelRef.current) {
+      // 탭바 시작 위치(Sentinel)의 절대 좌표 계산
+      const elementRect = sentinelRef.current.getBoundingClientRect();
+      const absoluteElementTop = elementRect.top + window.scrollY;
+
+      // 해당 위치로 스크롤 이동
+      window.scrollTo({
+        top: absoluteElementTop,
+        behavior: 'smooth',
+      });
+    }
+  };
+
+  useEffect(() => {
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        // 스크롤 내리면 Sticky 활성화
+        setIsTabSticky(
+          !entry.isIntersecting && entry.boundingClientRect.top < 0,
+        );
+      },
+      { threshold: 0 },
     );
-  }
+
+    if (sentinelRef.current) {
+      observer.observe(sentinelRef.current);
+    }
+
+    return () => observer.disconnect();
+  }, []);
 
   return (
-    <div className="mx-auto min-h-screen max-w-screen-xl bg-white px-4 py-8">
-      <div className="grid grid-cols-1 gap-8 md:grid-cols-2">
-        <div className="relative aspect-square w-full overflow-hidden rounded-lg bg-gray-100">
-          <Image
-            src={product.imageUrl}
-            alt={product.name}
-            fill
-            className="object-cover"
-            priority
-          />
+    <div className="relative min-h-screen bg-white pb-32">
+      <ProductImageSlider imageUrl={product.imageUrl} />
+      <ProductInfo product={product} />
+
+      {/* 감지용 Sentinel: 탭바 바로 위에 위치 */}
+      <div
+        ref={sentinelRef}
+        className="pointer-events-none absolute h-0 w-full"
+      />
+
+      {/* Sticky 컨테이너: [요약 헤더] + [탭바] */}
+      <div
+        className={cn(
+          'sticky top-0 z-50 w-full bg-white transition-all duration-300',
+          isTabSticky ? 'shadow-md' : 'shadow-none',
+        )}
+      >
+        {/* 요약 정보 헤더 */}
+        <div
+          className={cn(
+            'overflow-hidden border-b border-gray-100 bg-white transition-[height,opacity] duration-300 ease-in-out',
+            isTabSticky ? 'h-16 opacity-100' : 'h-0 opacity-0',
+          )}
+        >
+          <CompactProductHeader product={product} />
         </div>
 
-        <div className="flex flex-col justify-between py-2">
-          <div className="space-y-4">
-            <div>
-              <h2 className="text-sm font-bold text-gray-500">
-                {product.brand}
-              </h2>
-              <h1 className="mt-1 text-2xl font-bold text-gray-900">
-                {product.name}
-              </h1>
-            </div>
-            <div className="border-t border-b py-4">
-              <div className="flex items-center gap-3">
-                <span className="text-2xl font-bold">
-                  {product.price.toLocaleString()}원
-                </span>
-                {product.discountRate && (
-                  <span className="text-xl font-bold text-red-600">
-                    {product.discountRate}%
-                  </span>
-                )}
-              </div>
-            </div>
-          </div>
-
-          {/* Client Component로 분리하여 사용자 상호작용 처리 */}
-          <ProductActions />
-        </div>
+        {/* 탭바 */}
+        <ProductTab activeTab={activeTab} onTabChange={handleTabChange} />
       </div>
+
+      {/* 탭 컨텐츠 영역 */}
+      <div className="min-h-screen px-4 py-8">
+        {activeTab === 'desc' && <ProductDescription product={product} />}
+        {activeTab === 'size' && (
+          <div className="rounded-lg bg-gray-50 py-20 text-center text-gray-500">
+            <p>사이즈 가이드 영역 (준비중)</p>
+          </div>
+        )}
+        {activeTab === 'inquiry' && (
+          <div className="rounded-lg bg-gray-50 py-20 text-center text-gray-500">
+            <p>문의 영역 (준비중)</p>
+          </div>
+        )}
+        {activeTab === 'review' && (
+          <div className="rounded-lg bg-gray-50 py-20 text-center text-gray-500">
+            <p>소재/리뷰 영역 (준비중)</p>
+          </div>
+        )}
+      </div>
+
+      <ScrollToTop isVisible={isTabSticky} />
+      <ProductBottomBar />
     </div>
   );
 }
