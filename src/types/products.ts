@@ -7,7 +7,7 @@ export interface Product {
   finalPrice: number;
   thumbnailImageUrl: string;
   brandName: string;
-  productType: 'NORMAL' | 'AUCTION' | string; // literal type if known, else string
+  productType: 'NORMAL' | 'AUCTION' | string;
   productTypeDescription: string;
   viewCount: number;
   purchaseCount: number;
@@ -43,6 +43,13 @@ export interface PageableInfo {
   offset: number;
   sort: SortInfo[];
   unpaged: boolean;
+}
+
+export interface Brand {
+  id: string;
+  name: string;
+  description?: string;
+  logoImageUrl: string;
 }
 
 export interface PaginatedData {
