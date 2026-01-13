@@ -9,7 +9,6 @@ export type Product = {
   categoryId: string;
   isSoldOut?: boolean;
 };
-
 // 브랜드, 가격, 할인율, 품절 여부 등이 무작위로 설정된 테스트용 상품 목업 데이터를 자동 생성하는 코드
 const REAL_PRODUCT_IMAGES = [
   'https://images.unsplash.com/photo-1521572163474-6864f9cf17ab?auto=format&fit=crop&w=500&q=80',
@@ -20,10 +19,9 @@ const REAL_PRODUCT_IMAGES = [
   'https://images.unsplash.com/photo-1618354691373-d851c5c3a990?auto=format&fit=crop&w=500&q=80',
 ];
 
-function getRandomImage() {
-  return REAL_PRODUCT_IMAGES[
-    Math.floor(Math.random() * REAL_PRODUCT_IMAGES.length)
-  ];
+// 인덱스를 기반으로 이미지를 가져와서 항상 같은 이미지가 나오게 함
+function getImageByIndex(index: number) {
+  return REAL_PRODUCT_IMAGES[index % REAL_PRODUCT_IMAGES.length];
 }
 
 function generateDummyProducts(
@@ -32,23 +30,20 @@ function generateDummyProducts(
   baseName: string,
 ): Product[] {
   return Array.from({ length: count }).map((_, i) => {
-    const isDiscount = Math.random() > 0.4;
-    const price = Math.floor(Math.random() * 20 + 3) * 10000 - 100; // 29,900 ~
+    // 인덱스 기반 로직
+    const isDiscount = i % 3 !== 0;
+    const price = (3 + (i % 5)) * 10000 - 100;
 
     return {
       id: `${categoryId}-${i}`,
       name: `${baseName} 에센셜 아이템 ${i + 1}`,
-      brand: ['MUSINSA STANDARD', 'NIKE', 'ADIDAS', 'LEE', 'COVERNAT'][
-        Math.floor(Math.random() * 5)
-      ],
+      brand: ['MUSINSA STANDARD', 'NIKE', 'ADIDAS', 'LEE', 'COVERNAT'][i % 5],
       price: price,
       originalPrice: isDiscount ? Math.floor(price * 1.3) : undefined,
-      discountRate: isDiscount
-        ? Math.floor(Math.random() * 30 + 10)
-        : undefined,
-      imageUrl: getRandomImage(),
+      discountRate: isDiscount ? 10 + (i % 5) * 5 : undefined,
+      imageUrl: getImageByIndex(i),
       categoryId: categoryId,
-      isSoldOut: Math.random() > 0.9,
+      isSoldOut: i % 10 === 9,
     };
   });
 }
