@@ -11,7 +11,7 @@ interface ProductCardProps {
 export function ProductCard({ product }: ProductCardProps) {
   return (
     <Link href={`/product/${product.id}`} className="group block">
-      <div className="relative aspect-[3/4] w-full overflow-hidden rounded-lg bg-gray-100">
+      <div className="relative aspect-3/4 w-full overflow-hidden rounded-lg bg-gray-100">
         <Image
           src={product.imageUrl}
           alt={product.name}
@@ -21,7 +21,6 @@ export function ProductCard({ product }: ProductCardProps) {
             product.isSoldOut && 'opacity-50 grayscale',
           )}
           sizes="(max-width: 768px) 50vw, (max-width: 1024px) 33vw, 25vw"
-          loading="lazy"
         />
 
         {product.isSoldOut && (
