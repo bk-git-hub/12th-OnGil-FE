@@ -10,7 +10,7 @@ interface ProductListProps {
 
 export function ProductList({ products, title }: ProductListProps) {
   return (
-    <div className="mx-auto min-h-screen max-w-screen-xl bg-white">
+    <div className="mx-auto min-h-screen max-w-7xl bg-white">
       <header className="sticky top-0 z-10 flex items-center justify-center border-b bg-white px-4 py-3">
         <h1 className="text-lg font-bold">{title}</h1>
       </header>
