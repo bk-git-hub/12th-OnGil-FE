@@ -2,18 +2,8 @@ import NextAuth from 'next-auth';
 import Credentials from 'next-auth/providers/credentials';
 import { z } from 'zod';
 
-interface BackendUser {
-  userId: string;
-  name: string;
-  accessToken: string;
-  refreshToken: string;
-}
-
 export const { handlers, signIn, signOut, auth } = NextAuth({
   providers: [
-    // ----------------------------------------------------------------
-    // 1. Social Login (Kakao / Google) - Wraps the "Code" exchange
-    // ----------------------------------------------------------------
     Credentials({
       id: 'external-oauth',
       name: 'External OAuth',
@@ -22,7 +12,6 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
         code: { label: 'Code', type: 'text' },
       },
       async authorize(credentials) {
-        // ... (Your existing logic for Social Login) ...
         const parsed = z
           .object({ provider: z.enum(['google', 'kakao']), code: z.string() })
           .safeParse(credentials);
@@ -36,7 +25,6 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
           const res = await fetch(backendUrl, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            // body: JSON.stringify({ code:code }),
           });
 
           if (!res.ok) {
@@ -46,13 +34,14 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
           }
           const { data } = await res.json();
           console.log(data);
-          // Normalize to BackendUser shape
+
           return {
             userId: data.userId,
-            name: data.user.name,
+            nickName: data.nickName,
             accessToken: data.accessToken,
             refreshToken: data.refreshToken,
-          } as BackendUser;
+            profileUrl: data.profileUrl || null,
+          };
         } catch (error) {
           console.error('Social Auth Error:', error);
           return null;
@@ -60,11 +49,8 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
       },
     }),
 
-    // ----------------------------------------------------------------
-    // 2. ID / Password Login
-    // ----------------------------------------------------------------
     Credentials({
-      id: 'credentials-login', // UNIQUE ID for this strategy
+      id: 'credentials-login',
       name: 'Email & Password',
       credentials: {
         email: { label: 'Email', type: 'email' },
@@ -72,13 +58,12 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
       },
       async authorize(credentials) {
         const parsed = z
-          .object({ email: z.string().email(), password: z.string().min(1) })
+          .object({ email: z.string().min(1), password: z.string().min(1) })
           .safeParse(credentials);
 
         if (!parsed.success) return null;
         const { email, password } = parsed.data;
 
-        // Call your backend's standard login endpoint
         const backendUrl = `${process.env.BACKEND_API_URL}/auth/login`;
 
         try {
@@ -88,16 +73,17 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
             body: JSON.stringify({ email, password }),
           });
 
-          if (!res.ok) throw new Error('Invalid credentials'); // Or handle specific backend errors
+          if (!res.ok) throw new Error('Invalid credentials');
           const { data } = await res.json();
           console.log(data);
-          // CRITICAL: Must return the SAME shape (BackendUser) as the social login
+
           return {
             userId: data.userId,
-            name: data.name,
+            nickName: data.nickName,
             accessToken: data.accessToken,
             refreshToken: data.refreshToken,
-          } as BackendUser;
+            profileUrl: data.profileUrl,
+          };
         } catch (error) {
           console.error('Login Error:', error);
           return null;
@@ -106,24 +92,22 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
     }),
   ],
 
-  // ----------------------------------------------------------------
-  // Callbacks (Shared by BOTH providers)
-  // ----------------------------------------------------------------
   callbacks: {
     async jwt({ token, user }) {
-      // This 'user' object comes from whichever 'authorize' function ran successfully
       if (user) {
-        const u = user as BackendUser;
+        const u = user;
         token.accessToken = u.accessToken;
         token.refreshToken = u.refreshToken;
         token.userId = u.userId;
+        token.nickName = u.nickName;
+        token.profileUrl = u.profileUrl;
       }
       return token;
     },
     async session({ session, token }) {
       session.userId = token.userId as string;
-      // @ts-expect-error - extending session type
       session.accessToken = token.accessToken;
+
       return session;
     },
   },
