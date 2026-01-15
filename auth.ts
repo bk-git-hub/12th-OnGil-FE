@@ -100,14 +100,16 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
         token.refreshToken = u.refreshToken;
         token.userId = u.userId;
         token.nickName = u.nickName;
-        token.profileUrl = u.profileUrl;
+        token.profileImageUrl = u.profileUrl;
       }
       return token;
     },
     async session({ session, token }) {
-      session.userId = token.userId as string;
+      session.user.userId = token.userId as string;
+      session.user.nickName = token.nickName as string;
+      session.user.profileUrl = token.profileImageUrl;
       session.accessToken = token.accessToken;
-
+      session.refreshToken = token.refreshToken;
       return session;
     },
   },
