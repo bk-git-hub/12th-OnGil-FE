@@ -3,7 +3,7 @@
 import { useState, useRef, useEffect } from 'react';
 import { usePathname } from 'next/navigation';
 import { cn } from '@/lib/utils';
-import { useProductInteraction } from '@/components/product/product-interaction-context';
+import { useProductInteraction } from '@/components/product';
 
 interface ProductStickyContainerProps {
   children: React.ReactNode;

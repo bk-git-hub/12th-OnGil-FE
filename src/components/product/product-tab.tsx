@@ -3,7 +3,7 @@
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { cn } from '@/lib/utils';
-import { useProductInteraction } from '@/components/product/product-interaction-context';
+import { useProductInteraction } from '@/components/product';
 import { PRODUCT_TABS } from '@/config/product-tabs';
 
 // 상품 상세 정보 탭 컴포넌트

@@ -1,17 +1,21 @@
 import { notFound } from 'next/navigation';
 import { Metadata } from 'next';
 import { getProductById } from '@/components/product/product-service';
-import { ProductImageSlider } from '@/components/product/product-image-slider';
-import { ProductInfo } from '@/components/product/product-info';
-import { ProductBottomBar } from '@/components/product/product-bottom-bar';
-import { CompactProductHeader } from '@/components/product/compact-product-header';
-import { ProductInteractionProvider } from '@/components/product/product-interaction-context';
-import { ProductStickyContainer } from '@/components/product/descriptions/product-sticky-container';
-import { ProductTab } from '@/components/product/product-tab';
 import { ScrollToTop } from '@/components/ui/scroll-to-top';
-import { ProductNotice } from '@/components/product/product-notice';
-import { RecommendedProductsCarousel } from '@/components/product/recommended-products-carousel';
+
 import { PRODUCTS } from '@/mocks/product-data';
+
+import {
+  ProductImageSlider,
+  ProductInfo,
+  ProductBottomBar,
+  CompactProductHeader,
+  ProductTab,
+  ProductNotice,
+  RecommendedProductsCarousel,
+  ProductInteractionProvider,
+  ProductStickyContainer,
+} from '@/components/product';
 
 interface LayoutProps {
   children: React.ReactNode;
