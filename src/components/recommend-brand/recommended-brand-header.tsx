@@ -12,7 +12,7 @@ export default function RecommendedBrandHeader({
   selectedIndex,
 }: Props) {
   return (
-    <div className="flex w-full text-white">
+    <div className="flex w-full gap-3 text-xl text-white">
       {brands.map((brand, index) => {
         const isSelected = index === selectedIndex;
 
