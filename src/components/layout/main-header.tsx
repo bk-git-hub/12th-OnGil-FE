@@ -1,21 +1,29 @@
-import SearchBar from '../search-bar';
+'use client';
+
+import { useState } from 'react';
+import SearchBar from '../search-bar/search-bar';
 
 export default function MainHeader() {
-  return (
-    <div className="sticky top-0 z-100 flex w-full items-center justify-between gap-2.5 bg-white px-4 py-5 shadow-[0_4px_4px_0_rgba(0,0,0,0.25)]">
-      <SearchBar />
+  const [isSearchFocused, setIsSearchFocused] = useState(false);
 
-      <div className="flex items-center gap-2">
-        <button className="flex flex-col items-center">
-          <img src="/icons/cart.svg" alt="장바구니" width={30} height={30} />
-          <span className="font-pretendard text-[11px] break-keep">
-            장바구니
-          </span>
-        </button>
-        <button className="flex shrink-0 flex-col items-center">
-          <img src="/icons/notice.svg" alt="알림" width={30} height={30} />
-          <span className="font-pretendard text-[11px] break-keep">알림</span>
-        </button>
+  return (
+    <div className="sticky top-0 z-100 flex w-full items-center justify-between bg-white p-5 shadow-[0_4px_4px_0_rgba(0,0,0,0.25)]">
+      <SearchBar onFocusChange={setIsSearchFocused} />
+      <div
+        className={`flex items-center overflow-hidden whitespace-nowrap transition-all duration-500 ease-in-out ${
+          isSearchFocused ? 'max-w-0 opacity-0' : 'ml-2 max-w-50 opacity-100'
+        } `}
+      >
+        <div className="flex items-center gap-2">
+          <button className="flex flex-col items-center px-1">
+            <img src="/icons/cart.svg" alt="장바구니" width={30} height={30} />
+            <span className="font-pretendard text-[11px]">장바구니</span>
+          </button>
+          <button className="flex shrink-0 flex-col items-center px-1">
+            <img src="/icons/notice.svg" alt="알림" width={30} height={30} />
+            <span className="font-pretendard text-[11px]">알림</span>
+          </button>
+        </div>
       </div>
     </div>
   );
