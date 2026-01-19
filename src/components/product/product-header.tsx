@@ -36,7 +36,12 @@ export function ProductHeader({ categoryID }: ProductHeaderProps) {
           className="flex h-10 w-10 items-center justify-center transition-opacity hover:opacity-70"
           aria-label="검색 열기"
         >
-          <Image src="/icons/search.svg" width={24} height={24} alt="검색" />
+          <Image
+            src="/icons/search-black.svg"
+            width={24}
+            height={24}
+            alt="검색"
+          />
         </Link>
 
         <Link
