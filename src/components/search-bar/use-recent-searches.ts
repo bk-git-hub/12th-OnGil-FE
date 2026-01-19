@@ -1,54 +1,85 @@
-// hooks/use-local-storage.ts
 import { useSyncExternalStore } from 'react';
 
-// A custom event to notify subscribers when storage changes
+// --- Core Storage Logic (Low-level) ---
+
 const dispatchStorageEvent = (key: string, newValue: string) => {
-  window.dispatchEvent(new StorageEvent('storage', { key, newValue }));
-  // Also dispatch a custom event for the current tab to react
-  window.dispatchEvent(new CustomEvent('local-storage', { detail: key }));
+  if (typeof window !== 'undefined') {
+    window.dispatchEvent(new StorageEvent('storage', { key, newValue }));
+    window.dispatchEvent(new CustomEvent('local-storage', { detail: key }));
+  }
 };
 
 const subscribe = (callback: () => void) => {
-  const onStorage = (event: StorageEvent) => callback();
-  const onCustom = (event: CustomEvent) => callback(); // For same-tab updates
+  if (typeof window === 'undefined') return () => {};
 
+  const onStorage = () => callback();
   window.addEventListener('storage', onStorage);
-  window.addEventListener('local-storage', onCustom as EventListener);
+  window.addEventListener('local-storage', onStorage as EventListener);
 
   return () => {
     window.removeEventListener('storage', onStorage);
-    window.removeEventListener('local-storage', onCustom as EventListener);
+    window.removeEventListener('local-storage', onStorage as EventListener);
   };
 };
 
-const getServerSnapshot = () => ''; // Server sees empty string
+const getServerSnapshot = () => '';
 
-export function useLocalStorage<T>(
+function useLocalStorage<T>(
   key: string,
   initialValue: T,
 ): [T, (val: T) => void] {
-  // 1. Read function (Client)
   const getSnapshot = () => {
     if (typeof window === 'undefined') return '';
     return localStorage.getItem(key) || '';
   };
 
-  // 2. The Magic: Syncs external store to React state
   const storeValue = useSyncExternalStore(
     subscribe,
     getSnapshot,
     getServerSnapshot,
   );
 
-  // 3. Parse JSON
-  const parsedValue: T = storeValue ? JSON.parse(storeValue) : initialValue;
+  let parsedValue: T;
+  try {
+    parsedValue = storeValue ? JSON.parse(storeValue) : initialValue;
+  } catch {
+    parsedValue = initialValue;
+  }
 
-  // 4. Setter function
   const setValue = (value: T) => {
     const newValue = JSON.stringify(value);
     localStorage.setItem(key, newValue);
-    dispatchStorageEvent(key, newValue); // Notify subscribers
+    dispatchStorageEvent(key, newValue);
   };
 
   return [parsedValue, setValue];
+}
+
+// --- Domain Logic: Recent Searches ---
+
+const MAX_RECENT_SEARCHES = 10;
+const STORAGE_KEY = 'recent-searches-v1';
+
+export function useRecentSearches() {
+  const [history, setHistory] = useLocalStorage<string[]>(STORAGE_KEY, []);
+
+  const addSearch = (term: string) => {
+    if (!term.trim()) return;
+    setHistory(
+      [term, ...history.filter((t) => t !== term)].slice(
+        0,
+        MAX_RECENT_SEARCHES,
+      ),
+    );
+  };
+
+  const removeSearch = (term: string) => {
+    setHistory(history.filter((t) => t !== term));
+  };
+
+  const clearHistory = () => {
+    setHistory([]);
+  };
+
+  return { history, addSearch, removeSearch, clearHistory };
 }
