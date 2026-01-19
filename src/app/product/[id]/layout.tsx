@@ -15,6 +15,7 @@ import {
   RecommendedProductsCarousel,
   ProductInteractionProvider,
   ProductStickyContainer,
+  ProductHeader,
 } from '@/components/product';
 
 interface LayoutProps {
@@ -56,6 +57,7 @@ export default async function ProductLayout({ children, params }: LayoutProps) {
   return (
     <div className="relative min-h-screen bg-white pb-32">
       <ProductInteractionProvider key={id}>
+        <ProductHeader categoryID={product.categoryId} />
         {/* 상단: 이미지 슬라이더 & 기본 정보 */}
         <ProductImageSlider imageUrl={product.imageUrl} />
         <ProductInfo product={product} />

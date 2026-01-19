@@ -25,6 +25,7 @@ export { CompactProductHeader } from './compact-product-header';
 export { ProductBottomBar } from './product-bottom-bar';
 export { ProductNotice } from './product-notice';
 export { RecommendedProductsCarousel } from './recommended-products-carousel';
+export { ProductHeader } from './product-header';
 
 // ----------------------------------------------------------------------
 // 5. 상태 관리

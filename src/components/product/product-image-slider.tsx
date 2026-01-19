@@ -50,10 +50,6 @@ export function ProductImageSlider({ imageUrl }: ProductImageSliderProps) {
 
   return (
     <div className="relative w-full bg-white">
-      <div className="sticky top-0 z-40 flex items-center justify-center border-b border-gray-200 bg-white py-6">
-        <span className="text-2xl font-bold text-black">상품 정보</span>
-      </div>
-
       <Carousel setApi={setApi} className="w-full">
         <CarouselContent>
           {images.map((src, index) => (
