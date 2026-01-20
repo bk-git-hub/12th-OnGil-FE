@@ -4,10 +4,18 @@ import { useState } from 'react';
 import Image from 'next/image';
 import { Product } from '@/mocks/product-data';
 import { Button } from '@/components/ui/button';
+import { ProductNotice } from '../product-notice';
+import { RecommendedProductsCarousel } from '../recommended-products-carousel';
+import { PRODUCTS } from '@/mocks/product-data';
 
 // 상품 설명 섹션 컴포넌트, 상세 이미지, 펼치기
 
 export function ProductDescription({ product }: { product: Product }) {
+  // 현재 상품 제외하고 6개 추천
+  const recommendedProducts = PRODUCTS.filter((p) => p.id !== product.id).slice(
+    0,
+    6,
+  );
   const [isExpanded, setIsExpanded] = useState(false);
 
   // 8.4.1 (4) 펼치면 상세 이미지 10개
@@ -42,6 +50,14 @@ export function ProductDescription({ product }: { product: Product }) {
           펼치기 <span className="text-xs">▼</span>
         </Button>
       )}
+
+      {/* 하단 공통 영역 */}
+      <div className="space-y-12 border-t border-gray-100 pt-10">
+        <ProductNotice />
+        <div className="pt-4">
+          <RecommendedProductsCarousel products={recommendedProducts} />
+        </div>
+      </div>
     </div>
   );
 }
