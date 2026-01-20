@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useRef } from 'react';
-import SearchBar from '@/components/search-bar';
+import SearchBar from '@/components/search-bar/search-bar';
 import { useScrollSpy } from './use-scroll-spy';
 import { CategoryTab } from './category-tab';
 
