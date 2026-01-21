@@ -2,7 +2,7 @@
 
 import { useRouter } from 'next/navigation';
 import Image from 'next/image';
-import SearchBar from '@/components/search-bar';
+import SearchBar from '@/components/search-bar/search-bar';
 import Modal from '@/components/ui/search-modal';
 
 export default function InterceptedSearchPage() {

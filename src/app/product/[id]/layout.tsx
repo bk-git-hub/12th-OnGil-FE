@@ -3,16 +3,12 @@ import { Metadata } from 'next';
 import { getProductById } from '@/components/product/product-service';
 import { ScrollToTop } from '@/components/ui/scroll-to-top';
 
-import { PRODUCTS } from '@/mocks/product-data';
-
 import {
   ProductImageSlider,
   ProductInfo,
   ProductBottomBar,
   CompactProductHeader,
   ProductTab,
-  ProductNotice,
-  RecommendedProductsCarousel,
   ProductInteractionProvider,
   ProductStickyContainer,
   ProductHeader,
@@ -48,12 +44,6 @@ export default async function ProductLayout({ children, params }: LayoutProps) {
 
   if (!product) notFound();
 
-  // 현재 상품 제외하고 6개 추천
-  const recommendedProducts = PRODUCTS.filter((p) => p.id !== product.id).slice(
-    0,
-    6,
-  );
-
   return (
     <div className="relative min-h-screen bg-white pb-32">
       <ProductInteractionProvider key={id}>
@@ -70,14 +60,6 @@ export default async function ProductLayout({ children, params }: LayoutProps) {
         >
           {/* 탭별 페이지가 렌더링되는 부분 => 설명/사이즈/문의/소재:리뷰 */}
           {children}
-
-          {/* 하단 공통 영역 */}
-          <div className="space-y-12 border-t border-gray-100 pt-10">
-            <ProductNotice />
-            <div className="pt-4">
-              <RecommendedProductsCarousel products={recommendedProducts} />
-            </div>
-          </div>
         </ProductStickyContainer>
 
         {/* 플로팅 요소 */}
