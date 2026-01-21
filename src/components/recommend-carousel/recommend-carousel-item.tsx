@@ -8,7 +8,7 @@ interface RecommendCarouselItemProps {
 
 export function RecommendCarouselItem({
   children,
-  width = 222,
+  width = 260,
   className,
 }: RecommendCarouselItemProps) {
   const flexBasis = typeof width === 'number' ? `${width}px` : width;

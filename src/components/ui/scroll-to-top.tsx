@@ -1,41 +1,22 @@
 'use client';
 
-import { useEffect, useState } from 'react';
-import { ArrowUp } from 'lucide-react';
+import { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
+import { ArrowUp } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 // 클릭시 맨 위로 스크롤되는 버튼 컴포넌트
 
-interface ScrollToTopProps {
-  showThreshold?: number;
-  className?: string;
-  isVisible?: boolean; // 외부 제어용 prop
-}
-
-export function ScrollToTop({
-  showThreshold = 300,
-  className,
-  isVisible: externalIsVisible,
-}: ScrollToTopProps) {
-  const [internalIsVisible, setInternalIsVisible] = useState(false);
-
-  // 외부 제어 값이 있으면 사용, 없으면 내부 로직.
-  const isVisible =
-    externalIsVisible !== undefined ? externalIsVisible : internalIsVisible;
+export function ScrollToTop({ className }: { className?: string }) {
+  const [isVisible, setIsVisible] = useState(false);
 
   useEffect(() => {
-    // 외부 제어 모드일 때는 스크롤 리스너 생략
-    if (externalIsVisible !== undefined) return;
-
     const toggleVisibility = () => {
-      // scrollY 체크
-      setInternalIsVisible(window.scrollY > showThreshold);
+      setIsVisible(window.scrollY > 300);
     };
-
     window.addEventListener('scroll', toggleVisibility);
     return () => window.removeEventListener('scroll', toggleVisibility);
-  }, [showThreshold, externalIsVisible]);
+  }, []);
 
   const scrollToTop = () => {
     window.scrollTo({ top: 0, behavior: 'smooth' });

@@ -29,20 +29,27 @@ export function ProductImageSlider({ imageUrl }: ProductImageSliderProps) {
       return;
     }
 
-    setCount(api.scrollSnapList().length);
-    setCurrent(api.selectedScrollSnap() + 1);
-
-    api.on('select', () => {
+    // 상태 업데이트 함수
+    const onSelect = () => {
       setCurrent(api.selectedScrollSnap() + 1);
-    });
-  }, [api]);
+    };
+
+    // 초기화 로직
+    setCount(api.scrollSnapList().length);
+    onSelect(); // 초기값 설정을 위해 한 번 호출
+
+    // 이벤트 리스너 등록
+    api.on('select', onSelect);
+
+    // 클린업 함수
+    // 컴포넌트가 사라지거나 api가 변경될 때 이벤트를 해제
+    return () => {
+      api.off('select', onSelect);
+    };
+  }, [api, setCount, setCurrent]);
 
   return (
     <div className="relative w-full bg-white">
-      <div className="sticky top-0 z-40 flex items-center justify-center border-b border-gray-200 bg-white py-6">
-        <span className="text-2xl font-bold text-black">상품 정보</span>
-      </div>
-
       <Carousel setApi={setApi} className="w-full">
         <CarouselContent>
           {images.map((src, index) => (
