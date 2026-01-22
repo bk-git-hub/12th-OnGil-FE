@@ -1,6 +1,7 @@
 import { Clock, TrendingUp, Search, AlertCircle } from 'lucide-react';
 import { useState } from 'react';
 import { createPortal } from 'react-dom';
+import ClearHistoryModal from './clear-history-modal';
 
 interface SearchDropdownProps {
   query: string;
@@ -58,7 +59,6 @@ export const SearchDropdown = ({
       {/* 2. Discovery Mode (Recent + Recommended) */}
       {!hasQuery && (
         <div className="flex flex-col gap-4 text-lg font-medium">
-          {/* Recent Searches */}
           {recentSearches.length > 0 && (
             <div className="max-h-75 overflow-y-scroll">
               <div className="flex justify-between px-6 py-2">
@@ -111,51 +111,15 @@ export const SearchDropdown = ({
       {isModalOpen &&
         createPortal(
           <div className="fixed inset-0 z-100 flex items-center justify-center p-4">
-            {/* 어두운 오버레이 */}
             <div
               className="fixed inset-0 bg-black/60 backdrop-blur-[2px] transition-opacity"
               onPointerDown={(e) => e.preventDefault()}
               onClick={() => setIsModalOpen(false)}
             />
-
-            {/* 모달 본체 */}
-            <div className="animate-in fade-in zoom-in relative z-101 w-full max-w-[320px] transform rounded-2xl bg-white p-6 shadow-2xl transition-all duration-200">
-              <div className="flex flex-col items-center text-center">
-                <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-full bg-red-50">
-                  <AlertCircle className="h-6 w-6 text-red-600" />
-                </div>
-                <h3 className="mb-2 text-lg font-bold text-gray-900">
-                  검색 기록 삭제
-                </h3>
-                <p className="mb-6 text-sm leading-relaxed font-normal text-gray-500">
-                  모든 최근 검색 기록이 삭제됩니다.
-                  <br />
-                  정말 진행하시겠습니까?
-                </p>
-
-                <div className="flex w-full gap-3">
-                  <button
-                    type="button"
-                    onPointerDown={(e) => e.preventDefault()}
-                    onClick={() => setIsModalOpen(false)}
-                    className="flex-1 rounded-xl bg-gray-100 px-4 py-3 text-sm font-semibold text-gray-700 transition-colors hover:bg-gray-200"
-                  >
-                    취소
-                  </button>
-                  <button
-                    type="button"
-                    onPointerDown={(e) => e.preventDefault()}
-                    onClick={() => {
-                      onClear();
-                      setIsModalOpen(false);
-                    }}
-                    className="flex-1 rounded-xl bg-red-600 px-4 py-3 text-sm font-semibold text-white shadow-lg shadow-red-200 transition-colors hover:bg-red-700"
-                  >
-                    삭제
-                  </button>
-                </div>
-              </div>
-            </div>
+            <ClearHistoryModal
+              onClear={onClear}
+              onClose={() => setIsModalOpen(false)}
+            />
           </div>,
           document.body,
         )}
