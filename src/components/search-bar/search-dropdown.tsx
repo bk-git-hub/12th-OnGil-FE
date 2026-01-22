@@ -26,7 +26,7 @@ export const SearchDropdown = ({
   const hasQuery = query.trim().length > 0;
 
   return (
-    <div className="absolute top-full left-0 z-50 mt-2 w-full overflow-hidden rounded-xl border border-gray-200 bg-white py-2 shadow-xl ring-1 ring-black/5">
+    <div className="absolute top-full left-0 -mt-2 w-full overflow-hidden border border-black bg-white py-2 shadow-xl ring-1 ring-black/5">
       {hasQuery && (
         <div>
           {isLoading ? (
@@ -56,23 +56,21 @@ export const SearchDropdown = ({
 
       {/* 2. Discovery Mode (Recent + Recommended) */}
       {!hasQuery && (
-        <div className="flex flex-col gap-4">
+        <div className="flex flex-col gap-4 text-lg font-medium">
           {/* Recent Searches */}
           {recentSearches.length > 0 && (
-            <div>
-              <div className="px-4 py-2 text-xs font-semibold text-gray-400">
-                최근 검색어
-              </div>
-              <ul>
+            <div className="max-h-75 overflow-y-scroll">
+              <div className="px-4 py-2">최근 검색어</div>
+              <ul className="divide-y-black/23 divide-y">
                 {recentSearches.map((term) => (
                   <li
                     key={term}
-                    className="group flex items-center justify-between px-4 py-2 hover:bg-gray-50"
+                    className="group flex items-center justify-between px-4 py-4"
                   >
                     <button
                       onMouseDown={(e) => e.preventDefault()}
                       onClick={() => onSelect(term)}
-                      className="flex flex-1 items-center gap-3 text-left text-gray-700"
+                      className="flex flex-1 items-center gap-3 text-left"
                     >
                       <Clock className="text-gray-400" size={16} />
                       <span className="truncate">{term}</span>
@@ -92,8 +90,15 @@ export const SearchDropdown = ({
               </ul>
             </div>
           )}
+        </div>
+      )}
+    </div>
+  );
+};
 
-          {/* Recommended Keywords */}
+/*
+
+         
           {recommendedKeywords.length > 0 && (
             <div>
               <div className="px-4 py-2 text-xs font-semibold text-gray-400">
@@ -114,8 +119,6 @@ export const SearchDropdown = ({
               </div>
             </div>
           )}
-        </div>
-      )}
-    </div>
-  );
-};
+
+
+*/
