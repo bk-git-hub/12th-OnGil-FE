@@ -110,21 +110,18 @@ export const SearchDropdown = ({
               </ul>
             </div>
           ) : (
-            /* 최근 검색어가 없을 때 추천 검색어 표시 (주신 주석 스타일 적용) */
             recommendedKeywords.length > 0 && (
               <div>
-                <div className="px-4 py-2 text-xs font-semibold text-gray-400">
-                  추천 검색어
-                </div>
+                <div className="px-4 py-2">추천 검색어</div>
                 <div className="flex flex-wrap gap-2 px-4 pb-2">
                   {recommendedKeywords.map((tag) => (
                     <button
                       key={tag}
                       onPointerDown={(e) => e.preventDefault()}
                       onClick={() => onSelect(tag)}
-                      className="flex items-center gap-1.5 rounded-full bg-blue-50 px-3 py-1.5 text-sm font-medium text-blue-600 transition-colors hover:bg-blue-100"
+                      className="bg-ongil-mint text-ongil-teal border-ongil-teal flex items-center gap-1.5 rounded-full border px-3 py-1.5 text-lg font-medium"
                     >
-                      <TrendingUp size={14} />
+                      <TrendingUp size={18} />
                       {tag}
                     </button>
                   ))}
