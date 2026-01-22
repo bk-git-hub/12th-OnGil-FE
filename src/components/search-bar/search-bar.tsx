@@ -55,8 +55,10 @@ export default function SearchBar({ onFocusChange }: SearchBarProps) {
           onFinalResult={(text) => handleSearch(text)}
         />
       )}
+
       <div
-        className={`bg-secondary-gray height-[45px] relative flex min-w-60.5 items-center rounded-[4px] border border-black px-3 py-3 transition-all duration-100 focus-within:z-50 focus-within:bg-white focus:w-full`}
+        onClick={() => inputRef.current?.focus()}
+        className={`bg-secondary-gray relative flex h-[45px] min-w-60.5 cursor-text items-center rounded-[4px] border border-black px-3 py-3 transition-all duration-100 focus-within:z-50 focus-within:w-full focus-within:bg-white`}
       >
         <form
           onSubmit={(e) => {
@@ -84,7 +86,10 @@ export default function SearchBar({ onFocusChange }: SearchBarProps) {
           />
         </form>
 
-        <div className="flex items-center gap-2">
+        <div
+          className="flex items-center gap-2"
+          onClick={(e) => e.stopPropagation()}
+        >
           {query && (
             <button
               type="button"
@@ -102,19 +107,18 @@ export default function SearchBar({ onFocusChange }: SearchBarProps) {
           </button>
         </div>
       </div>
-      {isFocused && (
-        <SearchDropdown
-          isVisible={isFocused}
-          query={query}
-          recentSearches={history}
-          recommendedKeywords={recommended}
-          autocompleteResults={suggestions}
-          isLoading={isLoading}
-          onSelect={handleSearch}
-          onRemoveRecent={removeSearch}
-          onClear={clearHistory}
-        />
-      )}
+
+      <SearchDropdown
+        isVisible={isFocused}
+        query={query}
+        recentSearches={history}
+        recommendedKeywords={recommended}
+        autocompleteResults={suggestions}
+        isLoading={isLoading}
+        onSelect={handleSearch}
+        onRemoveRecent={removeSearch}
+        onClear={clearHistory}
+      />
     </div>
   );
 }
