@@ -19,7 +19,8 @@ export default function SearchBar({ onFocusChange }: SearchBarProps) {
   const [isFocused, setIsFocused] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
 
-  const { history, addSearch, removeSearch } = useRecentSearches();
+  const { history, addSearch, removeSearch, clearHistory } =
+    useRecentSearches();
   const {
     suggestions,
     recommended,
@@ -106,16 +107,18 @@ export default function SearchBar({ onFocusChange }: SearchBarProps) {
           </button>
         </div>
       </div>
-      <SearchDropdown
-        isVisible={isFocused}
-        query={query}
-        recentSearches={history}
-        recommendedKeywords={recommended}
-        autocompleteResults={suggestions}
-        isLoading={isLoading}
-        onSelect={handleSearch}
-        onRemoveRecent={removeSearch}
-      />
+      {isFocused && (
+        <SearchDropdown
+          query={query}
+          recentSearches={history}
+          recommendedKeywords={recommended}
+          autocompleteResults={suggestions}
+          isLoading={isLoading}
+          onSelect={handleSearch}
+          onRemoveRecent={removeSearch}
+          onClear={clearHistory}
+        />
+      )}
     </div>
   );
 }
