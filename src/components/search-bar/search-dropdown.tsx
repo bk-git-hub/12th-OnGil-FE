@@ -65,7 +65,7 @@ export const SearchDropdown = ({
                 {recentSearches.map((term) => (
                   <li
                     key={term}
-                    className="group flex items-center justify-between px-4 py-4"
+                    className="group flex w-full items-center justify-between p-4"
                   >
                     <button
                       onMouseDown={(e) => e.preventDefault()}
@@ -81,9 +81,14 @@ export const SearchDropdown = ({
                         e.stopPropagation();
                         onRemoveRecent(term);
                       }}
-                      className="p-1 opacity-0 transition-opacity group-hover:opacity-100 hover:text-red-500"
+                      className="p-0.5"
                     >
-                      <X size={14} />
+                      <img
+                        src="/icons/delete.svg"
+                        alt="검색어 삭제"
+                        width={20}
+                        height={20}
+                      />
                     </button>
                   </li>
                 ))}
