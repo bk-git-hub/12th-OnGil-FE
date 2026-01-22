@@ -10,7 +10,7 @@ export default function MainHeader() {
     <div className="sticky top-0 z-100 flex w-full items-center justify-between bg-white p-5 shadow-[0_4px_4px_0_rgba(0,0,0,0.25)]">
       <SearchBar onFocusChange={setIsSearchFocused} />
       <div
-        className={`flex items-center overflow-hidden whitespace-nowrap transition-all duration-500 ease-in-out ${
+        className={`flex items-center overflow-hidden whitespace-nowrap ${
           isSearchFocused ? 'max-w-0 opacity-0' : 'ml-2 max-w-50 opacity-100'
         } `}
       >
