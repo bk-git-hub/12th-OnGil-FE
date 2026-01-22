@@ -56,7 +56,7 @@ export default function SearchBar({ onFocusChange }: SearchBarProps) {
         />
       )}
       <div
-        className={`bg-secondary-gray height-[45px] relative flex min-w-60.5 items-center rounded-lg border border-black px-3 py-3 transition-all duration-200 focus:w-full focus:bg-white`}
+        className={`bg-secondary-gray height-[45px] relative flex min-w-60.5 items-center rounded-lg border border-black px-3 py-3 transition-all duration-100 focus-within:bg-white focus:w-full`}
       >
         <form
           onSubmit={(e) => {
