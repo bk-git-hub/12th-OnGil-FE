@@ -12,7 +12,7 @@ interface MySizeProps {
 
 // 자세히보기 버튼 눌렀을 때 나오는 내 사이즈 정보 컴포넌트
 
-export default function MySize({ userInfo, productType }: MySizeProps) {
+export function MySize({ userInfo, productType }: MySizeProps) {
   // 제품 유형에 따른 유저 사이즈 텍스트 반환
   const getUserSizeText = () => {
     switch (productType) {

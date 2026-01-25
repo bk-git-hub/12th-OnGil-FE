@@ -6,7 +6,7 @@ import { Button } from '@/components/ui/button';
 import { Progress } from '@/components/ui/progress';
 import { UserBodyInfo, SizeAnalysisResult } from '@/mocks/size';
 import { SimilarUserTable } from './similar-user-table';
-import MySize from './my-size';
+import { MySize } from './my-size';
 
 interface SizeGuideSectionProps {
   productType: 'top' | 'bottom' | 'shoes';
@@ -16,7 +16,7 @@ interface SizeGuideSectionProps {
 
 // 사이즈 가이드 섹션 컴포넌트(사이즈 선택 가이드 그래프, 자세히 보기 눌렀을 때 나오는 표와 내 사이즈 정보)
 
-export default function SizeGuideSection({
+export function SizeGuideSection({
   productType,
   userInfo,
   analysisData,
