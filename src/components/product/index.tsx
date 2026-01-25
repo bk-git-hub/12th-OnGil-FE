@@ -23,8 +23,8 @@ export { CompactProductHeader } from './compact-product-header';
 // 4. 상품 상세 - 고정 바 및 부가 기능
 // ----------------------------------------------------------------------
 export { ProductBottomBar } from './product-bottom-bar';
-export { ProductNotice } from './product-notice';
-export { RecommendedProductsCarousel } from './recommended-products-carousel';
+export { ProductNotice } from './descriptions/product-notice';
+export { RecommendedProductsCarousel } from './descriptions/recommended-products-carousel';
 export { ProductHeader } from './product-header';
 
 // ----------------------------------------------------------------------
