@@ -11,7 +11,7 @@ export function RecommendCarousel({
 }: RecommendCarouselProps) {
   return (
     <div className="flex w-full flex-col items-center gap-7.5 px-4">
-      <h2 className="font-pretendard text-xl font-bold">{heading}</h2>
+      <h2 className="font-pretendard text-2xl font-bold">{heading}</h2>
 
       <Carousel
         opts={{
