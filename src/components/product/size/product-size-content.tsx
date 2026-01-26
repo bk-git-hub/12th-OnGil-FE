@@ -1,20 +1,19 @@
-import SizeInfo from '@/components/product/size/size-info';
-import SizeGuideSection from '@/components/product/size/size-guide-section';
+import { SizeInfo } from '@/components/product/size/size-info';
+import { SizeGuideSection } from '@/components/product/size/size-guide-section';
 import { fetchUserBodyInfo, fetchSizeAnalysis } from '@/mocks/size';
 
-interface ProductSizePageProps {
-  params: Promise<{ id: string }>;
+interface ProductSizeContentProps {
+  userInfo: any;
+  analysisData: any;
 }
 
-export default async function ProductSizePage({
-  params,
-}: ProductSizePageProps) {
-  const { id: productId } = await params;
+// 사이즈 탭 콘텐츠 컴포넌트
+
+export function ProductSizeContent({
+  userInfo,
+  analysisData,
+}: ProductSizeContentProps) {
   const productType = 'top';
-  const userInfo = await fetchUserBodyInfo();
-  const analysisData = userInfo
-    ? await fetchSizeAnalysis(productId, userInfo.height, userInfo.weight)
-    : null;
 
   return (
     <div className="font-pretendard flex flex-col gap-10 px-4 py-8 pb-20">

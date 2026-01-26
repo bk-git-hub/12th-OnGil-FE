@@ -4,7 +4,7 @@ import { Sparkles } from 'lucide-react';
 
 // AI가 생성한 이미지를 보여주는 컴포넌트 => 추후 연동 필요.
 
-export default function SizeInfo() {
+export function SizeInfo() {
   return (
     <div className="space-y-4">
       <h3 className="px-4 text-lg font-bold text-gray-900">사이즈 정보</h3>

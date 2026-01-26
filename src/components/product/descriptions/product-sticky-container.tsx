@@ -1,7 +1,6 @@
 'use client';
 
 import { useState, useRef, useEffect } from 'react';
-import { usePathname } from 'next/navigation';
 import { cn } from '@/lib/utils';
 import { useProductInteraction } from '@/components/product';
 
@@ -18,7 +17,6 @@ export function ProductStickyContainer({
 }: ProductStickyContainerProps) {
   const [isSticky, setIsSticky] = useState(false);
   const sentinelRef = useRef<HTMLDivElement>(null);
-  const pathname = usePathname();
 
   const { shouldScrollToTab, resetScroll } = useProductInteraction();
 
@@ -35,7 +33,7 @@ export function ProductStickyContainer({
     return () => observer.disconnect();
   }, []);
 
-  // 2. 탭 클릭 시 스크롤 이동 (URL 변경 + 사용자 클릭 시에만 동작)
+  // 2. 탭 클릭 시 스크롤 이동 (사용자 클릭 시에만 동작)
   useEffect(() => {
     if (shouldScrollToTab && sentinelRef.current) {
       const elementRect = sentinelRef.current.getBoundingClientRect();
@@ -45,7 +43,7 @@ export function ProductStickyContainer({
       window.scrollTo({ top: absoluteElementTop, behavior: 'smooth' });
       resetScroll();
     }
-  }, [pathname, shouldScrollToTab, resetScroll]);
+  }, [shouldScrollToTab, resetScroll]);
 
   return (
     <div className="relative">

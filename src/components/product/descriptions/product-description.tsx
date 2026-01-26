@@ -4,8 +4,8 @@ import { useState } from 'react';
 import Image from 'next/image';
 import { Product } from '@/mocks/product-data';
 import { Button } from '@/components/ui/button';
-import { ProductNotice } from '../product-notice';
-import { RecommendedProductsCarousel } from '../recommended-products-carousel';
+import { ProductNotice } from './product-notice';
+import { RecommendedProductsCarousel } from './recommended-products-carousel';
 import { PRODUCTS } from '@/mocks/product-data';
 
 // 상품 설명 섹션 컴포넌트, 상세 이미지, 펼치기
