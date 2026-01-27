@@ -19,7 +19,8 @@ export default function SearchBar({ onFocusChange }: SearchBarProps) {
   const [isFocused, setIsFocused] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
 
-  const { history, addSearch, removeSearch } = useRecentSearches();
+  const { history, addSearch, removeSearch, clearHistory } =
+    useRecentSearches();
   const {
     suggestions,
     recommended,
@@ -47,7 +48,6 @@ export default function SearchBar({ onFocusChange }: SearchBarProps) {
   };
 
   return (
-    // 'flex-1' allows this component to naturally fill all available space
     <div className="relative z-50 flex-1">
       {isVoiceActive && (
         <VoiceOverlay
@@ -55,8 +55,10 @@ export default function SearchBar({ onFocusChange }: SearchBarProps) {
           onFinalResult={(text) => handleSearch(text)}
         />
       )}
+
       <div
-        className={`bg-secondary-gray height-[45px] relative flex min-w-60.5 items-center rounded-lg border border-black px-3 py-3 transition-all duration-200 focus:w-full focus:bg-white`}
+        onClick={() => inputRef.current?.focus()}
+        className={`bg-secondary-gray relative flex h-[45px] min-w-60.5 cursor-text items-center rounded-[4px] border border-black px-3 py-3 transition-all duration-100 focus-within:z-50 focus-within:w-full focus-within:bg-white`}
       >
         <form
           onSubmit={(e) => {
@@ -84,7 +86,10 @@ export default function SearchBar({ onFocusChange }: SearchBarProps) {
           />
         </form>
 
-        <div className="flex items-center gap-2">
+        <div
+          className="flex items-center gap-2"
+          onClick={(e) => e.stopPropagation()}
+        >
           {query && (
             <button
               type="button"
@@ -97,15 +102,12 @@ export default function SearchBar({ onFocusChange }: SearchBarProps) {
               <X size={20} />
             </button>
           )}
-          <button
-            type="button"
-            onClick={() => setIsVoiceActive(true)}
-            className="rounded-full text-gray-500 hover:bg-gray-200 hover:text-blue-600"
-          >
+          <button type="button" onClick={() => setIsVoiceActive(true)}>
             <img src="/icons/mic.svg" alt="음성검색" />
           </button>
         </div>
       </div>
+
       <SearchDropdown
         isVisible={isFocused}
         query={query}
@@ -115,6 +117,7 @@ export default function SearchBar({ onFocusChange }: SearchBarProps) {
         isLoading={isLoading}
         onSelect={handleSearch}
         onRemoveRecent={removeSearch}
+        onClear={clearHistory}
       />
     </div>
   );

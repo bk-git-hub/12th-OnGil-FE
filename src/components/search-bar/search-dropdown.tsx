@@ -1,7 +1,10 @@
-import { Clock, TrendingUp, Search, X } from 'lucide-react';
+import { Clock, TrendingUp, Search } from 'lucide-react';
+import { useState } from 'react';
+import { createPortal } from 'react-dom';
+import ClearHistoryModal from './clear-history-modal';
 
 interface SearchDropdownProps {
-  isVisible: boolean;
+  isVisible: boolean; // 부모의 isFocused 상태
   query: string;
   recentSearches: string[];
   recommendedKeywords: string[];
@@ -9,6 +12,7 @@ interface SearchDropdownProps {
   isLoading: boolean;
   onSelect: (term: string) => void;
   onRemoveRecent: (term: string) => void;
+  onClear: () => void;
 }
 
 export const SearchDropdown = ({
@@ -20,13 +24,16 @@ export const SearchDropdown = ({
   isLoading,
   onSelect,
   onRemoveRecent,
+  onClear,
 }: SearchDropdownProps) => {
+  const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
+
   if (!isVisible) return null;
 
   const hasQuery = query.trim().length > 0;
 
   return (
-    <div className="absolute top-full left-0 z-50 mt-2 w-full overflow-hidden rounded-xl border border-gray-200 bg-white py-2 shadow-xl ring-1 ring-black/5">
+    <div className="absolute top-full left-0 z-40 -mt-2 w-full overflow-hidden border border-black bg-white py-2 shadow-xl ring-1 ring-black/5">
       {hasQuery && (
         <div>
           {isLoading ? (
@@ -36,7 +43,7 @@ export const SearchDropdown = ({
               {autocompleteResults.map((item, idx) => (
                 <li key={idx}>
                   <button
-                    onMouseDown={(e) => e.preventDefault()}
+                    onPointerDown={(e) => e.preventDefault()}
                     onClick={() => onSelect(item)}
                     className="flex w-full items-center gap-3 px-4 py-3 text-left hover:bg-gray-50"
                   >
@@ -54,68 +61,96 @@ export const SearchDropdown = ({
         </div>
       )}
 
-      {/* 2. Discovery Mode (Recent + Recommended) */}
       {!hasQuery && (
-        <div className="flex flex-col gap-4">
-          {/* Recent Searches */}
-          {recentSearches.length > 0 && (
-            <div>
-              <div className="px-4 py-2 text-xs font-semibold text-gray-400">
-                최근 검색어
+        <div className="flex flex-col gap-4 text-lg font-medium">
+          {recentSearches.length > 0 ? (
+            <div className="max-h-75 overflow-y-scroll">
+              <div className="flex justify-between px-6 py-2">
+                <span>최근 검색어</span>
+                <button
+                  type="button"
+                  onPointerDown={(e) => e.preventDefault()}
+                  onClick={() => setIsModalOpen(true)}
+                  className="text-black/47"
+                >
+                  전체 삭제
+                </button>
               </div>
-              <ul>
+              <ul className="divide-y-black/23 divide-y">
                 {recentSearches.map((term) => (
                   <li
                     key={term}
-                    className="group flex items-center justify-between px-4 py-2 hover:bg-gray-50"
+                    className="group flex w-full items-center justify-between p-4"
                   >
                     <button
-                      onMouseDown={(e) => e.preventDefault()}
+                      onPointerDown={(e) => e.preventDefault()}
                       onClick={() => onSelect(term)}
-                      className="flex flex-1 items-center gap-3 text-left text-gray-700"
+                      className="flex flex-1 items-center gap-3 text-left"
                     >
                       <Clock className="text-gray-400" size={16} />
                       <span className="truncate">{term}</span>
                     </button>
                     <button
-                      onMouseDown={(e) => e.preventDefault()}
+                      onPointerDown={(e) => e.preventDefault()}
                       onClick={(e) => {
                         e.stopPropagation();
                         onRemoveRecent(term);
                       }}
-                      className="p-1 opacity-0 transition-opacity group-hover:opacity-100 hover:text-red-500"
+                      className="p-0.5"
                     >
-                      <X size={14} />
+                      <img
+                        src="/icons/delete.svg"
+                        alt="삭제"
+                        width={20}
+                        height={20}
+                      />
                     </button>
                   </li>
                 ))}
               </ul>
             </div>
-          )}
-
-          {/* Recommended Keywords */}
-          {recommendedKeywords.length > 0 && (
-            <div>
-              <div className="px-4 py-2 text-xs font-semibold text-gray-400">
-                추천 검색어
+          ) : (
+            recommendedKeywords.length > 0 && (
+              <div>
+                <div className="px-4 py-2">추천 검색어</div>
+                <div className="flex flex-wrap gap-2 px-4 pb-2">
+                  {recommendedKeywords.map((tag) => (
+                    <button
+                      key={tag}
+                      onPointerDown={(e) => e.preventDefault()}
+                      onClick={() => onSelect(tag)}
+                      className="bg-ongil-mint text-ongil-teal border-ongil-teal flex items-center gap-1.5 rounded-full border px-3 py-1.5 text-lg font-medium"
+                    >
+                      <TrendingUp size={18} />
+                      {tag}
+                    </button>
+                  ))}
+                </div>
               </div>
-              <div className="flex flex-wrap gap-2 px-4 pb-2">
-                {recommendedKeywords.map((tag) => (
-                  <button
-                    key={tag}
-                    onMouseDown={(e) => e.preventDefault()}
-                    onClick={() => onSelect(tag)}
-                    className="flex items-center gap-1.5 rounded-full bg-blue-50 px-3 py-1.5 text-sm font-medium text-blue-600 transition-colors hover:bg-blue-100"
-                  >
-                    <TrendingUp size={14} />
-                    {tag}
-                  </button>
-                ))}
-              </div>
-            </div>
+            )
           )}
         </div>
       )}
+
+      {/* 모달 Portal (기능 유지를 위해 필요) */}
+      {isModalOpen &&
+        createPortal(
+          <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
+            <div
+              className="fixed inset-0 bg-black/60 backdrop-blur-[2px]"
+              onPointerDown={(e) => e.preventDefault()}
+              onClick={() => setIsModalOpen(false)}
+            />
+            <ClearHistoryModal
+              onClear={() => {
+                onClear();
+                setIsModalOpen(false);
+              }}
+              onClose={() => setIsModalOpen(false)}
+            />
+          </div>,
+          document.body,
+        )}
     </div>
   );
 };
