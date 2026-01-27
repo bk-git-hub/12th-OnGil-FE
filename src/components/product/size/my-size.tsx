@@ -4,15 +4,17 @@ import { Ruler, Edit2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { UserBodyInfo } from '@/mocks/size';
+import Link from 'next/link';
 
 interface MySizeProps {
   userInfo: UserBodyInfo;
   productType: 'top' | 'bottom' | 'shoes';
+  onEdit: () => void;
 }
 
 // 자세히보기 버튼 눌렀을 때 나오는 내 사이즈 정보 컴포넌트
 
-export function MySize({ userInfo, productType }: MySizeProps) {
+export function MySize({ userInfo, productType, onEdit }: MySizeProps) {
   // 제품 유형에 따른 유저 사이즈 텍스트 반환
   const getUserSizeText = () => {
     switch (productType) {
@@ -48,9 +50,11 @@ export function MySize({ userInfo, productType }: MySizeProps) {
       <Button
         variant="outline"
         className="bg-ongil-teal w-full rounded-xl border-gray-300 py-7 text-base font-bold text-white hover:bg-[#00252a] hover:text-white"
-        onClick={() => alert('내 정보 수정 페이지로 이동')}
+        asChild
       >
-        <Edit2 className="mr-2 h-5 w-5" />내 정보 수정하기
+        <Link href="/body-info" scroll={false}>
+          <Edit2 className="mr-2 h-5 w-5" />내 정보 수정하기
+        </Link>
       </Button>
     </div>
   );
