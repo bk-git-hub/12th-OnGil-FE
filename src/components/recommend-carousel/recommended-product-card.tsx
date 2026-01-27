@@ -54,9 +54,9 @@ export function RecommendedProductCard({
         <img
           src={productInfo.thumbnailImageUrl}
           alt={`${productInfo.name} 이미지`}
-          width={238}
+          width={236}
           height={264}
-          className="object-cover"
+          className="h-[264px] w-[236px] object-cover"
         />
         {isAuction && hasDiscount && (
           <div className="absolute right-2 bottom-2 flex h-14 w-14 items-center justify-center rounded-full bg-red-500/90 text-center text-lg font-bold text-white">
