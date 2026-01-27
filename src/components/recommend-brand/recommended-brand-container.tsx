@@ -21,7 +21,7 @@ export default function RecommendedBrandContainer({
   const currentProducts = productLists[selectedIndex] || [];
 
   return (
-    <div className="flex w-full flex-col p-4">
+    <div className="flex w-full flex-col p-5">
       <RecommendedBrandHeader
         brands={brands}
         onClick={setSelectedIndex}
@@ -29,10 +29,9 @@ export default function RecommendedBrandContainer({
       />
 
       <div className="mt-4">
-        <h2 className="text-xl font-bold">{currentBrand.name}</h2>
-        <div className="mt-2">
+        <div className="mt-2 w-full">
           {currentProducts.length > 0 ? (
-            <ul className="grid grid-cols-2">
+            <ul className="grid w-full grid-cols-2 justify-items-center gap-4">
               {currentProducts.map((product) => (
                 <li key={product.id}>
                   <RecommendedBrandGridCard product={product} />

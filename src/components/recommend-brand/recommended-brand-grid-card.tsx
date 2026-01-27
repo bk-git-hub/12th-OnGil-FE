@@ -6,16 +6,19 @@ export default function RecommendedBrandGridCard({
   product: Product;
 }) {
   return (
-    <div className="flex flex-col gap-1">
+    <div className="font-pretendard flex w-41 flex-col gap-1">
       <img
         src={product.thumbnailImageUrl}
         alt={product.name}
         width={164}
         height={170}
+        className="h-[170px] w-[164px] object-cover"
       />
-      <span className="text-sm font-extrabold">{product.brandName}</span>
-      <span className="truncate">{product.name}</span>
-      <div className="flex w-full gap-2">
+      <span className="font-extrabold">{product.brandName}</span>
+      <span className="line-clamp-2 h-14 w-full overflow-hidden text-lg font-medium text-ellipsis">
+        {product.name}
+      </span>
+      <div className="flex w-full gap-2 text-xl font-bold">
         {product.discountRate !== undefined && (
           <span className="text-ongil-teal">{product.discountRate}%</span>
         )}
