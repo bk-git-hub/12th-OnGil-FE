@@ -1,9 +1,15 @@
 import { Product } from '@/types/products';
+import { WishlistButton } from '../product/wishlist-button';
+
+// For demonstration, let's assume the Product type can include isLiked
+interface RecommendedProduct extends Product {
+  isLiked?: boolean;
+}
 
 export function RecommendedProductCard({
   productInfo,
 }: {
-  productInfo: Product;
+  productInfo: RecommendedProduct;
 }) {
   const hasDiscount = productInfo.discountRate && productInfo.discountRate > 0;
   const isAuction = productInfo.productType === 'AUCTION';
@@ -57,6 +63,11 @@ export function RecommendedProductCard({
             {productInfo.discountRate}%
           </div>
         )}
+        <WishlistButton
+          productId={productInfo.id}
+          initialIsLiked={productInfo.isLiked}
+          className="absolute top-2 right-2"
+        />
       </div>
       <div className="flex flex-col gap-2 px-4 py-2.5">
         <span className="font-bold">{productInfo.brandName}</span>
