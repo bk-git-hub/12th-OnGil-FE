@@ -1,14 +1,6 @@
-/**
- * 인터페이스 정의
- */
-export interface Brand {
-  id: string;
-  name: string;
-  description?: string;
-  logoImageUrl: string;
-}
 import { ProductType } from '@/types/enums';
 import type { Product } from '@/types/domain/product';
+import type { Brand } from '@/types/domain/brand';
 
 /**
  * [1] 브랜드 배열 (유효한 이미지 URL 포함)
@@ -16,21 +8,21 @@ import type { Product } from '@/types/domain/product';
  */
 export const BRANDS: Brand[] = [
   {
-    id: 'br-01',
+    id: 1,
     name: 'Nike',
     description: 'World-class sportswear and equipment',
     logoImageUrl:
       'https://images.unsplash.com/photo-1542291026-7eec264c27ff?q=80&w=200&auto=format&fit=crop',
   },
   {
-    id: 'br-02',
+    id: 2,
     name: 'Apple',
     description: 'Premium electronics and software',
     logoImageUrl:
       'https://images.unsplash.com/photo-1611186871348-b1ce696e52c9?q=80&w=200&auto=format&fit=crop',
   },
   {
-    id: 'br-03',
+    id: 3,
     name: 'Aesop',
     description: 'Skincare, haircare and body care',
     logoImageUrl:

@@ -1,4 +1,4 @@
-import { Product } from '@/types/products';
+import { Product } from '@/types/domain/product';
 
 export default function RecommendedBrandGridCard({
   product,

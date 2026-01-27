@@ -1,4 +1,4 @@
-import { Brand } from '@/types/products';
+import { Brand } from '@/types/domain/brand';
 
 interface Props {
   brands: Brand[];
