@@ -16,7 +16,7 @@ export default async function BodyInfoPage() {
             내 체형 정보 수정
           </h1>
         </div>
-        <div className="flex-1 overflow-hidden">
+        <div className="flex-1 overflow-hidden pt-8">
           <BodyInfoForm initialData={userInfo} />
         </div>
       </div>
