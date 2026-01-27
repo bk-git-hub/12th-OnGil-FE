@@ -1,13 +1,13 @@
 'use client';
 
-import { Product, Brand } from '@/types/products';
+import { Product } from '@/types/domain/product';
+import { Brand } from '@/types/domain/brand';
 import { useState } from 'react';
 import RecommendedBrandHeader from './recommended-brand-header';
 import RecommendedBrandGridCard from './recommended-brand-grid-card';
 
 interface RecommendedBrandContainerProps {
   brands: Brand[];
-
   productLists: Product[][];
 }
 

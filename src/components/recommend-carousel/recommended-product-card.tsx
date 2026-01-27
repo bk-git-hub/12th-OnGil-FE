@@ -1,4 +1,4 @@
-import { Product } from '@/types/products';
+import { Product } from '@/types/domain/product';
 import { WishlistButton } from '../product/wishlist-button';
 
 // For demonstration, let's assume the Product type can include isLiked
@@ -12,7 +12,7 @@ export function RecommendedProductCard({
   productInfo: RecommendedProduct;
 }) {
   const hasDiscount = productInfo.discountRate && productInfo.discountRate > 0;
-  const isAuction = productInfo.productType === 'AUCTION';
+  const isAuction = productInfo.productType === 'SPECIAL_SALE';
 
   let priceDisplay;
   if (hasDiscount) {
@@ -23,9 +23,9 @@ export function RecommendedProductCard({
           <span className="text-ongil-teal text-xl font-bold">
             {productInfo.finalPrice.toLocaleString('ko-KR')}
           </span>
-          {productInfo.originalPrice && (
+          {productInfo.price && (
             <span className="font-normal text-black/50 line-through">
-              {productInfo.originalPrice.toLocaleString('ko-KR')}
+              {productInfo.price.toLocaleString('ko-KR')}
             </span>
           )}
         </div>
