@@ -19,7 +19,7 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
         if (!parsed.success) return null;
         const { provider, code } = parsed.data;
 
-        const backendUrl = `${process.env.BACKEND_API_URL}auth/oauth/${provider}?code=${code}`;
+        const backendUrl = `${process.env.BACKEND_API_URL}/auth/oauth/${provider}?code=${code}`;
         console.log(backendUrl);
         try {
           const res = await fetch(backendUrl, {
