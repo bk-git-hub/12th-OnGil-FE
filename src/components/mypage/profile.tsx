@@ -7,7 +7,6 @@ export default async function Profile() {
     redirect('/login');
   }
 
-  console.log(session);
   return (
     <div>
       {session.user.nickName}
