@@ -34,7 +34,7 @@ export default function MainNavBar() {
         찜 페이지
       </Link>
 
-      <Link href={'/'} className="flex flex-col items-center">
+      <Link href={'/me'} className="flex flex-col items-center">
         <img
           src="/icons/profile.svg"
           alt="찜으로 이동"

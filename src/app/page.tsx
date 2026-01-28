@@ -11,11 +11,15 @@ import MainNavBar from '@/components/layout/main-nav-bar';
 
 import { BRANDS, MOCK_PRODUCTS } from '@/mocks/brands-and-products';
 import RecommendedBrandContainer from '@/components/recommend-brand/recommended-brand-container';
+import { api } from '@/lib/api-client';
+import { Advertisement } from '@/types/domain/etc';
 
 export default async function Home() {
   const p1 = MOCK_PRODUCTS.slice(0, 6);
   const p2 = MOCK_PRODUCTS.slice(6, 12);
   const p3 = MOCK_PRODUCTS.slice(12, 18);
+  // const data = await api.get<Advertisement>('/advertisements/home');
+  // console.log('data : ' + data.imageUrl);
 
   return (
     <div className="flex flex-col items-center">

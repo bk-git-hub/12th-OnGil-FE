@@ -62,7 +62,3 @@ export const MOCK_PRODUCTS: Product[] = BRANDS.flatMap((brand, brandIndex) => {
     };
   });
 });
-
-// 데이터 확인
-console.log(`Total Brands: ${BRANDS.length}`);
-console.log(`Total Products: ${MOCK_PRODUCTS.length}`);
