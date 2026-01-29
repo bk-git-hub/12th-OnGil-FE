@@ -4,7 +4,7 @@ type SubCategory = {
   imageUrl: string;
 };
 
-export type Category = {
+type Category = {
   id: string;
   name: string;
   subCategories: SubCategory[];
