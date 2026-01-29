@@ -11,10 +11,6 @@ interface ProductListProps {
 export function ProductList({ products, title }: ProductListProps) {
   return (
     <div className="mx-auto min-h-screen max-w-7xl bg-white">
-      <header className="sticky top-0 z-10 flex items-center justify-center border-b bg-white px-4 py-3">
-        <h1 className="text-lg font-bold">{title}</h1>
-      </header>
-
       <main className="p-4">
         <div className="mb-4 flex items-center justify-between">
           <span className="text-sm text-gray-500">
