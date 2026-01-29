@@ -5,8 +5,6 @@ import {
   Carousel,
   CarouselContent,
   CarouselItem,
-  CarouselNext,
-  CarouselPrevious,
 } from '@/components/ui/carousel';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { cn } from '@/lib/utils';
@@ -91,11 +89,16 @@ export function AiMaterialCarousel({
                 </CardHeader>
                 <CardContent>
                   <ul className="space-y-2">
-                    {section.content.slice(0, 4).map((text, idx) => (
-                      <li key={idx} className="flex items-start gap-4 text-sm">
-                        <span className="leading-relaxed">{text}</span>
-                      </li>
-                    ))}
+                    {section.content
+                      ?.slice(0, 4)
+                      .map((text: string, idx: number) => (
+                        <li
+                          key={idx}
+                          className="flex items-start gap-4 text-sm"
+                        >
+                          <span className="leading-relaxed">{text}</span>
+                        </li>
+                      ))}
                   </ul>
                 </CardContent>
               </Card>
