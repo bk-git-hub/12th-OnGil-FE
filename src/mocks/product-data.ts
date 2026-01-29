@@ -1,13 +1,28 @@
 import { ProductType, StockStatus } from '@/types/enums';
-import { MaterialDescription, Product } from '@/types/domain/product';
+import { Product, MaterialDescription } from '@/types/domain/product';
+import { generateReviewStats } from '@/mocks/review-data';
+import { ReviewStatsData } from '@/types/domain/review';
 
-export interface MockProduct extends Omit<Product, 'id' | 'categoryId'> {
+export interface MockProduct extends Omit<
+  Product,
+  'id' | 'materialDescription'
+> {
   id: string | number;
   categoryId: string;
   stockStatus: StockStatus;
+
   materialDescription?: MaterialDescription;
+
   originalPrice?: number;
   materialOriginal?: string;
+  monthReviewCount?: number;
+
+  reviewSummary?: ReviewStatsData;
+  monthReviewSummary?: ReviewStatsData;
+
+  reviewCount: number;
+  viewCount: number;
+  purchaseCount: number;
 }
 
 const REAL_PRODUCT_IMAGES = [
@@ -19,7 +34,6 @@ const REAL_PRODUCT_IMAGES = [
   'https://images.unsplash.com/photo-1618354691373-d851c5c3a990?auto=format&fit=crop&w=500&q=80',
 ];
 
-// 랜덤 혼용률 데이터셋
 const MATERIAL_COMPOSITIONS = [
   '면 100%',
   '폴리에스터 100%',
@@ -32,51 +46,19 @@ const MATERIAL_COMPOSITIONS = [
 
 const MATERIAL_DESCRIPTIONS: MaterialDescription[] = [
   {
-    advantages: [
-      '통기성이 뛰어나 여름철에도 시원해요.',
-      '구김이 잘 가지 않아 관리가 편해요.',
-      '신축성이 좋아 활동하기 좋습니다.',
-      '피부에 닿는 촉감이 부드러워요.',
-    ],
-    disadvantages: [
-      '물에 젖으면 무거워질 수 있어요.',
-      '고온 건조 시 수축될 수 있어요.',
-    ],
-    care: [
-      '30도 이하의 미지근한 물에서 중성세제로 세탁해주세요.',
-      '표백제 사용은 피해주세요.',
-      '그늘에서 자연 건조하는 것을 추천해요.',
-    ],
+    advantages: ['통기성 우수', '부드러운 촉감', '땀 흡수력 좋음'],
+    disadvantages: ['세탁 시 수축 주의', '주름 발생 가능'],
+    care: ['찬물 세탁', '중성세제 사용', '자연 건조'],
   },
   {
-    advantages: [
-      '보온성이 뛰어나 겨울철 필수 아이템이에요.',
-      '내구성이 강해 오래 입을 수 있어요.',
-      '가벼운 무게감으로 착용감이 좋아요.',
-    ],
-    disadvantages: [
-      '보풀이 생길 수 있으니 주의해주세요.',
-      '정전기가 발생할 수 있어요.',
-    ],
-    care: [
-      '드라이클리닝을 권장해요.',
-      '손세탁 시 비비지 말고 가볍게 눌러 빨아주세요.',
-    ],
+    advantages: ['구김 적음', '내구성 강함', '신축성 좋음'],
+    disadvantages: ['고온 건조 주의', '정전기 발생 가능'],
+    care: ['미지근한 물 세탁', '건조기 사용 자제'],
   },
   {
-    advantages: [
-      '땀 흡수가 빨라 쾌적함을 유지해요.',
-      '천연 소재로 피부 자극이 적어요.',
-      '세탁 후 건조가 빨라요.',
-    ],
-    disadvantages: [
-      '주름이 잘 생길 수 있어요.',
-      '초기 세탁 시 약간의 물빠짐이 있을 수 있어요.',
-    ],
-    care: [
-      '찬물 세탁을 권장해요.',
-      '세탁망을 사용하면 옷감을 보호할 수 있어요.',
-    ],
+    advantages: ['뛰어난 보온성', '고급스러운 광택', '가벼운 착용감'],
+    disadvantages: ['보풀 주의', '습기에 약함'],
+    care: ['드라이클리닝 필수', '전용 브러쉬 사용'],
   },
 ];
 
@@ -91,6 +73,7 @@ function generateDummyProducts(
 ): MockProduct[] {
   return Array.from({ length: count }).map((_, i) => {
     const isDiscount = i % 3 !== 0;
+
     const basePrice = (3 + (i % 5)) * 10000 - 100;
     const originalPrice = isDiscount ? Math.floor(basePrice * 1.3) : basePrice;
     const finalPrice = basePrice;
@@ -98,12 +81,14 @@ function generateDummyProducts(
 
     const materialDesc =
       MATERIAL_DESCRIPTIONS[i % MATERIAL_DESCRIPTIONS.length];
-
     const materialComposition =
       MATERIAL_COMPOSITIONS[i % MATERIAL_COMPOSITIONS.length];
 
     const isSoldOut = i % 10 === 9;
     const isSpecial = i % 5 === 0;
+
+    const reviewCount = Math.floor(Math.random() * 200);
+    const monthReviewCount = Math.floor(reviewCount * 0.3);
 
     return {
       id: `${categoryId}-${i}`,
@@ -121,10 +106,23 @@ function generateDummyProducts(
 
       materialDescription: materialDesc,
       materialOriginal: materialComposition,
+      monthReviewCount: monthReviewCount,
 
-      reviewCount: Math.floor(Math.random() * 100),
+      reviewCount: reviewCount,
       viewCount: Math.floor(Math.random() * 1000),
       purchaseCount: Math.floor(Math.random() * 500),
+
+      reviewSummary: generateReviewStats(
+        reviewCount,
+        monthReviewCount,
+        'GENERAL',
+      ),
+
+      monthReviewSummary: generateReviewStats(
+        reviewCount,
+        monthReviewCount,
+        'MONTH',
+      ),
     };
   });
 }
