@@ -5,7 +5,7 @@ import Image from 'next/image';
 import { useParams } from 'next/navigation';
 
 interface ProductHeaderProps {
-  categoryID?: string;
+  categoryID: string | number | undefined;
 }
 
 // 상품 상세 페이지 헤더 컴포넌트.

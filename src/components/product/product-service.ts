@@ -17,7 +17,10 @@ export async function getProductsByCategoryId(categoryId: string) {
 // 상품 ID로 상세 정보 가져오기
 export async function getProductById(productId: string) {
   // ex)fetch('/api/products/${productId}')같은 방식으로 추후 백엔드 연동시 사용
-  return PRODUCTS.find((p) => p.id === productId) || null;
+
+  // [수정] Mock 데이터 ID가 number이므로, 입력받은 string ID를 숫자로 변환하여 비교
+  const idAsNumber = Number(productId);
+  return PRODUCTS.find((p) => p.id === idAsNumber) || null;
 }
 
 // 페이지 제목 가져오기
