@@ -46,10 +46,10 @@ export function ReviewItem({ review, isAccessory = false }: ReviewItemProps) {
           <Image
             src="/icons/smile.svg"
             alt="smile-icon"
-            width={20}
-            height={20}
+            width={30}
+            height={30}
           />
-          <StarRating rating={review.rating} size={20} />
+          <StarRating rating={review.rating} size={30} />
           <span className="pt-0.5 text-base leading-none font-bold text-gray-900">
             {review.rating}
           </span>

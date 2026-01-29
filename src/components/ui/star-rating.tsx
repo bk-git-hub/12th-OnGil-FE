@@ -1,6 +1,6 @@
 'use client';
 
-import { StarHalf } from 'lucide-react';
+import { StarHalf, Star } from 'lucide-react'; // 빈 별 표현을 위해 Star 아이콘 추가
 import { cn } from '@/lib/utils';
 import Image from 'next/image';
 
@@ -16,11 +16,14 @@ interface StarRatingProps {
 export function StarRating({
   rating,
   max = 5,
-  size = 20,
+  size,
   className,
 }: StarRatingProps) {
   return (
-    <div className={cn('flex items-center gap-2', className)}>
+    <div
+      className={cn('flex items-center gap-2', className)}
+      aria-label={`${max}점 만점에 ${rating}점`}
+    >
       {Array.from({ length: max }).map((_, i) => {
         const index = i + 1;
         if (rating >= index) {
@@ -37,14 +40,17 @@ export function StarRating({
         // 추후 피그마에 반별 아이콘 업로드시 교체 예정
         if (rating >= index - 0.5) {
           return (
-            <StarHalf key={i} size={size} className="fill-yellow text-black" />
+            <StarHalf
+              key={i}
+              size={size}
+              className="fill-yellow-400 text-yellow-400"
+            />
           );
         }
-
         return (
           <Image
             key={i}
-            src="/icons/star.svg"
+            src="/icons/star-gray.svg"
             alt="star-full"
             width={size}
             height={size}
