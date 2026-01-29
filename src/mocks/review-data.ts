@@ -6,7 +6,9 @@ import {
   ReviewCategorySummary,
   InitialFirstAnswers,
   ReviewerInfo,
-} from '@/types//domain/review';
+  ReviewPurchaseOption,
+  ReviewProductSimple,
+} from '@/types/domain/review';
 
 // ----------------------------------------------------------------------
 // 1. 데이터 풀 (Data Pools)
@@ -45,25 +47,24 @@ const SIZES = ['XS', 'S', 'M', 'L', 'XL'];
 const USUAL_SIZES = ['상의 44', '상의 55', '상의 66', '하의 26', '하의 28'];
 
 // ----------------------------------------------------------------------
-// 2. 리뷰 리스트 Mock (ReviewDetail[])
-//    - JSON 5번(상세 조회) 구조를 리스트로 반환하도록 시뮬레이션
+// 2. 리뷰 리스트 Mock 생성
 // ----------------------------------------------------------------------
+
 export function generateMockReviews(count: number): ReviewDetail[] {
   const sizeAnswers = ['large', 'fit', 'small'];
   const colorAnswers = ['bright', 'exact', 'dark'];
   const materialAnswers = ['soft', 'normal', 'rough'];
 
   return Array.from({ length: count }).map((_, i) => {
-    const isMonth = Math.random() < 0.3; // 30% 확률로 한달 리뷰
+    // 30% 확률로 한달 리뷰 설정
+    const isMonth = Math.random() < 0.3;
     const contentPool = isMonth ? MONTH_CONTENTS : NORMAL_CONTENTS;
 
-    // 이미지 0~3장 랜덤
     const imgCount = Math.floor(Math.random() * 4);
     const reviewImageUrls = Array.from({ length: imgCount }).map(
       (_, idx) => IMAGES_POOL[(i + idx) % IMAGES_POOL.length],
     );
 
-    // 1차 답변
     const initialFirstAnswers: InitialFirstAnswers = {
       sizeAnswer: sizeAnswers[Math.floor(Math.random() * sizeAnswers.length)],
       colorAnswer:
@@ -74,17 +75,29 @@ export function generateMockReviews(count: number): ReviewDetail[] {
 
     // 작성자 정보
     const reviewer: ReviewerInfo = {
-      height: 150 + Math.floor(Math.random() * 35),
-      weight: 45 + Math.floor(Math.random() * 40),
+      height: 150 + Math.floor(Math.random() * 35), // 150 ~ 185cm
+      weight: 45 + Math.floor(Math.random() * 40), // 45 ~ 85kg
       usualTopSize: USUAL_SIZES[Math.floor(Math.random() * USUAL_SIZES.length)],
       usualBottomSize: '27',
       usualShoeSize: '240mm',
     };
 
+    const purchaseOption: ReviewPurchaseOption = {
+      selectedColor: COLORS[i % COLORS.length],
+      selectedSize: SIZES[i % SIZES.length],
+    };
+
+    const product: ReviewProductSimple = {
+      productId: 100 + i,
+      productName: '데일리 베이직 오버핏 셔츠',
+      brandName: 'ONGIL',
+      thumbnailImageUrl: IMAGES_POOL[0],
+    };
+
     return {
       reviewId: i + 1,
       reviewType: isMonth ? 'MONTH' : 'NORMAL',
-      rating: 4 + (Math.random() > 0.8 ? 0 : 1), // 4점 또는 5점
+      rating: 4 + (Math.random() > 0.8 ? 0 : 1), // 4 또는 5점
       helpfulCount: Math.floor(Math.random() * 50),
       isHelpful: Math.random() < 0.2,
 
@@ -92,19 +105,9 @@ export function generateMockReviews(count: number): ReviewDetail[] {
         Math.random() < 0.5 ? AI_SUMMARIES[i % AI_SUMMARIES.length] : null,
       textReview: contentPool[i % contentPool.length],
       reviewImageUrls,
-
       reviewer,
-      purchaseOption: {
-        selectedColor: COLORS[i % COLORS.length],
-        selectedSize: SIZES[i % SIZES.length],
-      },
-      product: {
-        productId: 100 + i,
-        productName: '데일리 베이직 오버핏 셔츠',
-        brandName: 'ONGIL',
-        thumbnailImageUrl: IMAGES_POOL[0],
-      },
-
+      purchaseOption,
+      product,
       initialFirstAnswers,
       initialSecondAnswers: {
         fitIssueParts: Math.random() > 0.5 ? '소매가 조금 길어요' : null,
@@ -122,24 +125,19 @@ export function generateMockReviews(count: number): ReviewDetail[] {
 }
 
 // ----------------------------------------------------------------------
-// 3. 통계 데이터 Mock (ReviewStatsData)
-//    - JSON 7번 기반 (answerStats 채워서 리턴)
+// 3. 통계 데이터 Mock 생성
 // ----------------------------------------------------------------------
 export function generateReviewStats(
   generalCount: number,
   monthCount: number,
   mode: 'GENERAL' | 'MONTH',
 ): ReviewStatsData {
-  // 1. 현재 모드에 따라 기준이 되는 총 개수 설정
-  // (일반 탭이면 generalCount 기준, 한달 탭이면 monthCount 기준으로 요약 통계 생성)
   const targetTotalCount = mode === 'GENERAL' ? generalCount : monthCount;
 
-  // 2. 통계 요약 생성 헬퍼 (비율로 계산)
   const createSummary = (
     category: string,
     topAnswerLabel: string,
   ): ReviewCategorySummary => {
-    // 리뷰가 0개면 통계도 0으로 리턴
     if (targetTotalCount === 0) {
       return {
         category,
@@ -150,23 +148,27 @@ export function generateReviewStats(
       };
     }
 
-    // 예: 약 60~80%가 1위 답변을 선택했다고 가정
+    // 상위 답변 선택 비율: 60~80%
     const ratio = 0.6 + Math.random() * 0.2;
     const topCount = Math.floor(targetTotalCount * ratio);
     const remainCount = targetTotalCount - topCount;
 
     return {
       category,
-      totalCount: targetTotalCount, // 현재 탭의 총 개수
+      totalCount: targetTotalCount,
       topAnswer: topAnswerLabel,
-      topAnswerCount: topCount, // 비율에 맞춰 계산된 인원 수
+      topAnswerCount: topCount,
       answerStats: [
         {
           label: '아쉬워요',
           count: Math.floor(remainCount * 0.3),
+          percentage: 0, // UI에서 계산하거나 필요시 여기서 계산
+        },
+        {
+          label: topAnswerLabel,
+          count: topCount,
           percentage: 0,
-        }, // 퍼센트는 UI에서 계산하거나 여기서 대략 넣음
-        { label: topAnswerLabel, count: topCount, percentage: 0 },
+        },
         {
           label: '보통이에요',
           count: remainCount - Math.floor(remainCount * 0.3),
@@ -178,29 +180,26 @@ export function generateReviewStats(
 
   return {
     averageRating: mode === 'GENERAL' ? 4.7 : 4.8,
-
-    // 상단에 표시될 총 개수는 항상 고정값 전달
     initialReviewCount: generalCount,
     oneMonthReviewCount: monthCount,
-
-    // 하단 디테일 통계는 mode에 따라 텍스트와 숫자가 달라짐
     sizeSummary: createSummary('사이즈', '정사이즈예요'),
 
     colorSummary: createSummary(
       '색감',
-      mode === 'GENERAL' ? '화면과 같아요' : '변색 없어요', // 탭에 따라 멘트 변경
+      mode === 'GENERAL' ? '화면과 같아요' : '변색 없어요',
     ),
 
     materialSummary: createSummary(
       '소재',
-      mode === 'GENERAL' ? '부드러워요' : '변형 없어요', // 탭에 따라 멘트 변경
+      mode === 'GENERAL' ? '부드러워요' : '변형 없어요',
     ),
   };
 }
+
 // ----------------------------------------------------------------------
-// 4. 상품 목록 (내가 쓴 리뷰용) Mock
-//    - JSON 2번, 6번 기반
+// 4. 내가 작성한 리뷰 목록 Mock
 // ----------------------------------------------------------------------
+
 export function generateMyReviews(count: number): ProductWithReviewStats[] {
   return Array.from({ length: count }).map((_, i) => ({
     id: 300 + i,
@@ -220,8 +219,8 @@ export function generateMyReviews(count: number): ProductWithReviewStats[] {
 
 // ----------------------------------------------------------------------
 // 5. 작성 가능한 리뷰 목록 Mock
-//    - JSON 3번 기반
 // ----------------------------------------------------------------------
+
 export function generateWritableReviews(count: number): WritableReviewItem[] {
   return Array.from({ length: count }).map((_, i) => ({
     orderItemId: 5000 + i,

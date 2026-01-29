@@ -7,7 +7,7 @@ export interface MockProduct extends Omit<
   Product,
   'id' | 'materialDescription'
 > {
-  id: string | number;
+  id: number;
   categoryId: string;
   stockStatus: StockStatus;
 
@@ -70,6 +70,7 @@ function generateDummyProducts(
   categoryId: string,
   count: number,
   baseName: string,
+  startId: number, // 추가
 ): MockProduct[] {
   return Array.from({ length: count }).map((_, i) => {
     const isDiscount = i % 3 !== 0;
@@ -91,7 +92,7 @@ function generateDummyProducts(
     const monthReviewCount = Math.floor(reviewCount * 0.3);
 
     return {
-      id: `${categoryId}-${i}`,
+      id: startId + i, // 문자열 -> 숫자 ID로 변경
       name: `${baseName} 에센셜 아이템 ${i + 1}`,
       brandName: ['MUSINSA STANDARD', 'NIKE', 'ADIDAS', 'LEE', 'COVERNAT'][
         i % 5
@@ -127,13 +128,14 @@ function generateDummyProducts(
   });
 }
 
+// 각 호출마다 누적된 ID 시작값 전달
 export const PRODUCTS: MockProduct[] = [
-  ...generateDummyProducts('top-1', 15, '프리미엄 니트'),
-  ...generateDummyProducts('top-2', 12, '오버핏 후드'),
-  ...generateDummyProducts('outer-1', 10, '캐시미어 코트'),
-  ...generateDummyProducts('outer-3', 10, '덕다운 패딩'),
-  ...generateDummyProducts('pants-1', 15, '와이드 데님'),
-  ...generateDummyProducts('shoes-1', 12, '데일리 스니커즈'),
-  ...generateDummyProducts('bag-1', 8, '미니 크로스백'),
-  ...generateDummyProducts('hat-1', 10, '베이직 캡'),
+  ...generateDummyProducts('top-1', 15, '프리미엄 니트', 0),
+  ...generateDummyProducts('top-2', 12, '오버핏 후드', 15),
+  ...generateDummyProducts('outer-1', 10, '캐시미어 코트', 27),
+  ...generateDummyProducts('outer-3', 10, '덕다운 패딩', 37),
+  ...generateDummyProducts('pants-1', 15, '와이드 데님', 47),
+  ...generateDummyProducts('shoes-1', 12, '데일리 스니커즈', 62),
+  ...generateDummyProducts('bag-1', 8, '미니 크로스백', 74),
+  ...generateDummyProducts('hat-1', 10, '베이직 캡', 82),
 ];
