@@ -84,18 +84,20 @@ export function SizeGuideSection({
           {stats.map((stat) => {
             const isRecommended = recommendedSizes.includes(stat.size);
             return (
-              <div key={stat.size} className="flex items-center gap-3 text-sm">
+              <div
+                key={stat.size}
+                className="flex items-center gap-4 text-xl leading-normal not-italic"
+              >
                 <div
-                  className={`w-8 font-bold ${isRecommended ? 'text-ongil-teal' : 'text-gray-700'}`}
+                  className={`w-8 font-semibold ${isRecommended ? 'text-ongil-teal' : 'text-black'}`}
                 >
                   {stat.size}
                 </div>
-                <div className="flex-1">
-                  <Progress value={stat.ratio} className="h-2.5 bg-gray-100" />
-                </div>
-                <div className="w-12 text-right text-sm text-gray-500">
-                  {stat.count}명
-                </div>
+                <Progress
+                  value={stat.ratio}
+                  className="h-[10px] w-[290px] bg-gray-100"
+                />
+                <span className="w-16 text-right"> {stat.count}명</span>
               </div>
             );
           })}
@@ -126,8 +128,6 @@ export function SizeGuideSection({
             <SimilarUserTable
               similarUsersSample={analysisData.similarUsersSample}
             />
-
-            <hr className="mt-4 border-gray-100" />
 
             <MySize
               userInfo={userInfo}
