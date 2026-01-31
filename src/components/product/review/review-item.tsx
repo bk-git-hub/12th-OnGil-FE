@@ -5,9 +5,14 @@ import Image from 'next/image';
 import { cn } from '@/lib/utils';
 import { ThumbsUp } from 'lucide-react';
 import { ReviewDetail } from '@/types/domain/review';
-import StarRating from '@/components/ui/star-rating';
-import ReviewDetailModal from './review-detail-modal';
-import ReviewImageModal from './review-image-modal';
+import { StarRating } from '@/components/ui/star-rating';
+import { ReviewDetailModal } from './review-detail-modal';
+import { ReviewImageModal } from './review-image-modal';
+import {
+  Carousel,
+  CarouselContent,
+  CarouselItem,
+} from '@/components/ui/carousel';
 import { EVALUATION_MAP, EVALUATION_CONFIG } from './review-constants';
 
 // 단일 리뷰 아이템 컴포넌트(하나의 리뷰 정보를 표시)
@@ -93,40 +98,46 @@ export function ReviewItem({ review, isAccessory = false }: ReviewItemProps) {
 
       {/* 3. 사진 (썸네일 리스트) */}
       {review.reviewImageUrls && review.reviewImageUrls.length > 0 && (
-        <div className="mb-4 w-full">
-          <div className="scrollbar-hide flex w-full gap-2.5 overflow-x-auto pb-2">
+        <Carousel
+          opts={{
+            dragFree: true,
+            loop: false,
+          }}
+          className="mb-4 w-full"
+        >
+          <CarouselContent className="-ml-8">
             {review.reviewImageUrls.map((src, index) => (
-              <div
-                key={index}
-                className="relative h-[120px] w-[120px] flex-shrink-0 cursor-pointer overflow-hidden rounded-lg bg-gray-50 transition-transform active:scale-95"
-                onClick={() => handleImageClick(index)}
-                role="button"
-                tabIndex={0}
-                aria-label={`리뷰 이미지 ${index + 1} 확대보기`}
-                onKeyDown={(e) => {
-                  if (e.key === 'Enter' || e.key === ' ') {
-                    e.preventDefault();
-                    handleImageClick(index);
-                  }
-                }}
-              >
-                <Image
-                  src={src}
-                  alt={`리뷰 썸네일 ${index + 1}`}
-                  fill
-                  sizes="120px"
-                  className="object-cover"
-                />
-              </div>
+              <CarouselItem key={index} className="basis-1/3">
+                <div
+                  className="relative h-[120px] w-[120px] flex-shrink-0 cursor-pointer overflow-hidden rounded-lg bg-gray-50 transition-transform active:scale-95"
+                  onClick={() => handleImageClick(index)}
+                  role="button"
+                  tabIndex={0}
+                  aria-label={`리뷰 이미지 ${index + 1}  확대보기`}
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter' || e.key === ' ') {
+                      e.preventDefault();
+                      handleImageClick(index);
+                    }
+                  }}
+                >
+                  <Image
+                    src={src}
+                    alt={`리뷰 썸네일 ${index + 1}`}
+                    fill
+                    sizes="120px"
+                    className="object-cover"
+                  />
+                </div>
+              </CarouselItem>
             ))}
-          </div>
-        </div>
+          </CarouselContent>
+        </Carousel>
       )}
 
-      {/* 5. 상세 평가 정보 (클릭 시 팝업 오픈) */}
-      <button
-        type="button"
-        className="mb-4 flex w-full cursor-pointer flex-col gap-4 text-left"
+      {/* 5. 상세 평가 정보 */}
+      <div
+        className="mb-4 flex cursor-pointer flex-col gap-4"
         onClick={() => setIsDetailPopupOpen(true)}
         onKeyDown={(e) => {
           if (e.key === 'Enter' || e.key === ' ') {
@@ -143,11 +154,15 @@ export function ReviewItem({ review, isAccessory = false }: ReviewItemProps) {
           return (
             <div
               key={key}
-              className="flex h-[120px] flex-col gap-4 border-b border-black text-xl"
+              className="flex flex-col gap-4 border-b border-black text-xl"
             >
               <span className="min-w-[30px] text-2xl font-bold">{label}</span>
-              <ul className="list-disc gap-2 pl-5">
-                <li>{text}</li>
+              <ul className="list-disc gap-2 pl-10">
+                {[text, text, text].map((item, index) => (
+                  <li key={index} className="mb-3">
+                    {item}
+                  </li>
+                ))}
               </ul>
             </div>
           );
@@ -156,7 +171,7 @@ export function ReviewItem({ review, isAccessory = false }: ReviewItemProps) {
 
       {/* 6. 선택지 태그 더보기 버튼 */}
       <div className="mb-5 flex items-center justify-between">
-        <div className="border-ongil-teal w-[262px] rounded-lg border-3 bg-white px-[14px] py-[11px]">
+        <div className="border-ongil-teal w-[250px] rounded-lg border-3 bg-white px-[14px] py-[11px]">
           <span className="font-internal text-xl leading-normal font-normal">
             {sizeText}
           </span>
