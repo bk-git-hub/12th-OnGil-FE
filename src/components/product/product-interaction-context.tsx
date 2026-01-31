@@ -1,6 +1,6 @@
 'use client';
 
-import { createContext, useContext, useState, ReactNode } from 'react';
+import { createContext, use, useState, ReactNode } from 'react';
 
 interface ProductContextType {
   shouldScrollToTab: boolean; // 스크롤 이동 여부
@@ -48,7 +48,7 @@ export function ProductInteractionProvider({
  * @throws Error if used outside of ProductInteractionProvider
  */
 export function useProductInteraction() {
-  const context = useContext(ProductContext);
+  const context = use(ProductContext);
   if (!context) {
     throw new Error(
       'useProductInteraction must be used within a ProductInteractionProvider',
