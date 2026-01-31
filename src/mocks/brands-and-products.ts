@@ -59,6 +59,7 @@ export const MOCK_PRODUCTS: Product[] = BRANDS.flatMap((brand, brandIndex) => {
       viewCount: Math.floor(Math.random() * 10000),
       purchaseCount: Math.floor(Math.random() * 1000),
       reviewCount: Math.floor(Math.random() * 500),
+      reviewRating: parseFloat((Math.random() * 5).toFixed(1)),
     };
   });
 });
