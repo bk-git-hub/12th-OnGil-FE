@@ -60,7 +60,7 @@ export function generateMockReviews(count: number): ReviewDetail[] {
     const isMonth = Math.random() < 0.3;
     const contentPool = isMonth ? MONTH_CONTENTS : NORMAL_CONTENTS;
 
-    const imgCount = Math.floor(Math.random() * 4);
+    const imgCount = Math.floor(Math.random() * 8);
     const reviewImageUrls = Array.from({ length: imgCount }).map(
       (_, idx) => IMAGES_POOL[(i + idx) % IMAGES_POOL.length],
     );
