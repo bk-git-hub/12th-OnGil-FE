@@ -36,7 +36,7 @@ export default function ProductTab({
   };
 
   return (
-    <div className="font-pretendard flex h-12 w-full bg-[#D9D9D9]">
+    <div className="font-pretendard flex-start border-light-tertiary flex h-[98px] w-full rounded-xl bg-[#0000000A] p-[2px]">
       {PRODUCT_TABS.map((tab) => {
         let label: string = tab.label;
         if (tab.id === 'review') {
@@ -47,15 +47,13 @@ export default function ProductTab({
             key={tab.id}
             onClick={() => handleTabClick(tab.id)}
             className={cn(
-              'relative flex-1 py-3 text-center text-sm transition-colors outline-none focus-visible:ring-2 focus-visible:ring-black focus-visible:ring-inset',
+              'relative flex-1 border-r text-center text-2xl leading-8 font-medium -tracking-[0.08px] not-italic transition-colors last:border-0',
               // 선택됨: 흰색 배경으로 아래 콘텐츠와 자연스럽게 연결
               // 선택안됨: 회색 배경
-              activateTab === tab.id
-                ? 'bg-white font-bold text-black'
-                : 'font-medium text-[#8B8A8A] hover:text-gray-600',
+              activateTab === tab.id ? 'rounded-2xl bg-white' : '',
             )}
           >
-            {label}
+            <span>{label}</span>
           </button>
         );
       })}
