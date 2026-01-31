@@ -16,7 +16,7 @@ export function ProductSizeContent({
   const productType = 'top';
 
   return (
-    <div className="font-pretendard flex flex-col gap-10 px-4 py-8 pb-20">
+    <div className="font-pretendard flex flex-col gap-10 py-8 pb-20">
       {/* 상단 실측 정보 */}
       <SizeInfo />
 
