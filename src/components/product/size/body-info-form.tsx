@@ -1,6 +1,6 @@
 'use client';
 
-import { useTransition } from 'react';
+import { useTransition, useEffect, useState } from 'react';
 import { useRouter, usePathname } from 'next/navigation';
 import {
   useForm,
@@ -14,6 +14,13 @@ import {
 } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { Loader2 } from 'lucide-react';
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+} from '@/components/ui/dialog';
 
 import {
   Select,
@@ -27,14 +34,21 @@ import { cn } from '@/lib/utils';
 
 import { UserBodyInfo } from '@/mocks/size';
 import { bodyInfoSchema, BodyInfoSchemaType } from '@/schemas/body-info';
-import { updateBodyInfoAction } from '@/app/actions/body-info';
+import {
+  updateBodyInfoAction,
+  getSizeOptionsAction,
+  getMyBodyInfoAction,
+  getBodyInfoTermsAction, // 약관 조회 액션
+  TermsData, // 약관 데이터 타입
+} from '@/app/actions/body-info';
 
 // 사이즈 정보 입력/수정 폼 컴포넌트
 
-const SIZES = {
-  SIZES: ['XS', 'S', 'M', 'L', 'XL', '2XL'],
-  SHOE: Array.from({ length: 17 }, (_, i) => (220 + i * 5).toString()),
-};
+interface SizeOptionsState {
+  topSizes: string[];
+  bottomSizes: string[];
+  shoeSizes: string[];
+}
 
 // 스타일 상수 정의
 const STYLES = {
@@ -158,16 +172,40 @@ interface BodyInfoFormProps {
 }
 
 // 체형 정보 입력/수정 폼 컴포넌트, 위에서 만든 컴포넌트를 조립.
-
 export function BodyInfoForm({ initialData, onSuccess }: BodyInfoFormProps) {
   const router = useRouter();
   const pathname = usePathname();
   const [isPending, startTransition] = useTransition();
 
+  // 옵션 목록 & 로딩 상태
+  const [sizeOptions, setSizeOptions] = useState<SizeOptionsState | null>(null);
+  const [isInitializing, setIsInitializing] = useState(true);
+
+  // 약관 모달 상태 및 데이터
+  const [terms, setTerms] = useState<TermsData | null>(null);
+  const [isTermsOpen, setIsTermsOpen] = useState(false);
+  const [isTermsLoading, setIsTermsLoading] = useState(false);
+
+  // 약관 조회 핸들러
+  const handleViewTerms = async () => {
+    setIsTermsOpen(true);
+    if (!terms) {
+      setIsTermsLoading(true);
+      const result = await getBodyInfoTermsAction();
+      if (result.success && result.data) {
+        setTerms(result.data);
+      } else {
+        console.error(result.message);
+      }
+      setIsTermsLoading(false);
+    }
+  };
+
   const {
     register,
     control,
     handleSubmit,
+    reset,
     formState: { errors },
   } = useForm<BodyInfoSchemaType>({
     resolver: zodResolver(bodyInfoSchema) as Resolver<BodyInfoSchemaType>,
@@ -180,7 +218,36 @@ export function BodyInfoForm({ initialData, onSuccess }: BodyInfoFormProps) {
     },
   });
 
-  // 폼 제출 핸들러
+  // 데이터 초기화
+  useEffect(() => {
+    const initData = async () => {
+      try {
+        const [optionsResult, myInfoResult] = await Promise.all([
+          getSizeOptionsAction(),
+          getMyBodyInfoAction(),
+        ]);
+
+        if (optionsResult.success && optionsResult.data) {
+          setSizeOptions(optionsResult.data);
+        }
+
+        if (
+          myInfoResult.success &&
+          myInfoResult.data &&
+          myInfoResult.data.hasBodyInfo
+        ) {
+          reset(myInfoResult.data);
+        }
+      } catch (e) {
+        console.error('Failed to initialize form', e);
+      } finally {
+        setIsInitializing(false);
+      }
+    };
+
+    initData();
+  }, [reset]);
+
   const onSubmit = (data: BodyInfoSchemaType) => {
     startTransition(async () => {
       try {
@@ -199,94 +266,129 @@ export function BodyInfoForm({ initialData, onSuccess }: BodyInfoFormProps) {
     });
   };
 
+  if (isInitializing || !sizeOptions) {
+    return (
+      <div className="flex h-full w-full items-center justify-center">
+        <Loader2 className="h-8 w-8 animate-spin text-gray-300" />
+      </div>
+    );
+  }
+
   return (
-    <form
-      onSubmit={handleSubmit(onSubmit)}
-      className="flex h-full flex-col justify-between bg-white"
-    >
-      <div className="scrollbar-hide flex-1 overflow-y-auto px-[55px] pb-10">
-        {/* 키 / 몸무게 섹션 */}
-        <div className="flex flex-col gap-[74px]">
-          <InputField
-            label="키"
-            name="height" // cntl + shift로 어떤값을 넣을 수 있는지 확인하기.
-            unit="cm"
-            register={register}
-            error={errors.height}
-          />
-          <InputField
-            label="몸무게"
-            name="weight"
-            unit="kg"
-            register={register}
-            error={errors.weight}
-          />
-        </div>
-
-        {/* 신발 사이즈 섹션 */}
-        <div className="mt-[74px]">
-          <SelectField
-            label="신발 사이즈"
-            name="usualShoeSize"
-            options={SIZES.SHOE}
-            control={control}
-            error={errors.usualShoeSize}
-          />
-        </div>
-
-        {/* 상의 / 하의 섹션 */}
-        <div className="mt-[74px] flex flex-col gap-[74px]">
-          <SelectField
-            label="상의"
-            name="usualTopSize"
-            options={SIZES.SIZES}
-            control={control}
-            error={errors.usualTopSize}
-          />
-          <SelectField
-            label="하의"
-            name="usualBottomSize"
-            options={SIZES.SIZES}
-            control={control}
-            error={errors.usualBottomSize}
-          />
-        </div>
-      </div>
-
-      {/* --- 하단 영역 --- */}
-      <div className="border-ongil-teal flex w-full flex-col gap-5 border-t bg-white p-6">
-        <div className="flex gap-4">
-          <div className="mr-7 flex flex-col justify-between rounded-lg px-4 py-3 text-start text-xl tracking-[0.08px] text-black">
-            <span>내 사이즈</span>
-            <span>사이즈 정보 수집 이용</span>
+    <>
+      <form
+        onSubmit={handleSubmit(onSubmit)}
+        className="flex h-full flex-col justify-between bg-white"
+      >
+        <div className="scrollbar-hide flex-1 overflow-y-auto px-[55px] pb-10">
+          {/* 키 / 몸무게 섹션 */}
+          <div className="flex flex-col gap-[74px]">
+            <InputField
+              label="키"
+              name="height"
+              unit="cm"
+              register={register}
+              error={errors.height}
+            />
+            <InputField
+              label="몸무게"
+              name="weight"
+              unit="kg"
+              register={register}
+              error={errors.weight}
+            />
           </div>
 
-          <div className="ml-2 flex items-center justify-center">
-            <button
-              type="button"
-              onClick={() => alert('수집·이용 동의 내용 안내 화면으로 이동')}
-              className="bg-ongil-teal h-[49px] w-[94px] rounded-3xl transition-opacity hover:opacity-90"
-            >
-              <span className="font-semibold text-white">보러가기</span>
-            </button>
+          {/* 신발 사이즈 섹션 */}
+          <div className="mt-[74px]">
+            <SelectField
+              label="신발 사이즈"
+              name="usualShoeSize"
+              options={sizeOptions.shoeSizes}
+              control={control}
+              error={errors.usualShoeSize}
+            />
+          </div>
+
+          {/* 상의 / 하의 섹션 */}
+          <div className="mt-[74px] flex flex-col gap-[74px]">
+            <SelectField
+              label="상의"
+              name="usualTopSize"
+              options={sizeOptions.topSizes}
+              control={control}
+              error={errors.usualTopSize}
+            />
+            <SelectField
+              label="하의"
+              name="usualBottomSize"
+              options={sizeOptions.bottomSizes}
+              control={control}
+              error={errors.usualBottomSize}
+            />
           </div>
         </div>
 
-        <Button
-          type="submit"
-          disabled={isPending}
-          className="bg-ongil-teal disabled:bg-ongil-teal/50 h-14 w-full rounded-xl text-lg font-bold hover:bg-[#00252a]"
-        >
-          {isPending ? (
-            <>
-              <Loader2 className="mr-2 h-5 w-5 animate-spin" />
-              저장 중...
-            </>
-          ) : (
-            '변경하기'
-          )}
-        </Button>
-      </div>
-    </form>
+        {/* --- 하단 영역 --- */}
+        <div className="border-ongil-teal flex w-full flex-col gap-5 border-t bg-white p-6">
+          <div className="flex gap-4">
+            <div className="mr-7 flex flex-col justify-between rounded-lg px-4 py-3 text-start text-xl tracking-[0.08px] text-black">
+              <span>내 사이즈</span>
+              <span>사이즈 정보 수집 이용</span>
+            </div>
+
+            <div className="ml-2 flex items-center justify-center">
+              <button
+                type="button"
+                onClick={handleViewTerms}
+                className="bg-ongil-teal h-[49px] w-[94px] rounded-3xl transition-opacity hover:opacity-90"
+              >
+                <span className="font-semibold text-white">보러가기</span>
+              </button>
+            </div>
+          </div>
+
+          <Button
+            type="submit"
+            disabled={isPending}
+            className="bg-ongil-teal disabled:bg-ongil-teal/50 h-14 w-full rounded-xl text-lg font-bold hover:bg-[#00252a]"
+          >
+            {isPending ? (
+              <>
+                <Loader2 className="mr-2 h-5 w-5 animate-spin" />
+                저장 중...
+              </>
+            ) : (
+              '변경하기'
+            )}
+          </Button>
+        </div>
+      </form>
+      {/* 약관 모달 Dialog MVP에 없어서 프로토타입으로 잡아둠, */}
+      <Dialog open={isTermsOpen} onOpenChange={setIsTermsOpen}>
+        <DialogContent className="max-h-[80vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle>
+              {terms ? terms.title : '약관을 불러오는 중입니다'}
+            </DialogTitle>
+            {terms && (
+              <DialogDescription>
+                시행일: {terms.effectiveDate} (v{terms.version})
+              </DialogDescription>
+            )}
+          </DialogHeader>
+
+          <div className="mt-4 text-sm leading-relaxed whitespace-pre-wrap text-gray-700">
+            {isTermsLoading ? (
+              <div className="flex justify-center py-10">
+                <Loader2 className="h-6 w-6 animate-spin text-gray-400" />
+              </div>
+            ) : (
+              terms?.content
+            )}
+          </div>
+        </DialogContent>
+      </Dialog>
+    </>
   );
 }
