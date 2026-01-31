@@ -25,8 +25,6 @@ export function SizeGuideSection({
 }: SizeGuideSectionProps) {
   const [isDetailOpen, setIsDetailOpen] = useState(false);
   const [isModalOpen, setIsModalOpen] = useState(false);
-
-  const openModal = () => setIsModalOpen(true);
   const closeModal = () => setIsModalOpen(false);
   // userInfo = null; // 테스트용: 유저 정보 없는 상태
 
@@ -50,10 +48,11 @@ export function SizeGuideSection({
           </div>
         </div>
         {/* 모달 렌더링 */}
+
         <BodyInfoModal
           isOpen={isModalOpen}
           onClose={closeModal}
-          userInfo={null} // 정보 없음
+          userInfo={null}
         />
       </>
     );
@@ -68,7 +67,7 @@ export function SizeGuideSection({
 
   return (
     <div className="flex flex-col gap-16">
-      {/* 1. 사이즈 선택 가이드 (그래프)*/}
+      {/* 1. 사이즈 선택 가이드 (그래프) */}
       <section className="space-y-10">
         <div className="flex flex-col items-center justify-between font-bold">
           <h3 className="pb-6 text-lg text-gray-900">사이즈 선택 가이드</h3>
@@ -129,11 +128,7 @@ export function SizeGuideSection({
               similarUsersSample={analysisData.similarUsersSample}
             />
 
-            <MySize
-              userInfo={userInfo}
-              productType={productType}
-              onEdit={openModal}
-            />
+            <MySize productType={productType} />
           </div>
         )}
       </section>
