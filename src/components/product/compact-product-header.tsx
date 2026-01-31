@@ -33,7 +33,7 @@ export default function CompactProductHeader({ product }: CompactProductHeaderPr
             {product.name}
           </span>
           <div className="flex items-center gap-1 text-xs">
-            {product.discountRate && (
+            {product.discountRate > 0 && (
               <span className="font-bold text-red-600">
                 {product.discountRate}%
               </span>
