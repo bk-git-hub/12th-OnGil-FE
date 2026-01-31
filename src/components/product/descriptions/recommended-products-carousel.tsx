@@ -30,8 +30,8 @@ export function RecommendedProductsCarousel({
   if (products.length === 0) return null;
 
   return (
-    <div className="w-full pt-4">
-      <h3 className="mb-6 px-1 text-lg font-bold">해당 제품과 비슷한 상품</h3>
+    <div className="flex w-full flex-col gap-5">
+      <h3 className="px-1 text-lg font-bold">해당 제품과 비슷한 상품</h3>
 
       <Carousel
         setApi={setApi}
@@ -60,12 +60,7 @@ export function RecommendedProductsCarousel({
         </CarouselContent>
       </Carousel>
 
-      <DotNavigation
-        count={count}
-        current={current}
-        onDotClick={scrollTo}
-        className="mt-6"
-      />
+      <DotNavigation count={count} current={current} onDotClick={scrollTo} />
     </div>
   );
 }
