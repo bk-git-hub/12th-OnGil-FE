@@ -108,6 +108,8 @@ export default function ProductReviewContent({
     setFilters((prev) => ({ ...prev, ...newFilters }));
   };
 
+  if (isTotallyEmpty) return <EmptyReviewState />;
+
   return (
     <div className="flex flex-col gap-6 space-y-0 pb-10">
       {/* 1. 상단 AI 소재 분석 캐러셀 */}
@@ -136,20 +138,18 @@ export default function ProductReviewContent({
         monthCount={stats.oneMonthReviewCount}
       />
 
-      {/* 4. 컨텐츠 영역 (Empty State 분기) */}
-      {isTotallyEmpty ? (
-        <EmptyReviewState />
-      ) : (
-        <>
-          {/* 통계 요약 섹션 */}
-          <ReviewSummarySection
-            stats={currentDisplayStats}
-            reviewCount={currentTotalCount}
-            availableOptions={productInfo.availableOptions}
-          />
+      <>
+        {/* 통계 요약 섹션 */}
+        <ReviewSummarySection
+          stats={currentDisplayStats}
+          reviewCount={currentTotalCount}
+          availableOptions={productInfo.availableOptions}
+        />
 
+        {/* Sticky 필터/정렬 바 */}
+        <div className="sticky top-40 z-20 flex flex-col gap-3 bg-white px-4 py-3 transition-all">
           {/* 내 사이즈 보기 스위치 */}
-          <div className="mt-2 flex justify-end space-x-2 px-4">
+          <div className="flex justify-end space-x-2">
             <div className="flex items-center space-x-2">
               <Switch
                 id="my-size-mode"
@@ -159,39 +159,35 @@ export default function ProductReviewContent({
               />
               <Label
                 htmlFor="my-size-mode"
-                className="cursor-pointer text-sm font-medium text-gray-700"
+                className="cursor-pointer text-2xl leading-normal font-medium not-italic"
               >
                 내 사이즈만 보기
               </Label>
             </div>
           </div>
-
-          {/* Sticky 필터/정렬 바 */}
-          <div className="sticky top-[104px] z-0 flex flex-col gap-3 border-y border-gray-100 bg-white px-4 py-3 transition-all">
-            <div className="flex items-center justify-between">
-              <ReviewOptionSheet
-                availableSizes={productInfo.availableOptions.sizes}
-                availableColors={productInfo.availableOptions.colors}
-                filters={filters}
-                onApply={handleApplyFilters}
-              />
-              <ReviewSortSheet
-                currentSort={sortOption}
-                onSortChange={setSortOption}
-              />
-            </div>
+          <div className="border-ongil-teal flex items-center justify-between border-y py-[10px]">
+            <ReviewOptionSheet
+              availableSizes={productInfo.availableOptions.sizes}
+              availableColors={productInfo.availableOptions.colors}
+              filters={filters}
+              onApply={handleApplyFilters}
+            />
+            <ReviewSortSheet
+              currentSort={sortOption}
+              onSortChange={setSortOption}
+            />
           </div>
+        </div>
 
-          {/* 리뷰 리스트 */}
-          <ReviewList
-            activeTab={activeReviewTab}
-            totalCount={currentTotalCount}
-            filters={filters}
-            sortOption={sortOption}
-            currentUser={MOCK_CURRENT_USER}
-          />
-        </>
-      )}
+        {/* 리뷰 리스트 */}
+        <ReviewList
+          activeTab={activeReviewTab}
+          totalCount={currentTotalCount}
+          filters={filters}
+          sortOption={sortOption}
+          currentUser={MOCK_CURRENT_USER}
+        />
+      </>
     </div>
   );
 }
