@@ -1,7 +1,7 @@
 import { Product } from '@/types/domain/product';
-import { ProductGrid } from './product-grid';
+import { ProductCard } from './product-card';
 
-// categoryId를 받아 해당 카테고리의 이름과 상품 데이터를 필터링하여, 상단 헤더와 상품 그리드 형태로 보여주는 목록 페이지 컴포넌트
+// 상품 목록 데이터를 받아서 그리드 형태로 보여주는 목록 페이지 컴포넌트
 
 interface ProductListProps {
   products: Product[];
@@ -21,10 +21,17 @@ export function ProductList({ products, totalElements }: ProductListProps) {
           </span>
         </div>
 
-        <ProductGrid
-          products={products}
-          emptyMessage="해당 카테고리에 등록된 상품이 없습니다."
-        />
+        {products.length === 0 ? (
+          <div className="flex h-60 items-center justify-center text-gray-500">
+            해당 카테고리에 등록된 상품이 없습니다.
+          </div>
+        ) : (
+          <div className="grid grid-cols-2 gap-x-4 gap-y-8 sm:grid-cols-3 lg:grid-cols-4">
+            {products.map((product) => (
+              <ProductCard key={product.id} product={product} />
+            ))}
+          </div>
+        )}
       </main>
     </div>
   );
