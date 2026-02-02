@@ -15,17 +15,22 @@ export default async function ProductListContainer({
   const { id: subCategoryId } = await params;
   const { sortType = ProductSortType.POPULAR, page = '0' } = await searchParams;
 
+  // 쿼리 파라미터 검증
+  const validSortTypes = Object.values(ProductSortType);
+  const safeSortType = validSortTypes.includes(sortType as ProductSortType)
+    ? (sortType as ProductSortType)
+    : ProductSortType.POPULAR;
+
+  const safePage = Number.isFinite(Number(page)) && Number(page) >= 0 ? Number(page) : 0;
+
   const result = await api.get<ProductSearchResult>('/products', {
     params: {
       categoryId: Number(subCategoryId),
-      sortType,
-      page: Number(page),
+      sortType: safeSortType,
+      page: safePage,
       size: 20,
-      sort: ['string'] as string[],
     },
   });
-
-  console.log(result);
 
   const totalElements = result.products.page.totalElements;
 
