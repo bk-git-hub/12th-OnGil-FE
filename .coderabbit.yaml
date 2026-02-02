@@ -1,0 +1,151 @@
+# CodeRabbit Configuration
+# Project: Ongils - PWA Shopping Mall
+# Tech Stack: Next.js 16, TypeScript, React 19, Tailwind CSS
+
+# General Settings
+language: ko
+early_access: false
+enable_free_tier: true
+tone_instructions: 'Technical and concise. Focus on Next.js 16 PPR, strict TypeScript (no any), performance, component structure, kebab-case naming, domain-based organization. Highlight a11y issues. Use Korean when appropriate.'
+
+# Reviews Configuration
+reviews:
+  profile: chill
+  request_changes_workflow: false
+  high_level_summary: true
+  auto_title_placeholder: '@coderabbitai'
+  poem: false
+  collapse_walkthrough: false
+  review_status: true
+
+  # Auto Review Settings
+  auto_review:
+    enabled: true
+    auto_incremental_review: true
+    ignore_title_keywords:
+      - 'WIP'
+      - 'DO NOT REVIEW'
+      - 'Draft'
+    drafts: false
+
+  # Path Filters - Exclude unnecessary files from review
+  path_filters:
+    - '!**/*.json'
+    - '!**/*.lock'
+    - '!**/dist/**'
+    - '!**/build/**'
+    - '!**/.next/**'
+    - '!**/node_modules/**'
+    - '!**/public/**'
+
+  # Path-Specific Instructions
+  path_instructions:
+    - path: 'src/app/**/page.tsx'
+      instructions: |
+        - Verify Next.js 16 App Router conventions are followed
+        - Ensure PPR (Partial Prerendering) best practices: page.tsx should be synchronous
+        - Check if dynamic data fetching is properly wrapped in Suspense boundaries
+        - Validate proper use of params/searchParams as Promise types
+
+    - path: 'src/app/**/layout.tsx'
+      instructions: |
+        - Verify layout conventions and proper TypeScript types
+        - Check metadata exports
+        - Ensure no data fetching in layout (use loading.tsx or Suspense in children)
+
+    - path: 'src/components/**/*.tsx'
+      instructions: |
+        - Enforce 'export default function ComponentName()' pattern (NO arrow functions for components)
+        - Verify kebab-case file naming
+        - Check component is in proper domain directory (e.g., /product, /category, /cart)
+        - Ensure NO components are created inside /src/app (only page.tsx, layout.tsx, loading.tsx, error.tsx allowed)
+        - Validate strict TypeScript (NO 'any' types)
+        - Check Client Components have 'use client' directive when needed
+
+    - path: 'src/lib/**/*.ts'
+      instructions: |
+        - Review utility functions for reusability and type safety
+        - Check proper error handling
+        - Ensure no 'any' types
+
+    - path: 'src/types/**/*.ts'
+      instructions: |
+        - Validate type definitions match API contracts
+        - Ensure no 'any' types
+        - Check for proper use of Domain types vs API response types
+
+  # Tools Configuration
+  tools:
+    eslint:
+      enabled: true
+
+    markdownlint:
+      enabled: true
+
+    yamllint:
+      enabled: true
+
+    gitleaks:
+      enabled: true
+
+    # Disable non-relevant tools
+    ruff:
+      enabled: false
+
+    biome:
+      enabled: false
+
+    hadolint:
+      enabled: false
+
+    swiftlint:
+      enabled: false
+
+    phpstan:
+      enabled: false
+
+    golangci-lint:
+      enabled: false
+
+    checkov:
+      enabled: false
+
+    detekt:
+      enabled: false
+
+    buf:
+      enabled: false
+
+    regal:
+      enabled: false
+
+    pmd:
+      enabled: false
+
+    cppcheck:
+      enabled: false
+
+    semgrep:
+      enabled: false
+
+    rubocop:
+      enabled: false
+
+# Chat Configuration
+chat:
+  auto_reply: true
+
+# Knowledge Base Configuration
+knowledge_base:
+  opt_out: false
+
+  learnings:
+    scope: global
+
+  code_guidelines:
+    enabled: true
+    filePatterns:
+      - '**/.cursorrules'
+      - '.github/copilot-instructions.md'
+      - '**/AGENT.md'
+      - '**/AGENTS.md'
