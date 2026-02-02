@@ -21,6 +21,7 @@ export function CategoryTab({
         isActive
           ? 'text-ongil-teal bg-white font-bold'
           : 'bg-gray-300/50 text-gray-500 hover:bg-gray-100/50',
+        className,
       )}
       {...props}
     >
