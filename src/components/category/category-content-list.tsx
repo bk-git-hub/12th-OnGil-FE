@@ -24,7 +24,7 @@ export function CategoryContentList({
                 key={sub.categoryId}
                 label={sub.name}
                 imageUrl={sub.iconUrl || '/icons/star.svg'}
-                href={`/category/1/${sub.categoryId}`}
+                href={`/category/${category.categoryId}/${sub.categoryId}`}
               />
             ))}
           </div>
