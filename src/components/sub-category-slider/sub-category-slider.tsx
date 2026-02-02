@@ -85,7 +85,7 @@ export default function SubCategorySlider({
   }, [isVisible]); // isVisible 의존성 추가
 
   return (
-    <div className="sticky top-14 z-50 border-b bg-white shadow-sm transition-all duration-300">
+    <div className="sticky top-[85px] z-50 border-b bg-white shadow-sm transition-all duration-300">
       {/* 1. 상단 헤더 바 (높이 고정) */}
       <div className="relative z-20 flex h-14 items-center justify-between bg-white px-4">
         {isVisible ? (
@@ -131,7 +131,7 @@ export default function SubCategorySlider({
                       }`}
                     >
                       <img
-                        src={cat.iconUrl}
+                        src={cat.iconUrl || '/icons/star.svg'}
                         alt={cat.name}
                         className="h-20 w-20 rounded-full bg-gray-100 object-cover"
                       />
