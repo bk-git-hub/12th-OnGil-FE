@@ -24,6 +24,14 @@ const subscribe = (callback: () => void) => {
 
 const getServerSnapshot = () => '';
 
+/**
+ * Custom hook for interacting with localStorage.
+ * 
+ * @template T - The type of the stored value
+ * @param key - The localStorage key
+ * @param initialValue - The initial value if key doesn't exist
+ * @returns A tuple containing the current value and a setter function
+ */
 function useLocalStorage<T>(
   key: string,
   initialValue: T,
@@ -60,6 +68,15 @@ function useLocalStorage<T>(
 const MAX_RECENT_SEARCHES = 10;
 const STORAGE_KEY = 'recent-searches-v1';
 
+/**
+ * Custom hook for managing recent search history.
+ * 
+ * @returns An object containing:
+ *   history - Array of recent search terms
+ *   addSearch - Function to add a new search term
+ *   removeSearch - Function to remove a specific search term
+ *   clearHistory - Function to clear all search history
+ */
 export function useRecentSearches() {
   const [history, setHistory] = useLocalStorage<string[]>(STORAGE_KEY, []);
 

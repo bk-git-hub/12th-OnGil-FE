@@ -7,6 +7,15 @@ interface UseSpeechProps {
 
 const SILENCE_TIME = 2000;
 
+/**
+ * Custom hook for speech recognition functionality.
+ * 
+ * @param props - Configuration object containing:
+ *   onFinalResult - Callback when final transcript is ready
+ *   onClose - Callback to close the speech recognition interface
+ * @returns An object containing:
+ *   transcript - The current speech recognition transcript
+ */
 export const useSpeechRecognition = ({
   onFinalResult,
   onClose,

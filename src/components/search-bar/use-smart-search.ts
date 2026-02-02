@@ -16,6 +16,17 @@ const MOCK_KEYWORDS = [
   'AI SDK',
 ];
 
+/**
+ * Custom hook for smart search functionality.
+ * Provides autocomplete suggestions and recommended keywords.
+ * 
+ * @returns An object containing:
+ *   suggestions - Autocomplete suggestions based on query
+ *   recommended - Recommended keywords
+ *   isLoading - Loading state for autocomplete
+ *   fetchRecommended - Function to fetch recommended keywords
+ *   fetchAutocomplete - Function to fetch autocomplete suggestions
+ */
 export function useSmartSearch() {
   const [suggestions, setSuggestions] = useState<string[]>([]);
   const [recommended, setRecommended] = useState<string[]>([]);

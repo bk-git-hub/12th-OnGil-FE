@@ -6,24 +6,51 @@ import { CheckIcon, ChevronDownIcon, ChevronUpIcon } from 'lucide-react';
 
 import { cn } from '@/lib/utils';
 
+/**
+ * Select component wrapper.
+ * 
+ * @param props - Props for the SelectPrimitive.Root component
+ * @returns The Select component
+ */
 function Select({
   ...props
 }: React.ComponentProps<typeof SelectPrimitive.Root>) {
   return <SelectPrimitive.Root data-slot="select" {...props} />;
 }
 
+/**
+ * Select group component.
+ * 
+ * @param props - Props for the SelectPrimitive.Group component
+ * @returns The SelectGroup component
+ */
 function SelectGroup({
   ...props
 }: React.ComponentProps<typeof SelectPrimitive.Group>) {
   return <SelectPrimitive.Group data-slot="select-group" {...props} />;
 }
 
+/**
+ * Select value component.
+ * 
+ * @param props - Props for the SelectPrimitive.Value component
+ * @returns The SelectValue component
+ */
 function SelectValue({
   ...props
 }: React.ComponentProps<typeof SelectPrimitive.Value>) {
   return <SelectPrimitive.Value data-slot="select-value" {...props} />;
 }
 
+/**
+ * Select trigger component.
+ * 
+ * @param props - Props including:
+ *   className - Additional CSS classes
+ *   size - Size variant ('sm' or 'default')
+ *   children - React children
+ * @returns The SelectTrigger component
+ */
 function SelectTrigger({
   className,
   size = 'default',
@@ -50,6 +77,16 @@ function SelectTrigger({
   );
 }
 
+/**
+ * Select content component.
+ * 
+ * @param props - Props including:
+ *   className - Additional CSS classes
+ *   children - React children
+ *   position - Positioning strategy
+ *   align - Alignment of the content
+ * @returns The SelectContent component
+ */
 function SelectContent({
   className,
   children,
@@ -87,6 +124,12 @@ function SelectContent({
   );
 }
 
+/**
+ * Select label component.
+ * 
+ * @param props - Props for the SelectPrimitive.Label component
+ * @returns The SelectLabel component
+ */
 function SelectLabel({
   className,
   ...props
@@ -100,6 +143,12 @@ function SelectLabel({
   );
 }
 
+/**
+ * Select item component.
+ * 
+ * @param props - Props for the SelectPrimitive.Item component
+ * @returns The SelectItem component
+ */
 function SelectItem({
   className,
   children,
@@ -127,6 +176,12 @@ function SelectItem({
   );
 }
 
+/**
+ * Select separator component.
+ * 
+ * @param props - Props for the SelectPrimitive.Separator component
+ * @returns The SelectSeparator component
+ */
 function SelectSeparator({
   className,
   ...props
@@ -140,6 +195,12 @@ function SelectSeparator({
   );
 }
 
+/**
+ * Select scroll up button component.
+ * 
+ * @param props - Props for the SelectPrimitive.ScrollUpButton component
+ * @returns The SelectScrollUpButton component
+ */
 function SelectScrollUpButton({
   className,
   ...props
@@ -158,6 +219,12 @@ function SelectScrollUpButton({
   );
 }
 
+/**
+ * Select scroll down button component.
+ * 
+ * @param props - Props for the SelectPrimitive.ScrollDownButton component
+ * @returns The SelectScrollDownButton component
+ */
 function SelectScrollDownButton({
   className,
   ...props
