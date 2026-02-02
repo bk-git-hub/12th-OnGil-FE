@@ -22,6 +22,7 @@ export default function SubCategorySlider({
 
   const lastScrollY = useRef(0);
   const isAnimating = useRef(false); // [핵심 1] 애니메이션 중인지 확인하는 락(Lock)
+  const animationTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
   const selectedSubCategory = categories.find(
     (cat) => cat.categoryId === Number(id),
@@ -73,7 +74,10 @@ export default function SubCategorySlider({
     // [핵심 3] 락을 거는 함수 (CSS duration인 300ms 동안 얼음)
     const lockAnimation = () => {
       isAnimating.current = true;
-      setTimeout(() => {
+      if (animationTimeoutRef.current) {
+        clearTimeout(animationTimeoutRef.current);
+      }
+      animationTimeoutRef.current = setTimeout(() => {
         isAnimating.current = false;
         // 애니메이션 끝나고 락 풀릴 때 스크롤 위치 재조정 (튀는 거 방지)
         lastScrollY.current = window.scrollY;
@@ -81,7 +85,12 @@ export default function SubCategorySlider({
     };
 
     window.addEventListener('scroll', handleScroll, { passive: true });
-    return () => window.removeEventListener('scroll', handleScroll);
+    return () => {
+      window.removeEventListener('scroll', handleScroll);
+      if (animationTimeoutRef.current) {
+        clearTimeout(animationTimeoutRef.current);
+      }
+    };
   }, [isVisible]); // isVisible 의존성 추가
 
   return (
