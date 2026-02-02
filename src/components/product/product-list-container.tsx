@@ -5,22 +5,21 @@ import { ProductList } from './product-list';
 
 interface ProductListContainerProps {
   params: Promise<{ parentId: string; id: string }>;
-  sortType?: ProductSortType;
-  page?: number;
+  searchParams: Promise<{ sortType?: string; page?: string }>;
 }
 
 export default async function ProductListContainer({
   params,
-  sortType = ProductSortType.POPULAR,
-  page = 0,
+  searchParams,
 }: ProductListContainerProps) {
   const { id: subCategoryId } = await params;
+  const { sortType = ProductSortType.POPULAR, page = '0' } = await searchParams;
 
   const result = await api.get<ProductSearchResult>('/products', {
     params: {
       categoryId: Number(subCategoryId),
       sortType,
-      page,
+      page: Number(page),
       size: 20,
       sort: ['string'] as string[],
     },
@@ -28,10 +27,9 @@ export default async function ProductListContainer({
 
   console.log(result);
 
+  const totalElements = result.products.page.totalElements;
+
   return (
-    <ProductList
-      products={result.products.content}
-      totalElements={result.products.page.totalElements}
-    />
+    <ProductList products={result.products.content} totalElements={totalElements} />
   );
 }
