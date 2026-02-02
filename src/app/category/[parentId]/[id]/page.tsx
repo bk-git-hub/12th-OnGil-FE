@@ -10,7 +10,15 @@ interface PageProps {
 export default function ProductListPage({ params, searchParams }: PageProps) {
   return (
     <div className="mx-auto max-w-7xl px-4">
-      <ProductFilterBar />
+      <Suspense
+        fallback={
+          <div className="mb-4 flex items-center justify-end">
+            <div className="h-10 w-24 animate-pulse rounded-md bg-gray-200" />
+          </div>
+        }
+      >
+        <ProductFilterBar />
+      </Suspense>
 
       <Suspense
         fallback={
