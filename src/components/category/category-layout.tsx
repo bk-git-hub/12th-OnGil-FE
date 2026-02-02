@@ -1,6 +1,8 @@
 'use client';
 
 import { useEffect, useRef } from 'react';
+import Link from 'next/link';
+import Image from 'next/image';
 import SearchBar from '@/components/search-bar/search-bar';
 import { useScrollSpy } from './use-scroll-spy';
 import { CategoryTab } from './category-tab';
@@ -30,7 +32,14 @@ export function CategoryLayout({ children, categories }: CategoryLayoutProps) {
 
   return (
     <div className="flex h-screen w-full flex-col bg-white">
-      <header className="z-20 flex shrink-0 items-center border-b bg-white px-4 py-3">
+      <header className="z-20 flex shrink-0 items-center gap-3 border-b bg-white px-4 py-3">
+        <Link
+          href="/"
+          className="-ml-1 flex h-10 w-10 shrink-0 items-center justify-center rounded-full hover:bg-gray-100"
+          aria-label="홈으로 돌아가기"
+        >
+          <Image src="/icons/arrow.svg" width={24} height={24} alt="" />
+        </Link>
         <SearchBar />
       </header>
 
