@@ -16,11 +16,11 @@ export function CategoryTab({
     <button
       type="button"
       className={cn(
-        'flex h-14 w-full cursor-pointer items-center justify-center text-sm transition-colors duration-200',
+        'flex h- w-full flex-1 cursor-pointer items-center justify-center text-sm transition-colors duration-200',
 
         isActive
-          ? 'bg-white font-bold text-black'
-          : 'bg-transparent text-gray-500 hover:bg-gray-100/50',
+          ? 'text-ongil-teal bg-white font-bold'
+          : 'bg-gray-300/50 text-gray-500 hover:bg-gray-100/50',
       )}
       {...props}
     >

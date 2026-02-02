@@ -4,16 +4,17 @@ import { useEffect, useRef } from 'react';
 import SearchBar from '@/components/search-bar/search-bar';
 import { useScrollSpy } from './use-scroll-spy';
 import { CategoryTab } from './category-tab';
+import { Category } from '@/types/domain/category';
 
 interface CategoryLayoutProps {
   children: React.ReactNode;
-  categories: { id: string; name: string }[];
+  categories: Category[];
 }
 
 // 사용자의 스크롤 위치에 따라 사이드바의 활성 탭을 자동으로 변경하고(Scroll Spy), 탭을 클릭하면 해당 콘텐츠 위치로 이동.
 
 export function CategoryLayout({ children, categories }: CategoryLayoutProps) {
-  const categoryIds = categories.map((c) => c.id);
+  const categoryIds = categories.map((c) => c.categoryId.toString());
 
   const { activeId, scrollToId, containerRef } = useScrollSpy(categoryIds);
   const sidebarRef = useRef<HTMLUListElement>(null);
@@ -38,11 +39,14 @@ export function CategoryLayout({ children, categories }: CategoryLayoutProps) {
         <nav className="scrollbar-hide z-10 w-24 flex-shrink-0 overflow-y-auto bg-gray-50 pb-20">
           <ul ref={sidebarRef}>
             {categories.map((category) => (
-              <li key={category.id} id={`tab-${category.id}`}>
+              <li
+                key={category.categoryId.toString()}
+                id={`tab-${category.categoryId.toString()}`}
+              >
                 <CategoryTab
                   label={category.name}
-                  isActive={activeId === category.id}
-                  onClick={() => scrollToId(category.id)}
+                  isActive={activeId === category.categoryId.toString()}
+                  onClick={() => scrollToId(category.categoryId.toString())}
                 />
               </li>
             ))}

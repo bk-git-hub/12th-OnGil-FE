@@ -1,5 +1,5 @@
 import { api } from '@/lib/api-client';
-import { SubCategory } from '@/types/domain/category';
+import { Category, SubCategory } from '@/types/domain/category';
 import SubCategorySlider from './sub-category-slider';
 
 const MOCK_SUB_CATEGORIES: SubCategory[] = [
@@ -75,24 +75,40 @@ const MOCK_SUB_CATEGORIES: SubCategory[] = [
   },
 ];
 
+const MOCK_PARENT_CATEGORY: Category = {
+  categoryId: 1,
+  name: '신발',
+  displayOrder: 1,
+  subCategories: MOCK_SUB_CATEGORIES,
+};
+
 interface Props {
   params: Promise<{ parentId: string }>;
 }
 
 export default async function SubCategorySliderContainer({ params }: Props) {
   const { parentId } = await params;
-  let data: SubCategory[];
-  const pId = parentId ? parentId : '1';
+  let subCategories: SubCategory[];
+  let parentCategory: Category;
+  const pId = parentId ? parentId : '23';
 
   if (process.env.NODE_ENV !== 'production') {
     // Simulate API delay
     await new Promise((resolve) => setTimeout(resolve, 500));
-    data = MOCK_SUB_CATEGORIES;
+    subCategories = MOCK_SUB_CATEGORIES;
+    parentCategory = MOCK_PARENT_CATEGORY;
   } else {
-    data = await api.get<SubCategory[]>(
-      `/categories/${parentId}/sub-categories`,
-    );
+    [subCategories, parentCategory] = await Promise.all([
+      api.get<SubCategory[]>(`/categories/${parentId}/sub-categories`),
+      api.get<Category>(`/categories/${parentId}`),
+    ]);
   }
 
-  return <SubCategorySlider parentId={pId} categories={data} />;
+  return (
+    <SubCategorySlider
+      parentId={pId}
+      categories={subCategories}
+      parentCategoryName={parentCategory.name}
+    />
+  );
 }
