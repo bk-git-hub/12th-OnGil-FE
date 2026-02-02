@@ -3,6 +3,7 @@
 // ----------------------------------------------------------------------
 export { ProductList } from './product-list';
 export { ProductCard } from './product-card';
+export { ProductFilterBar } from './product-filter-bar';
 
 // ----------------------------------------------------------------------
 // 2. 상품 상세 - 핵심 정보 및 뷰
