@@ -14,7 +14,7 @@ const nextConfig: NextConfig = {
       },
       {
         protocol: 'https',
-        hostname: 'example.com', // API 응답 이미지
+        hostname: 'example.com', // TODO: 실제 API 이미지 호스트로 교체 필요
       },
     ],
   },
