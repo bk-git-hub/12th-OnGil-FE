@@ -12,6 +12,10 @@ const nextConfig: NextConfig = {
         protocol: 'https',
         hostname: 'placehold.co', // 더미 이미지 호스팅 사이트
       },
+      {
+        protocol: 'https',
+        hostname: 'example.com', // TODO: 실제 API 이미지 호스트로 교체 필요
+      },
     ],
   },
 

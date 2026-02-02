@@ -12,8 +12,9 @@ export interface Category {
 export interface SubCategory {
   categoryId: number;
   name: string;
-  iconUrl?: string;
+  iconUrl?: string | null;
   displayOrder: number;
+  parentCategoryName: string | null;
 }
 
 export interface CategorySimple {

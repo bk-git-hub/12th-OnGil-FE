@@ -38,6 +38,21 @@ export function useScrollSpy(ids: string[]) {
     const container = containerRef.current;
     if (!container || ids.length === 0) return;
 
+    const handleScroll = () => {
+      if (isClickScrolling.current) return;
+
+      const { scrollHeight, scrollTop, clientHeight } = container;
+      // 스크롤이 맨 아래에 도달했는지 확인 (약간의 오차 허용)
+      if (scrollHeight - scrollTop - clientHeight < 5) {
+        const lastId = ids[ids.length - 1];
+        if (lastId) {
+          startTransition(() => {
+            setActiveId(lastId);
+          });
+        }
+      }
+    };
+
     if (observerRef.current) observerRef.current.disconnect();
 
     observerRef.current = new IntersectionObserver(
@@ -55,9 +70,11 @@ export function useScrollSpy(ids: string[]) {
         );
 
         if (visibleSection.id) {
-          setActiveId((prev) =>
-            prev === visibleSection.id ? prev : visibleSection.id,
-          );
+          startTransition(() => {
+            setActiveId((prev) =>
+              prev === visibleSection.id ? prev : visibleSection.id,
+            );
+          });
         }
       },
       {
@@ -72,7 +89,10 @@ export function useScrollSpy(ids: string[]) {
       if (element) observerRef.current?.observe(element);
     });
 
+    container.addEventListener('scroll', handleScroll);
+
     return () => {
+      container.removeEventListener('scroll', handleScroll);
       observerRef.current?.disconnect();
       if (timeoutRef.current) clearTimeout(timeoutRef.current);
     };
