@@ -1,0 +1,39 @@
+name: AI Auto Fixer (Hybrid Mode)
+
+on:
+  pull_request:
+    types: [labeled] # 오직 라벨이 붙었을 때만 실행! (돈 아끼는 핵심)
+
+jobs:
+  fix:
+    if: github.event.label.name == 'ai-fix'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      pull-requests: write
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0 # 에이더 작동을 위해 전체 히스토리 필요
+
+      - name: Install Tools
+        run: |
+          pip install aider-chat
+          npm install -g @anthropic-ai/claude-code
+
+      - name: Run Hybrid Fix
+        env:
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+          DEEPSEEK_API_KEY: ${{ secrets.DEEPSEEK_API_KEY }}
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          # 1. 리뷰 데이터 추출
+          gh pr view ${{ github.event.pull_request.number }} --comments > reviews.txt
+
+          # 2. Claude(머리)에게 전략 지시 (토큰 최소화)
+          claude "Read reviews.txt. Write a specific instruction for 'aider' to fix these issues in 'strategy.md'. Do not edit files yourself." --yes
+
+          # 3. Aider(손발) + DeepSeek(저가모델)이 실제 수정
+          aider --model deepseek/deepseek-chat --message-file strategy.md --yes
