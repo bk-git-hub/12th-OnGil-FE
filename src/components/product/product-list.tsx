@@ -1,20 +1,23 @@
-import { Product } from '@/mocks/product-data';
+import { Product } from '@/types/domain/product';
 import { ProductGrid } from './product-grid';
 
 // categoryId를 받아 해당 카테고리의 이름과 상품 데이터를 필터링하여, 상단 헤더와 상품 그리드 형태로 보여주는 목록 페이지 컴포넌트
 
 interface ProductListProps {
   products: Product[];
-  title: string;
+  title?: string;
+  totalElements?: number;
 }
 
-export function ProductList({ products, title }: ProductListProps) {
+export function ProductList({ products, totalElements }: ProductListProps) {
+  const count = totalElements ?? products.length;
+
   return (
     <div className="mx-auto min-h-screen max-w-7xl bg-white">
       <main className="p-4">
         <div className="mb-4 flex items-center justify-between">
           <span className="text-sm text-gray-500">
-            총 <b className="text-black">{products.length}</b>개
+            총 <b className="text-black">{count}</b>개
           </span>
         </div>
 

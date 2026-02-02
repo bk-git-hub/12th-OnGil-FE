@@ -1,4 +1,4 @@
-import { Product } from '@/mocks/product-data';
+import { Product } from '@/types/domain/product';
 import { ProductCard } from './product-card';
 
 // 상품 목록 데이터를 받아서 그리드 형식으로 렌더링하는 컴포넌트.
