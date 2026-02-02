@@ -1,8 +1,8 @@
-name: AI Auto Fixer (Hybrid Mode)
+name: AI Auto Fixer
 
 on:
   pull_request:
-    types: [labeled] # 오직 라벨이 붙었을 때만 실행! (돈 아끼는 핵심)
+    types: [labeled]
 
 jobs:
   fix:
@@ -13,33 +13,39 @@ jobs:
       pull-requests: write
 
     steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
+      - uses: actions/checkout@v4
         with:
-          fetch-depth: 0 # 에이더 작동을 위해 전체 히스토리 필요
+          fetch-depth: 0
+
+      - name: Cache pip
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/pip
+          key: ${{ runner.os }}-pip-${{ hashFiles('**/requirements.txt') }}
+          restore-keys: |
+            ${{ runner.os }}-pip-
+
+      - name: Cache npm
+        uses: actions/cache@v4
+        with:
+          path: ~/.npm
+          key: ${{ runner.os }}-node-${{ hashFiles('**/package-lock.json') }}
+          restore-keys: |
+            ${{ runner.os }}-node-
 
       - name: Install Tools
         run: |
           pip install aider-chat
           npm install -g @anthropic-ai/claude-code
 
-          - name: Run Hybrid Fix
-          env:
-            ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
-            DEEPSEEK_API_KEY: ${{ secrets.DEEPSEEK_API_KEY }}
-            GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          run: |
-            # 1. 리뷰 데이터 추출
-            gh pr view ${{ github.event.pull_request.number }} --comments > reviews.txt
-            
-            # 2. Claude(머리) 전략 지시 - 무인 모드(-y) 적용
-            # 만약 -y도 안 먹으면 그냥 빼고 실행해도 액션 환경에선 돌아갑니다.
-            claude "Read reviews.txt. Create 'strategy.md' for aider. 
-            STRICT INSTRUCTION: 
-            1. Fix all logic issues (NaN, Next Image, etc.).
-            2. Add JSDoc comments to EVERY function to satisfy 'Docstring Coverage 80%'. 
-            Write the instruction in detail so aider doesn't skip anything." -y
+      - name: Run Hybrid Fix
+        env:
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+          DEEPSEEK_API_KEY: ${{ secrets.DEEPSEEK_API_KEY }}
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          gh pr view ${{ github.event.pull_request.number }} --comments > reviews.txt
 
-            # 3. Aider(손발) 실행
-            # yes | 를 붙여서 모든 질문에 자동으로 '예'라고 답하게 만듭니다.
-            yes | aider --model deepseek/deepseek-chat --message-file strategy.md --auto-commit
+          claude "Read reviews.txt. Create 'strategy.md' for aider. STRICT INSTRUCTION: 1. Fix all logic issues like NaN, Next Image. 2. Add JSDoc comments to EVERY function to satisfy 'Docstring Coverage 80%'. Write the instruction in detail so aider can execute it perfectly." -y
+
+          yes | aider --model deepseek/deepseek-chat --message-file strategy.md --auto-commit
