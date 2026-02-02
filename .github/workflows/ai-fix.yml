@@ -53,12 +53,22 @@ jobs:
             exit 0
           fi
 
-          # 2. Generate strategy with Claude (non-interactive mode)
-          claude -p "Read reviews.txt. Create 'strategy.md' for aider. STRICT INSTRUCTION: 1. Fix all logic issues. 2. Add JSDoc comments to EVERY function to satisfy 'Docstring Coverage 80%'. Write the instruction in detail so aider can execute it perfectly."
+          # 2. Generate strategy with Claude (auto-approve Read/Edit so it creates strategy.md without asking)
+          claude -p "Read reviews.txt. Create strategy.md with detailed instructions for aider. 1. Fix all logic issues from the reviews. 2. Add JSDoc to every function (Docstring Coverage 80%). Write step-by-step instructions so aider can execute without asking. Output the full strategy into strategy.md." --allowedTools "Read,Edit,Bash"
 
           if [ ! -f strategy.md ] || [ ! -s strategy.md ]; then
-            echo "Strategy file not created. Falling back to basic instructions."
-            echo "Fix all issues mentioned in reviews.txt. Add JSDoc comments to all functions." > strategy.md
+            echo "Strategy file not created. Fallback: inject review content into strategy."
+            {
+              echo "# Code review fixes"
+              echo ""
+              echo "## Review comments (fix these issues):"
+              echo ""
+              cat reviews.txt
+              echo ""
+              echo "## Instructions"
+              echo "- Fix every issue mentioned above."
+              echo "- Add JSDoc comments to every function in the touched files."
+            } > strategy.md
           fi
 
           # 3. Run aider with official flags
