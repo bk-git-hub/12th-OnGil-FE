@@ -1,22 +1,20 @@
-import {
-  getProductsByCategoryId,
-  getCategoryTitle,
-} from '@/components/product/product-service';
-import { ProductList } from '@/components/product/product-list';
+import ProductListContainer from '@/components/product/product-list-container';
+import { Suspense } from 'react';
 
 interface PageProps {
-  params: { id: string };
+  params: Promise<{ parentId: string; id: string }>;
 }
 
-// 상품 데이터와 페이지 제목을 조회한 뒤, UI 컴포넌트(ProductList)에 완성된 데이터만 전달하는 목록 페이지.
-
-export default async function ProductListPage({ params }: PageProps) {
-  const resolvedParams = await Promise.resolve(params);
-  // 서비스 함수 호출
-  const [products, title] = await Promise.all([
-    getProductsByCategoryId(resolvedParams.id),
-    getCategoryTitle(resolvedParams.id),
-  ]);
-
-  return <ProductList products={products} title={title} />;
+export default function ProductListPage({ params }: PageProps) {
+  return (
+    <Suspense
+      fallback={
+        <div className="flex min-h-[60vh] items-center justify-center">
+          <div className="h-8 w-8 animate-spin rounded-full border-2 border-gray-300 border-t-gray-900" />
+        </div>
+      }
+    >
+      <ProductListContainer params={params} />
+    </Suspense>
+  );
 }
