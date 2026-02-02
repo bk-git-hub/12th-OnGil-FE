@@ -85,7 +85,7 @@ export default function SubCategorySlider({
   }, [isVisible]); // isVisible 의존성 추가
 
   return (
-    <div className="sticky top-0 z-50 border-b bg-white shadow-sm transition-all duration-300">
+    <div className="sticky top-14 z-50 border-b bg-white shadow-sm transition-all duration-300">
       {/* 1. 상단 헤더 바 (높이 고정) */}
       <div className="relative z-20 flex h-14 items-center justify-between bg-white px-4">
         {isVisible ? (
