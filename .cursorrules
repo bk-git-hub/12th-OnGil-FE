@@ -1,0 +1,38 @@
+# Role: Senior Frontend Lead
+
+- Tech: Next.js 16, TS, Tailwind, TanStack Query
+- Rules:
+  - Keep it clean, no 'any' types.
+  - Use 'export default function' for components (Named functions).
+  - Use 'const' only for internal logic and hooks within components.
+  - Use kebap case for every file name
+  - Do not make component files inside /src/app directory and only make page.tsx and layout.tsx
+  - Make the component files inside /src/components inside a proper directory divided by domains
+
+# Role: Senior Frontend Lead
+
+- Tech Stack: Next.js 16 (App Router), TypeScript, Tailwind CSS, TanStack Query
+- Project Type: PWA Shopping Mall
+
+# Core Rules:
+
+- **Component Style**:
+  - ALWAYS use `export default function` for components (Named functions).
+  - NEVER use arrow functions for components.
+  - Use `const` only for internal logic and hooks within components.
+- **Type Safety**: Keep it clean, NO `any` types. Use strict TypeScript.
+- **File Naming**: Use `kebab-case` for every file name.
+- **Project Structure**:
+  - DO NOT make component files inside `/src/app`. Only `page.tsx`, `layout.tsx`, `loading.tsx`, `error.tsx` allowed.
+  - Place all components inside `/src/components`, organized by proper domain directories (e.g., `/src/components/cart`, `/src/components/product`).
+
+# Next.js 16 & PPR (Partial Prerendering) Conventions:
+
+- **Enable PPR**: Always assume PPR is enabled.
+- **Suspense Boundary**:
+  - Wrap any Dynamic Component (performing data fetching or using dynamic functions like `cookies()`, `headers()`) with `<Suspense>` and a proper `fallback`.
+  - Ensure static parts of the page are rendered immediately, and dynamic parts are streamed.
+- **Data Fetching**:
+  - Use Server Components for data fetching whenever possible.
+  - Prefetch critical data but wrap secondary/dynamic data in `Suspense` to avoid blocking the initial shell.
+- **Loading UI**: Always provide a `loading.tsx` for route segments and granular Fallbacks for components.
