@@ -16,7 +16,7 @@ export function CategoryTab({
     <button
       type="button"
       className={cn(
-        'flex h- w-full flex-1 cursor-pointer items-center justify-center text-sm transition-colors duration-200',
+        'flex w-full cursor-pointer items-center justify-center py-3 text-sm transition-colors duration-200',
 
         isActive
           ? 'text-ongil-teal bg-white font-bold'

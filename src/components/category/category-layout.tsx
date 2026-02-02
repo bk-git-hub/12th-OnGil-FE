@@ -25,19 +25,18 @@ export function CategoryLayout({ children, categories }: CategoryLayoutProps) {
     document.getElementById(`tab-${activeId}`)?.scrollIntoView({
       behavior: 'smooth',
       block: 'nearest',
-      inline: 'center',
     });
   }, [activeId]);
 
   return (
     <div className="flex h-screen w-full flex-col bg-white">
-      <header className="z-20 flex flex-shrink-0 items-center border-b bg-white px-4 py-3">
+      <header className="z-20 flex shrink-0 items-center border-b bg-white px-4 py-3">
         <SearchBar />
       </header>
 
-      <div className="flex flex-1 overflow-hidden">
-        <nav className="scrollbar-hide z-10 w-24 flex-shrink-0 overflow-y-auto bg-gray-50 pb-20">
-          <ul ref={sidebarRef}>
+      <div className="flex min-h-0 flex-1 overflow-hidden">
+        <nav className="scrollbar-hide z-10 flex h-full min-h-0 w-24 shrink-0 flex-col overflow-y-auto bg-gray-50 pb-20">
+          <ul ref={sidebarRef} className="flex h-full min-h-0 flex-col">
             {categories.map((category) => (
               <li
                 key={category.categoryId.toString()}
@@ -55,7 +54,7 @@ export function CategoryLayout({ children, categories }: CategoryLayoutProps) {
 
         <main
           ref={containerRef}
-          className="flex-1 overflow-y-auto bg-white pb-32"
+          className="min-h-0 flex-1 overflow-y-auto bg-white pb-32"
         >
           <div className="px-4 pt-4">{children}</div>
         </main>
