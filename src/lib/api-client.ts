@@ -8,7 +8,7 @@ type HttpMethod = 'GET' | 'POST' | 'PUT' | 'DELETE' | 'PATCH';
 
 interface FetchOptions extends RequestInit {
   headers?: Record<string, string>;
-  params?: Record<string, string | number | boolean | undefined>;
+  params?: Record<string, string | number | boolean | string[] | undefined>;
 }
 
 // 에러 응답 구조 정의 (백엔드 에러 스펙에 맞춰 수정 가능)
@@ -43,7 +43,11 @@ async function fetchWrapper<T>(
     const searchParams = new URLSearchParams();
     Object.entries(options.params).forEach(([key, value]) => {
       if (value !== undefined) {
-        searchParams.append(key, String(value));
+        if (Array.isArray(value)) {
+          value.forEach((item) => searchParams.append(key, String(item)));
+        } else {
+          searchParams.append(key, String(value));
+        }
       }
     });
     url += `?${searchParams.toString()}`;
