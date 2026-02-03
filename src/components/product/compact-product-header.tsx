@@ -1,7 +1,7 @@
 'use client';
 
 import Image from 'next/image';
-import { Product } from '@/mocks/product-data';
+import { Product } from '@/types/domain/product';
 
 interface CompactProductHeaderProps {
   product: Product;
@@ -16,7 +16,7 @@ export function CompactProductHeader({ product }: CompactProductHeaderProps) {
       <div className="flex items-center gap-3 overflow-hidden pt-2">
         <div className="relative h-10 w-10 shrink-0 overflow-hidden rounded-md border border-gray-100">
           <Image
-            src={product.imageUrl}
+            src={product.thumbnailImageUrl}
             alt={product.name}
             fill
             className="object-cover"

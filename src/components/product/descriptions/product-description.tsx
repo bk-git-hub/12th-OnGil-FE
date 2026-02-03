@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import Image from 'next/image';
-import { Product } from '@/mocks/product-data';
+import { Product } from '@/types/domain/product';
 import { Button } from '@/components/ui/button';
 import { ProductNotice } from './product-notice';
 import { RecommendedProductsCarousel } from './recommended-products-carousel';
@@ -19,7 +19,7 @@ export function ProductDescription({ product }: { product: Product }) {
   const [isExpanded, setIsExpanded] = useState(false);
 
   // 8.4.1 (4) 펼치면 상세 이미지 10개
-  const detailImages = Array(10).fill(product.imageUrl);
+  const detailImages = Array(10).fill(product.thumbnailImageUrl);
   // 8.4.1 (3) 펼치기 전에는 3개만
   const visibleImages = isExpanded ? detailImages : detailImages.slice(0, 3);
 

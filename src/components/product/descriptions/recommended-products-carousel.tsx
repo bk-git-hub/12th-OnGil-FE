@@ -10,7 +10,7 @@ import {
 import { useCarouselDots } from '@/components/banner-carousel/use-carousel-dots';
 import { DotNavigation } from '@/components/banner-carousel/dot-navigation';
 import { ProductCard } from '../product-card';
-import { type Product } from '@/mocks/product-data';
+import { Product } from '@/types/domain/product';
 import Autoplay from 'embla-carousel-autoplay';
 
 interface RecommendedProductsCarouselProps {
