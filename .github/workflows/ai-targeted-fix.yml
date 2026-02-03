@@ -90,6 +90,15 @@ jobs:
             echo '```'
             echo ""
             echo "IMPORTANT: Apply changes to THIS file only ($FILE_PATH). Ignore suggestions about updating other files."
+            echo ""
+            echo "## Commit Message Guidelines (CRITICAL)"
+            echo "- Use conventional commit format: <type>: <description in Korean>"
+            echo "- Type MUST be in English: feat, fix, refactor, docs, style, test, chore"
+            echo "- Description MUST be in Korean"
+            echo "- Examples:"
+            echo "  - refactor: CategoryLayout을 default export로 변경"
+            echo "  - fix: 타입 오류 수정"
+            echo "  - style: 코드 포맷팅 개선"
           } > strategy.md
 
           aider --model deepseek/deepseek-chat --message-file strategy.md --yes-always --no-check-update --no-gitignore "$FILE_PATH"
