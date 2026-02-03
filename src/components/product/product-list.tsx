@@ -1,5 +1,5 @@
 import { Product } from '@/types/domain/product';
-import { ProductCard } from './product-card';
+import ProductCard from './product-card';
 
 // 상품 목록 데이터를 받아서 그리드 형태로 보여주는 목록 페이지 컴포넌트
 

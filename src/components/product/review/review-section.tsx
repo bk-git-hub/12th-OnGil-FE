@@ -9,16 +9,16 @@ import {
   CurrentUserType,
 } from '@/types/domain/review';
 
-import { AiMaterialCarousel } from './ai-material-carousel';
+import AiMaterialCarousel from './ai-material-carousel';
 import { ReviewTabs, ReviewTabType } from './review-tabs';
-import { ReviewSummarySection } from './review-summary';
-import { ReviewList } from './review-list';
-import { ReviewOptionSheet } from './review-option-sheet';
-import { ReviewSortSheet } from './review-sort-sheet';
-import { EmptyReviewState } from './empty-review-state';
+import ReviewSummarySection from './review-summary';
+import ReviewList from './review-list';
+import ReviewOptionSheet from './review-option-sheet';
+import ReviewSortSheet from './review-sort-sheet';
+import EmptyReviewState from './empty-review-state';
 
 import { Switch } from '@/components/ui/switch';
-import { Label } from '@/components/ui/label';
+import Label from '@/components/ui/label';
 
 // 상품 리뷰 섹션 컴포넌트, 리뷰 탭, 필터, 정렬, 리뷰 리스트 포함
 // 리뷰 관련 모든 UI와 상태 관리를 담당

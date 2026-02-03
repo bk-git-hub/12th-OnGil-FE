@@ -6,7 +6,7 @@ interface CategoryTabProps extends React.ButtonHTMLAttributes<HTMLButtonElement>
   label: string;
 }
 
-export function CategoryTab({
+export default function CategoryTab({
   isActive,
   label,
   className,

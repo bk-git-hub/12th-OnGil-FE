@@ -11,7 +11,7 @@ interface SubCategoryItemProps {
   className?: string;
 }
 
-export function SubCategoryItem({
+export default function SubCategoryItem({
   label,
   imageUrl,
   href,

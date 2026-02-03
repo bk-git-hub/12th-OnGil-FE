@@ -9,7 +9,7 @@ import {
 } from '@/components/ui/carousel';
 import { useCarouselDots } from '@/components/banner-carousel/use-carousel-dots';
 import { DotNavigation } from '@/components/banner-carousel/dot-navigation';
-import { ProductCard } from '../product-card';
+import ProductCard from '../product-card';
 import { Product } from '@/types/domain/product';
 import Autoplay from 'embla-carousel-autoplay';
 

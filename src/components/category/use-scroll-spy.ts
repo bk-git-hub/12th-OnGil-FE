@@ -8,14 +8,14 @@ import { useState, useEffect, useRef, useTransition } from 'react';
  * Custom hook for scroll spy functionality.
  * Automatically activates the category tab based on the visible section,
  * and provides a function to scroll to a specific section.
- * 
+ *
  * @param ids - Array of element IDs to observe
  * @returns An object containing:
  *   activeId - The currently active element ID
  *   scrollToId - Function to scroll to a specific element ID
  *   containerRef - Ref to attach to the scrollable container
  */
-export function useScrollSpy(ids: string[]) {
+export default function useScrollSpy(ids: string[]) {
   // ids가 비어있을 경우를 대비 하여 기본값 설정
   const [activeId, setActiveId] = useState<string>(ids[0] || '');
   const [isPending, startTransition] = useTransition();

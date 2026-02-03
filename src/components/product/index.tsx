@@ -2,15 +2,15 @@
 // 1. 상품 목록 및 카드
 // ----------------------------------------------------------------------
 export { ProductList } from './product-list';
-export { ProductCard } from './product-card';
+export { default as ProductCard } from './product-card';
 export { ProductFilterBar } from './product-filter-bar';
 
 // ----------------------------------------------------------------------
 // 2. 상품 상세 - 핵심 정보 및 뷰
 // ----------------------------------------------------------------------
 export { ProductImageSlider } from './product-image-slider';
-export { ProductInfo } from './product-info';
-export { ProductTab } from './product-tab';
+export { default as ProductInfo } from './product-info';
+export { default as ProductTab } from './product-tab';
 export { ProductDetailView } from './product-detail-view';
 
 // ----------------------------------------------------------------------
@@ -22,8 +22,8 @@ export { ProductDescription } from './descriptions/product-description';
 // ----------------------------------------------------------------------
 // 4. 상품 상세 - 고정 바, 헤더 및 부가 기능
 // ----------------------------------------------------------------------
-export { CompactProductHeader } from './compact-product-header';
-export { ProductHeader } from './product-header';
+export { default as CompactProductHeader } from './compact-product-header';
+export { default as ProductHeader } from './product-header';
 export { ProductBottomBar } from './product-bottom-bar';
 export { ProductNotice } from './descriptions/product-notice';
 export { RecommendedProductsCarousel } from './descriptions/recommended-products-carousel';

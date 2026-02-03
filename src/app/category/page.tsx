@@ -1,4 +1,5 @@
-import { CategoryLayout, CategoryContentList } from '@/components/category';
+import CategoryLayout from '@/components/category/category-layout';
+import CategoryContentList from '@/components/category/category-content-list';
 import { api } from '@/lib/api-client';
 import { Category } from '@/types/domain/category';
 

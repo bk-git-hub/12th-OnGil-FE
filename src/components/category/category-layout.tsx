@@ -4,8 +4,8 @@ import { useEffect, useRef } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import SearchBar from '@/components/search-bar/search-bar';
-import { useScrollSpy } from './use-scroll-spy';
-import { CategoryTab } from './category-tab';
+import useScrollSpy from './use-scroll-spy';
+import CategoryTab from './category-tab';
 import { Category } from '@/types/domain/category';
 
 interface CategoryLayoutProps {
@@ -15,7 +15,10 @@ interface CategoryLayoutProps {
 
 // 사용자의 스크롤 위치에 따라 사이드바의 활성 탭을 자동으로 변경하고(Scroll Spy), 탭을 클릭하면 해당 콘텐츠 위치로 이동.
 
-export default function CategoryLayout({ children, categories }: CategoryLayoutProps) {
+export default function CategoryLayout({
+  children,
+  categories,
+}: CategoryLayoutProps) {
   const categoryIds = categories.map((c) => c.categoryId.toString());
 
   const { activeId, scrollToId, containerRef } = useScrollSpy(categoryIds);

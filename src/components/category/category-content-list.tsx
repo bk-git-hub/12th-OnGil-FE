@@ -1,8 +1,8 @@
 import { Category, SubCategory } from '@/types/domain/category';
-import { SubCategoryItem } from './subcategory-item';
+import SubCategoryItem from './subcategory-item';
 
 // 카테고리별 섹션을 렌더링하고, 각 섹션 내부에 하위 카테고리 리스트를 그리드 형태로 보여주는 컴포넌트
-export function CategoryContentList({
+export default function CategoryContentList({
   categories,
 }: {
   categories: Category[];

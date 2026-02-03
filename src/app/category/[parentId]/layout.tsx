@@ -1,7 +1,7 @@
 // app/category/[parentId]/layout.tsx
 
 import SubCategorySliderContainer from '@/components/sub-category-slider/sub-category-slider-container';
-import { CategoryParentHeaderBar } from '@/components/category';
+import CategoryParentHeaderBar from '@/components/category/category-parent-header-bar';
 import { Suspense } from 'react';
 
 export default async function CategoryLayout({

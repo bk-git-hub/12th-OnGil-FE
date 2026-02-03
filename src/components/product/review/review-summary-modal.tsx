@@ -10,7 +10,7 @@ import {
 } from '@/components/ui/carousel';
 import { Button } from '@/components/ui/button';
 import { DotNavigation } from '@/components/banner-carousel/dot-navigation';
-import { AnalysisContent } from './analysis-content';
+import AnalysisContent from './analysis-content';
 import { ReviewStatsData } from '@/types/domain/review';
 
 // 리뷰 요약 섹션에서 자세히 버튼 눌렀을 때 보이는 요약 모달 컴포넌트.

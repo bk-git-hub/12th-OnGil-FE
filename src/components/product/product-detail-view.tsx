@@ -14,7 +14,7 @@ import {
 import { ScrollToTop } from '@/components/ui/scroll-to-top';
 import { ProductDescription } from '@/components/product/descriptions/product-description';
 import { ProductSizeContent } from '@/components/product/size/product-size-content';
-import { ProductReviewContent } from '@/components/product/review/review-section';
+import ProductReviewContent from '@/components/product/review/review-section';
 
 import { Product, MaterialDescription } from '@/types/domain/product';
 import { ReviewStatsData } from '@/types/domain/review';

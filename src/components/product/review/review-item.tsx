@@ -5,9 +5,9 @@ import Image from 'next/image';
 import { cn } from '@/lib/utils';
 import { ThumbsUp } from 'lucide-react';
 import { ReviewDetail } from '@/types/domain/review';
-import { StarRating } from '@/components/ui/star-rating';
-import { ReviewDetailModal } from './review-detail-modal';
-import { ReviewImageModal } from './review-image-modal';
+import StarRating from '@/components/ui/star-rating';
+import ReviewDetailModal from './review-detail-modal';
+import ReviewImageModal from './review-image-modal';
 import { EVALUATION_MAP, EVALUATION_CONFIG } from './review-constants';
 
 // 단일 리뷰 아이템 컴포넌트(하나의 리뷰 정보를 표시)
@@ -30,7 +30,9 @@ export function ReviewItem({ review, isAccessory = false }: ReviewItemProps) {
    */
   const toggleHelpful = () => {
     setIsHelpful((prevIsHelpful) => {
-      setHelpfulCount((prevCount) => (prevIsHelpful ? prevCount - 1 : prevCount + 1));
+      setHelpfulCount((prevCount) =>
+        prevIsHelpful ? prevCount - 1 : prevCount + 1,
+      );
       return !prevIsHelpful;
     });
   };
