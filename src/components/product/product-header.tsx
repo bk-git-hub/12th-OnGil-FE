@@ -39,7 +39,7 @@ export default function ProductHeader({ categoryID }: ProductHeaderProps) {
           />
         </Link>
         <Link
-          href="/cart-list"
+          href="/cart"
           className="flex flex-col items-center justify-center pt-3 transition-opacity hover:opacity-70"
           aria-label="장바구니 리스트"
         >
