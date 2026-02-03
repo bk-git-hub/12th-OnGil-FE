@@ -1,6 +1,6 @@
 'use client';
 
-import { Dialog, DialogContent } from '@/components/ui/dialog';
+import { Dialog, DialogContent, DialogTitle } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { ReviewDetail } from '@/types/domain/review';
 import { EVALUATION_MAP, EVALUATION_CONFIG } from './review-constants';
@@ -20,7 +20,8 @@ export default function ReviewDetailModal({
 }: ReviewDetailModalProps) {
   return (
     <Dialog open={isOpen} onOpenChange={(open) => !open && onClose()}>
-      <DialogContent className="max-h-xl max-w-xl rounded-none bg-white p-4">
+      <DialogContent className="max-h-[600px] max-w-xl rounded-none bg-white p-4">
+        <DialogTitle className="sr-only">리뷰 상세 정보</DialogTitle>
         <div className="mt-4 space-y-4">
           {EVALUATION_CONFIG.map(({ label, key }) => {
             const value = answers[key];
