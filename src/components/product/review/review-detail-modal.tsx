@@ -13,7 +13,7 @@ interface ReviewDetailModalProps {
   answers: ReviewDetail['initialFirstAnswers'];
 }
 
-export function ReviewDetailModal({
+export default function ReviewDetailModal({
   isOpen,
   onClose,
   answers,
