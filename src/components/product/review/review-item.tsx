@@ -30,9 +30,8 @@ export function ReviewItem({ review, isAccessory = false }: ReviewItemProps) {
    */
   const toggleHelpful = () => {
     setIsHelpful((prevIsHelpful) => {
-      const next = !prevIsHelpful;
-      setHelpfulCount((prevCount) => (next ? prevCount + 1 : prevCount - 1));
-      return next;
+      setHelpfulCount((prevCount) => (prevIsHelpful ? prevCount - 1 : prevCount + 1));
+      return !prevIsHelpful;
     });
   };
 
