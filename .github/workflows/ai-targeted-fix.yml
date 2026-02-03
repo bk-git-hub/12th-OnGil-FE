@@ -1,0 +1,81 @@
+name: AI Targeted Fixer
+
+on:
+  pull_request_review_comment:
+    types: [created]
+
+jobs:
+  targeted-fix:
+    if: |
+      github.event.comment.user.login != 'github-actions[bot]' &&
+      contains(github.event.comment.body, '@fix-this')
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      pull-requests: write
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.ref }}
+          fetch-depth: 0
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Setup Git
+        run: |
+          git config --global user.name "github-actions[bot]"
+          git config --global user.email "github-actions[bot]@users.noreply.github.com"
+
+      - name: Install Tools
+        run: pip install aider-chat
+
+      - name: Resolve comment context
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          REPO: ${{ github.repository }}
+          IN_REPLY_TO: ${{ github.event.comment.in_reply_to_id }}
+        run: |
+          # 답글(@fix-this)이면 부모 코멘트(CodeRabbit 리뷰)를 가져와야 함
+          if [ -n "$IN_REPLY_TO" ]; then
+            PARENT=$(gh api "repos/$REPO/pulls/comments/$IN_REPLY_TO")
+            echo "$PARENT" | jq -r '.body' > comment_body.txt
+            echo "$PARENT" | jq -r '.path' > file_path.txt
+            echo "$PARENT" | jq -r '.diff_hunk' > code_context.txt
+          else
+            echo '${{ github.event.comment.body }}' > comment_body.txt
+            echo '${{ github.event.comment.path }}' > file_path.txt
+            echo '${{ github.event.comment.diff_hunk }}' > code_context.txt
+          fi
+
+      - name: Run Targeted Fix
+        env:
+          DEEPSEEK_API_KEY: ${{ secrets.DEEPSEEK_API_KEY }}
+        run: |
+          COMMENT_BODY=$(cat comment_body.txt)
+          FILE_PATH=$(cat file_path.txt)
+          CODE_CONTEXT=$(cat code_context.txt)
+
+          if [ -z "$FILE_PATH" ] || [ "$FILE_PATH" = "null" ]; then
+            echo "Could not resolve file path. Exiting."
+            exit 1
+          fi
+          echo "Targeting file: $FILE_PATH"
+
+          # 리뷰 코멘트만으로 strategy.md 생성 (Claude 없이)
+          {
+            echo "Fix ONLY this code review feedback. Do not change other code."
+            echo ""
+            echo "## Review comment"
+            echo "$COMMENT_BODY"
+            echo ""
+            echo "## Code context (diff hunk)"
+            echo '```'
+            echo "$CODE_CONTEXT"
+            echo '```'
+          } > strategy.md
+
+          aider --model deepseek/deepseek-chat --message-file strategy.md --yes-always --no-check-update --no-gitignore "$FILE_PATH"
+
+      - name: Push Changes
+        run: |
+          git push origin HEAD:${{ github.event.pull_request.head.ref }} || echo "Nothing to push"
