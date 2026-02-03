@@ -5,9 +5,9 @@ import Image from 'next/image';
 import { cn } from '@/lib/utils';
 import { ThumbsUp } from 'lucide-react';
 import { ReviewDetail } from '@/types/domain/review';
-import { StarRating } from '@/components/ui/star-rating';
-import { ReviewDetailModal } from './review-detail-modal';
-import { ReviewImageModal } from './review-image-modal';
+import StarRating from '@/components/ui/star-rating';
+import ReviewDetailModal from './review-detail-modal';
+import ReviewImageModal from './review-image-modal';
 import {
   Carousel,
   CarouselContent,
@@ -167,7 +167,7 @@ export function ReviewItem({ review, isAccessory = false }: ReviewItemProps) {
             </div>
           );
         })}
-      </button>
+      </div>
 
       {/* 6. 선택지 태그 더보기 버튼 */}
       <div className="mb-5 flex items-center justify-between">

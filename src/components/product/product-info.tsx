@@ -3,7 +3,7 @@
 import { type Ref } from 'react';
 import { Product } from '@/types/domain/product';
 import { Button } from '@/components/ui/button';
-import { StarRating } from '../ui/star-rating';
+import StarRating from '../ui/star-rating';
 
 interface ProductInfoProps {
   product: Product;
@@ -17,7 +17,10 @@ interface ProductInfoProps {
  * @param {Ref<HTMLButtonElement | null>} [props.discountRef] - 할인 알림 버튼에 대한 ref
  * @returns {JSX.Element} 상품 정보 컴포넌트
  */
-export default function ProductInfo({ product, discountRef }: ProductInfoProps) {
+export default function ProductInfo({
+  product,
+  discountRef,
+}: ProductInfoProps) {
   const hasDiscount = !!product.discountRate;
   return (
     <div className="font-pretendard p-[22px] leading-[18px] not-italic">
