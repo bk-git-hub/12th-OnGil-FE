@@ -67,17 +67,29 @@ jobs:
           fi
           echo "Targeting file: $FILE_PATH"
 
-          # 리뷰 코멘트만으로 strategy.md 생성 (Claude 없이)
+          # CodeRabbit의 "🤖 Prompt for AI Agents" 섹션 추출 시도
+          AI_PROMPT=$(echo "$COMMENT_BODY" | sed -n '/🤖 Prompt for AI Agents/,/```$/p' | sed '1d;$d' | grep -v '^```' || echo "")
+
+          # strategy.md 생성
           {
-            echo "Fix ONLY this code review feedback. Do not change other code."
+            echo "CRITICAL: Fix ONLY the file provided. Do NOT ask for other files or try to update imports in other files."
             echo ""
-            echo "## Review comment"
+            
+            if [ -n "$AI_PROMPT" ]; then
+              echo "## AI Agent Instructions (from CodeRabbit):"
+              echo "$AI_PROMPT"
+              echo ""
+            fi
+            
+            echo "## Full Review Comment:"
             echo "$COMMENT_BODY"
             echo ""
-            echo "## Code context (diff hunk)"
+            echo "## Code Context (diff hunk):"
             echo '```'
             echo "$CODE_CONTEXT"
             echo '```'
+            echo ""
+            echo "IMPORTANT: Apply changes to THIS file only ($FILE_PATH). Ignore suggestions about updating other files."
           } > strategy.md
 
           aider --model deepseek/deepseek-chat --message-file strategy.md --yes-always --no-check-update --no-gitignore "$FILE_PATH"
