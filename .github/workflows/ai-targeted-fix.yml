@@ -26,19 +26,14 @@ jobs:
           git config --global user.name "github-actions[bot]"
           git config --global user.email "github-actions[bot]@users.noreply.github.com"
 
-      - name: Install uv (fast Python package manager)
-        run: curl -LsSf https://astral.sh/uv/install.sh | sh
-
       - name: Cache pip
         uses: actions/cache@v4
         with:
           path: ~/.cache/pip
-          key: ${{ runner.os }}-pip-aider-uv
+          key: ${{ runner.os }}-pip-aider
 
       - name: Install Tools
-        run: |
-          export PATH="$HOME/.cargo/bin:$PATH"
-          uv pip install --system --break-system-packages aider-chat
+        run: pip install aider-chat
 
       - name: Resolve comment context
         env:
