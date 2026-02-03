@@ -7,6 +7,7 @@ import { Button } from '@/components/ui/button';
 import { ProductNotice } from './product-notice';
 import { RecommendedProductsCarousel } from './recommended-products-carousel';
 import { PRODUCTS } from '@/mocks/product-data';
+import { ChevronDown, ChevronUp } from 'lucide-react';
 
 // 상품 설명 섹션 컴포넌트, 상세 이미지, 펼치기
 
@@ -41,22 +42,25 @@ export function ProductDescription({ product }: { product: Product }) {
       </div>
 
       {/* 8.4.1.1 펼치기 버튼 */}
-      {!isExpanded && (
-        <Button
-          variant="ghost"
-          onClick={() => setIsExpanded(true)}
-          className="flex w-full items-center justify-center gap-2 rounded-none border-y border-gray-200 py-6 text-sm font-bold text-gray-600 hover:bg-gray-50"
-        >
-          펼치기 <span className="text-xs">▼</span>
-        </Button>
-      )}
+
+      <Button
+        variant="outline"
+        className="bg-ongil-teal mt-6 w-full rounded-xl border-gray-300 py-7 text-base font-bold text-white hover:bg-[#00252a] hover:text-white"
+        onClick={() => setIsExpanded(!isExpanded)}
+        aria-expanded={isExpanded}
+      >
+        {isExpanded ? '접기' : '자세히 보기'}
+        {isExpanded ? (
+          <ChevronUp className="ml-2 h-4 w-4" />
+        ) : (
+          <ChevronDown className="ml-2 h-4 w-4" />
+        )}
+      </Button>
 
       {/* 하단 공통 영역 */}
-      <div className="space-y-12 border-t border-gray-100 pt-10">
+      <div className="space-y-12 border-gray-100">
         <ProductNotice />
-        <div className="pt-4">
-          <RecommendedProductsCarousel products={recommendedProducts} />
-        </div>
+        <RecommendedProductsCarousel products={recommendedProducts} />
       </div>
     </div>
   );

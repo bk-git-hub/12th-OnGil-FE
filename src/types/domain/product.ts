@@ -13,7 +13,7 @@ export interface Product {
   viewCount: number;
   purchaseCount: number;
   reviewCount: number;
-  //todo: 후기 평점 추가
+  reviewRating: number;
 }
 
 export interface MaterialDescription {

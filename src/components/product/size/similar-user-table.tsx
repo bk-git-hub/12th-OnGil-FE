@@ -22,7 +22,7 @@ export function SimilarUserTable({
 }: SimilarUserTableProps) {
   return (
     <div className="animate-in fade-in slide-in-from-top-2 duration-300">
-      <div className="mb-3 flex items-start gap-2 rounded-md bg-gray-50 p-3 text-xs text-gray-500">
+      <div className="mb-5 flex items-start gap-2 rounded-md bg-gray-50 p-3 text-xs text-gray-500">
         <Info className="mt-0.5 h-3.5 w-3.5 shrink-0 text-gray-400" />
         <span>
           고객님과 체형(키 ±5cm, 몸무게 ±5kg)이 유사한 고객들이
@@ -30,32 +30,24 @@ export function SimilarUserTable({
           실제 구매하고 만족한 사이즈 정보입니다.
         </span>
       </div>
-      <div className="mb-12 overflow-hidden rounded-lg border border-gray-200">
-        <Table>
+      <div className="mb-12 overflow-hidden border border-gray-200">
+        <Table className="text-lg leading-5 font-normal not-italic">
           <TableHeader className="bg-gray-50">
-            <TableRow>
-              <TableHead className="w-1/3 text-center text-xs">키</TableHead>
-              <TableHead className="w-1/3 text-center text-xs">
-                몸무게
-              </TableHead>
-              <TableHead className="w-1/3 text-center text-xs">
-                구매 사이즈
-              </TableHead>
+            <TableRow className="h-16">
+              <TableHead className="w-1/3 text-center">구매 사이즈</TableHead>
+              <TableHead className="w-1/3 text-center">키</TableHead>
+              <TableHead className="w-1/3 text-center">몸무게</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
             {similarUsersSample.length > 0 ? (
               similarUsersSample.map((user, idx) => (
-                <TableRow key={`${user.id}-${idx}`}>
-                  <TableCell className="text-center text-sm font-medium">
-                    {user.height}cm
-                  </TableCell>
-                  <TableCell className="text-center text-sm text-gray-600">
-                    {user.weight}kg
-                  </TableCell>
-                  <TableCell className="text-ongil-teal text-center text-sm font-bold">
+                <TableRow key={`${user.id}-${idx}`} className="h-16">
+                  <TableCell className="text-ongil-teal text-center">
                     {user.size}
                   </TableCell>
+                  <TableCell className="text-center">{user.height}cm</TableCell>
+                  <TableCell className="text-center">{user.weight}kg</TableCell>
                 </TableRow>
               ))
             ) : (

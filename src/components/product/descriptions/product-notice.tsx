@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { ChevronDown, ChevronUp } from 'lucide-react';
+import Image from 'next/image';
 import { cn } from '@/lib/utils';
 
 // 추후 펼치기 컴퍼넌트로 분리 가능.
@@ -15,16 +15,29 @@ function NoticeItem({
   const [isOpen, setIsOpen] = useState(false);
 
   return (
-    <div className="border-b border-gray-200 last:border-0">
+    <div className="border-b border-[#D9D9D9] px-2 last:border-0">
       <button
         onClick={() => setIsOpen(!isOpen)}
-        className="flex w-full items-center justify-between py-5 text-left transition-colors hover:bg-gray-50"
+        className="flex w-full items-center justify-between py-[10px] text-left"
       >
-        <span className="text-sm font-bold text-gray-900">{title}</span>
+        <span className="px-1 py-[10px] text-2xl leading-6 font-bold not-italic">
+          {title}
+        </span>
         {isOpen ? (
-          <ChevronUp className="h-4 w-4 text-gray-500" />
+          <Image
+            src="/icons/chevron.left.svg"
+            alt="펼치기 아이콘"
+            width={12}
+            height={20}
+            className="rotate-90"
+          />
         ) : (
-          <ChevronDown className="h-4 w-4 text-gray-500" />
+          <Image
+            src="/icons/chevron.left.svg"
+            alt="펼치기 아이콘"
+            width={12}
+            height={20}
+          />
         )}
       </button>
       <div
@@ -41,7 +54,7 @@ function NoticeItem({
 
 export function ProductNotice() {
   return (
-    <div className="mt-10 border-t border-gray-200">
+    <div className="border-y border-[#D9D9D9]">
       {/* 1. 상품정보 제공 고시 */}
       <NoticeItem title="상품정보 제공 고시">
         <div className="space-y-1.5 leading-relaxed">

@@ -85,6 +85,7 @@ function generateDummyProducts(
     const isSpecial = i % 5 === 0;
 
     const reviewCount = Math.floor(Math.random() * 200);
+    const reviewRating = parseFloat((Math.random() * 5).toFixed(1));
     const monthReviewCount = Math.floor(reviewCount * 0.3);
 
     return {
@@ -108,6 +109,7 @@ function generateDummyProducts(
       reviewCount: reviewCount,
       viewCount: Math.floor(Math.random() * 1000),
       purchaseCount: Math.floor(Math.random() * 500),
+      reviewRating: reviewRating,
 
       reviewSummary: generateReviewStats(
         reviewCount,

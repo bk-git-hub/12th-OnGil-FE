@@ -18,8 +18,8 @@ export function ReviewTabs({
   monthCount,
 }: ReviewTabsProps) {
   return (
-    <div className="sticky top-[104px] z-10 bg-white px-4 pt-4">
-      <div className="flex items-center gap-17 border-y border-black px-4 py-4">
+    <div className="sticky top-16 z-20 bg-white px-4 pt-4">
+      <div className="flex items-center border-y border-black px-4 py-4">
         <div className="px-5">
           <button
             onClick={() => onTabChange('general')}

@@ -59,6 +59,7 @@ export default function ReviewSortSheet({
 
   // 현재 선택된 라벨 찾기
   const currentLabel = SORT_OPTIONS.find((o) => o.value === currentSort)?.label;
+  const displayLabel = currentSort === 'best' ? '상품 정렬' : currentLabel;
 
   const handleSelect = (value: SortOptionType) => {
     onSortChange(value);
@@ -74,7 +75,7 @@ export default function ReviewSortSheet({
             'bg-ongil-teal h-[61px] w-full max-w-[165px] justify-center gap-2 rounded-lg text-xl leading-normal font-semibold text-white not-italic',
           )}
         >
-          {currentLabel}
+          {displayLabel}
           <ChevronDown className="h-3.5 w-3.5" />
         </Button>
       </SheetTrigger>
