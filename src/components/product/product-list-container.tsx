@@ -22,10 +22,18 @@ export default async function ProductListContainer({
     : ProductSortType.POPULAR;
 
   const safePage = Number.isFinite(Number(page)) && Number(page) >= 0 ? Number(page) : 0;
+  
+  // subCategoryId 유효성 검증
+  const parsedCategoryId = Number(subCategoryId);
+  const safeCategoryId = Number.isFinite(parsedCategoryId) && parsedCategoryId > 0 ? parsedCategoryId : null;
+
+  if (safeCategoryId === null) {
+    throw new Error('Invalid category ID');
+  }
 
   const result = await api.get<ProductSearchResult>('/products', {
     params: {
-      categoryId: Number(subCategoryId),
+      categoryId: safeCategoryId,
       sortType: safeSortType,
       page: safePage,
       size: 20,
