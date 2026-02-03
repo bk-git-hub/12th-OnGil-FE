@@ -6,7 +6,7 @@
 language: ko
 early_access: false
 enable_free_tier: true
-tone_instructions: 'Technical and concise. Focus on Next.js 16 PPR, strict TypeScript (no any), performance, component structure, kebab-case naming, domain-based organization. Highlight a11y issues. Use Korean when appropriate.'
+tone_instructions: 'Technical and concise. Focus on Next.js 16 PPR, strict TypeScript (no any), performance, component structure, kebab-case naming, domain-based organization. Highlight a11y issues. Do NOT suggest JSDoc or comments. Use Korean when appropriate.'
 
 # Reviews Configuration
 reviews:
