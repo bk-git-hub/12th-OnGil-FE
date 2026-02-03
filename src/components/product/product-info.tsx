@@ -1,7 +1,7 @@
 'use client';
 
 import { type Ref } from 'react';
-import { Product } from '@/mocks/product-data';
+import { Product } from '@/types/domain/product';
 import { Button } from '@/components/ui/button';
 import { Bell } from 'lucide-react';
 
@@ -10,13 +10,20 @@ interface ProductInfoProps {
   discountRef?: Ref<HTMLButtonElement | null>;
 }
 
-export function ProductInfo({ product, discountRef }: ProductInfoProps) {
+/**
+ * 상품 기본 정보(브랜드, 상품명, 가격, 할인 알림 버튼)를 표시하는 컴포넌트
+ * @param {ProductInfoProps} props - 컴포넌트 props
+ * @param {Product} props.product - 상품 정보
+ * @param {Ref<HTMLButtonElement | null>} [props.discountRef] - 할인 알림 버튼에 대한 ref
+ * @returns {JSX.Element} 상품 정보 컴포넌트
+ */
+export default function ProductInfo({ product, discountRef }: ProductInfoProps) {
   const hasDiscount = !!product.discountRate;
   return (
     <div className="font-pretendard px-4 py-6">
       {/* 8.1.1 (1) 브랜드 */}
       <div className="mb-1 text-xl font-bold text-gray-500">
-        {product.brand}
+        {product.brandName}
       </div>
       {/* 8.1.1 (3) 상품명 */}
       <h1 className="line-clamp-2 text-2xl leading-tight font-bold break-keep text-gray-900">
@@ -30,7 +37,7 @@ export function ProductInfo({ product, discountRef }: ProductInfoProps) {
               {/* 할인가 (현재 판매가) */}
               <span className="text-4xl font-bold text-black">
                 <span className="sr-only">할인 판매가</span>
-                {product.price.toLocaleString()}
+                {product.finalPrice.toLocaleString()}
                 <span className="text-2xl font-normal">원</span>
               </span>
 
@@ -44,7 +51,7 @@ export function ProductInfo({ product, discountRef }: ProductInfoProps) {
             {/* 원가 (취소선)*/}
             <del className="mt-1 text-xl text-gray-400">
               <span className="sr-only">정상가</span>
-              {product.originalPrice?.toLocaleString()}원
+              {product.price.toLocaleString()}원
             </del>
           </div>
         ) : (

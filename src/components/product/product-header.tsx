@@ -2,18 +2,18 @@
 
 import Link from 'next/link';
 import Image from 'next/image';
-import { useParams } from 'next/navigation';
 
 interface ProductHeaderProps {
-  categoryID?: string;
+  categoryID: string | number | undefined;
 }
 
-// 상품 상세 페이지 헤더 컴포넌트.
-
-export function ProductHeader({ categoryID }: ProductHeaderProps) {
-  const params = useParams();
-  // const id = params.id as string;
-
+/**
+ * 상품 상세 페이지 헤더 컴포넌트
+ * @param {ProductHeaderProps} props - 컴포넌트 props
+ * @param {string | number | undefined} props.categoryID - 카테고리 ID
+ * @returns {JSX.Element} 상품 헤더 컴포넌트
+ */
+export default function ProductHeader({ categoryID }: ProductHeaderProps) {
   const backLink = categoryID ? `/products/${categoryID}` : '/products/top-all';
 
   return (

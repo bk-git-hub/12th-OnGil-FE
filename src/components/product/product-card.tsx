@@ -1,12 +1,17 @@
 import Link from 'next/link';
 import { Product } from '@/types/domain/product';
 
-// 카드 UI 컴포넌트, 클릭 시 상세 페이지로 이동함.
 interface ProductCardProps {
   product: Product;
 }
 
-export function ProductCard({ product }: ProductCardProps) {
+/**
+ * 상품 카드 컴포넌트, 클릭 시 상세 페이지로 이동
+ * @param {ProductCardProps} props - 컴포넌트 props
+ * @param {Product} props.product - 상품 정보
+ * @returns {JSX.Element} 상품 카드 컴포넌트
+ */
+export default function ProductCard({ product }: ProductCardProps) {
   return (
     <Link href={`/product/${product.id}`} className="block">
       <div className="font-pretendard flex w-41 flex-col gap-1">
@@ -22,7 +27,7 @@ export function ProductCard({ product }: ProductCardProps) {
           {product.name}
         </span>
         <div className="flex w-full gap-2 text-xl font-bold">
-          {product.discountRate !== undefined && product.discountRate > 0 && (
+          {product.discountRate > 0 && (
             <span className="text-ongil-teal">{product.discountRate}%</span>
           )}
           <span>{product.finalPrice.toLocaleString()}</span>

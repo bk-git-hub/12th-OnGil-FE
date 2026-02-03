@@ -20,7 +20,7 @@ export async function generateMetadata({
     description: `시니어 쇼핑몰 온길에서 ${product.name}을(를) 만나보세요.`,
     openGraph: {
       title: product.name,
-      images: [product.imageUrl],
+      images: [product.thumbnailImageUrl],
     },
   };
 }

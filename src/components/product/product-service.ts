@@ -27,7 +27,10 @@ export async function getProductsByCategoryId(categoryId: string) {
  */
 export async function getProductById(productId: string) {
   // ex)fetch('/api/products/${productId}')같은 방식으로 추후 백엔드 연동시 사용
-  return PRODUCTS.find((p) => p.id === productId) || null;
+
+  const idAsNumber = Number(productId);
+  if (Number.isNaN(idAsNumber)) return null;
+  return PRODUCTS.find((p) => p.id === idAsNumber) || null;
 }
 
 /**

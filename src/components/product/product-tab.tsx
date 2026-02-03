@@ -3,24 +3,45 @@
 import { cn } from '@/lib/utils';
 import { useProductInteraction } from '@/components/product';
 import { PRODUCT_TABS } from '@/config/product-tabs';
-import { Button } from '../ui/button';
 
 // 상품 상세 정보 탭 컴포넌트
 
 interface ProductTabProps {
   activateTab: string;
   onTabChange: (tabId: string) => void;
+  reviewCount?: number;
 }
 
-export function ProductTab({ activateTab, onTabChange }: ProductTabProps) {
+/**
+ * 상품 상세 정보 탭 컴포넌트
+ * @param {ProductTabProps} props - 컴포넌트 props
+ * @param {string} props.activateTab - 활성화된 탭 ID
+ * @param {(tabId: string) => void} props.onTabChange - 탭 변경 콜백
+ * @param {number} [props.reviewCount=0] - 리뷰 개수
+ * @returns {JSX.Element} 상품 탭 컴포넌트
+ */
+export default function ProductTab({
+  activateTab,
+  onTabChange,
+  reviewCount = 0,
+}: ProductTabProps) {
   const { triggerScroll } = useProductInteraction();
   const handleTabClick = (tabId: string) => {
     triggerScroll();
     onTabChange(tabId);
   };
+
+  const formatCount = (count: number) => {
+    return count > 99 ? '99+' : count.toString();
+  };
+
   return (
     <div className="font-pretendard flex h-12 w-full bg-[#D9D9D9]">
       {PRODUCT_TABS.map((tab) => {
+        let label: string = tab.label;
+        if (tab.id === 'review') {
+          label = `${tab.label} ${formatCount(reviewCount)}`;
+        }
         return (
           <button
             key={tab.id}
@@ -34,7 +55,7 @@ export function ProductTab({ activateTab, onTabChange }: ProductTabProps) {
                 : 'font-medium text-[#8B8A8A] hover:text-gray-600',
             )}
           >
-            {tab.label}
+            {label}
           </button>
         );
       })}
