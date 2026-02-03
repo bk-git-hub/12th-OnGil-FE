@@ -17,23 +17,39 @@ if (PUBLIC_KEY && PRIVATE_KEY) {
 // 서버가 구독자 정보를 저장하는 테스트용 변수, 서버 재실행 시 초기화, 추후 구현시 백엔드 DB로 대체 필요
 let lastSubscription: PushSubscription | null = null;
 
-// 1. 구독 정보 저장 (구독 버튼 누르면 실행)
-// 서버에 추가되는지.
+/**
+ * Save a push subscription to the server.
+ * This function stores the subscription in memory (for demo purposes).
+ * In production, this should be saved to a database.
+ * 
+ * @param sub - The push subscription to save
+ * @returns An object indicating success
+ */
 export async function saveSubscription(sub: PushSubscription) {
   lastSubscription = sub;
   // console.log('서버: 최신 구독자가 등록되었습니다.');
   return { success: true };
 }
 
-// 2. 구독 정보 삭제 (취소 버튼 누르면 실행)
-// 서버에서 삭제되는지.
+/**
+ * Delete the stored push subscription.
+ * This function clears the in-memory subscription.
+ * In production, this should remove the subscription from the database.
+ * 
+ * @returns An object indicating success
+ */
 export async function deleteSubscription() {
   lastSubscription = null;
   // console.log('서버: 구독자가 삭제되었습니다.');
   return { success: true };
 }
 
-// 3. 알림 발송
+/**
+ * Send a push notification to the last saved subscription.
+ * 
+ * @param message - The message to send in the notification
+ * @returns An object indicating success or failure with an error message
+ */
 export async function sendPushNotification(message: string) {
   if (!lastSubscription) {
     return {

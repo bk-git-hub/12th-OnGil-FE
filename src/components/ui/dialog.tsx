@@ -6,30 +6,60 @@ import { XIcon } from "lucide-react"
 
 import { cn } from "@/lib/utils"
 
+/**
+ * Dialog component wrapper.
+ * 
+ * @param props - Props for the DialogPrimitive.Root component
+ * @returns The Dialog component
+ */
 function Dialog({
   ...props
 }: React.ComponentProps<typeof DialogPrimitive.Root>) {
   return <DialogPrimitive.Root data-slot="dialog" {...props} />
 }
 
+/**
+ * Dialog trigger component.
+ * 
+ * @param props - Props for the DialogPrimitive.Trigger component
+ * @returns The DialogTrigger component
+ */
 function DialogTrigger({
   ...props
 }: React.ComponentProps<typeof DialogPrimitive.Trigger>) {
   return <DialogPrimitive.Trigger data-slot="dialog-trigger" {...props} />
 }
 
+/**
+ * Dialog portal component.
+ * 
+ * @param props - Props for the DialogPrimitive.Portal component
+ * @returns The DialogPortal component
+ */
 function DialogPortal({
   ...props
 }: React.ComponentProps<typeof DialogPrimitive.Portal>) {
   return <DialogPrimitive.Portal data-slot="dialog-portal" {...props} />
 }
 
+/**
+ * Dialog close button component.
+ * 
+ * @param props - Props for the DialogPrimitive.Close component
+ * @returns The DialogClose component
+ */
 function DialogClose({
   ...props
 }: React.ComponentProps<typeof DialogPrimitive.Close>) {
   return <DialogPrimitive.Close data-slot="dialog-close" {...props} />
 }
 
+/**
+ * Dialog overlay component.
+ * 
+ * @param props - Props for the DialogPrimitive.Overlay component
+ * @returns The DialogOverlay component
+ */
 function DialogOverlay({
   className,
   ...props
@@ -46,6 +76,15 @@ function DialogOverlay({
   )
 }
 
+/**
+ * Dialog content component.
+ * 
+ * @param props - Props including:
+ *   className - Additional CSS classes
+ *   children - React children
+ *   showCloseButton - Whether to show the close button (default: true)
+ * @returns The DialogContent component
+ */
 function DialogContent({
   className,
   children,
@@ -80,6 +119,12 @@ function DialogContent({
   )
 }
 
+/**
+ * Dialog header component.
+ * 
+ * @param props - Props for the div element
+ * @returns The DialogHeader component
+ */
 function DialogHeader({ className, ...props }: React.ComponentProps<"div">) {
   return (
     <div
@@ -90,6 +135,12 @@ function DialogHeader({ className, ...props }: React.ComponentProps<"div">) {
   )
 }
 
+/**
+ * Dialog footer component.
+ * 
+ * @param props - Props for the div element
+ * @returns The DialogFooter component
+ */
 function DialogFooter({ className, ...props }: React.ComponentProps<"div">) {
   return (
     <div
@@ -103,6 +154,12 @@ function DialogFooter({ className, ...props }: React.ComponentProps<"div">) {
   )
 }
 
+/**
+ * Dialog title component.
+ * 
+ * @param props - Props for the DialogPrimitive.Title component
+ * @returns The DialogTitle component
+ */
 function DialogTitle({
   className,
   ...props
@@ -116,6 +173,12 @@ function DialogTitle({
   )
 }
 
+/**
+ * Dialog description component.
+ * 
+ * @param props - Props for the DialogPrimitive.Description component
+ * @returns The DialogDescription component
+ */
 function DialogDescription({
   className,
   ...props

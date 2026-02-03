@@ -1,10 +1,10 @@
-export type SubCategory = {
+type SubCategory = {
   id: string;
   name: string;
   imageUrl: string;
 };
 
-export type Category = {
+type Category = {
   id: string;
   name: string;
   subCategories: SubCategory[];

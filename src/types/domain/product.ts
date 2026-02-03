@@ -46,7 +46,15 @@ export interface ProductDetail extends Omit<
 }
 
 export interface ProductSearchResult {
-  products: Page<Product>;
+  products: {
+    content: Product[];
+    page: {
+      size: number;
+      number: number;
+      totalElements: number;
+      totalPages: number;
+    };
+  };
   alternatives: string[]; // 검색 결과 없을 때 추천 검색어
   hasResult: boolean;
 }

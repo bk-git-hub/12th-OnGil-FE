@@ -4,6 +4,17 @@ import { useState, useEffect, useRef, useTransition } from 'react';
 
 // 현재 보고 있는 카테고리 탭을 자동으로 활성화하고, 탭 클릭시 해당 섹션으로 이동하는 커스텀 훅 .
 
+/**
+ * Custom hook for scroll spy functionality.
+ * Automatically activates the category tab based on the visible section,
+ * and provides a function to scroll to a specific section.
+ * 
+ * @param ids - Array of element IDs to observe
+ * @returns An object containing:
+ *   activeId - The currently active element ID
+ *   scrollToId - Function to scroll to a specific element ID
+ *   containerRef - Ref to attach to the scrollable container
+ */
 export function useScrollSpy(ids: string[]) {
   // ids가 비어있을 경우를 대비 하여 기본값 설정
   const [activeId, setActiveId] = useState<string>(ids[0] || '');
@@ -38,6 +49,21 @@ export function useScrollSpy(ids: string[]) {
     const container = containerRef.current;
     if (!container || ids.length === 0) return;
 
+    const handleScroll = () => {
+      if (isClickScrolling.current) return;
+
+      const { scrollHeight, scrollTop, clientHeight } = container;
+      // 스크롤이 맨 아래에 도달했는지 확인 (약간의 오차 허용)
+      if (scrollHeight - scrollTop - clientHeight < 5) {
+        const lastId = ids[ids.length - 1];
+        if (lastId) {
+          startTransition(() => {
+            setActiveId(lastId);
+          });
+        }
+      }
+    };
+
     if (observerRef.current) observerRef.current.disconnect();
 
     observerRef.current = new IntersectionObserver(
@@ -55,9 +81,11 @@ export function useScrollSpy(ids: string[]) {
         );
 
         if (visibleSection.id) {
-          setActiveId((prev) =>
-            prev === visibleSection.id ? prev : visibleSection.id,
-          );
+          startTransition(() => {
+            setActiveId((prev) =>
+              prev === visibleSection.id ? prev : visibleSection.id,
+            );
+          });
         }
       },
       {
@@ -72,7 +100,10 @@ export function useScrollSpy(ids: string[]) {
       if (element) observerRef.current?.observe(element);
     });
 
+    container.addEventListener('scroll', handleScroll);
+
     return () => {
+      container.removeEventListener('scroll', handleScroll);
       observerRef.current?.disconnect();
       if (timeoutRef.current) clearTimeout(timeoutRef.current);
     };

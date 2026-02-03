@@ -8,7 +8,7 @@ type HttpMethod = 'GET' | 'POST' | 'PUT' | 'DELETE' | 'PATCH';
 
 interface FetchOptions extends RequestInit {
   headers?: Record<string, string>;
-  params?: Record<string, string | number | boolean | undefined>;
+  params?: Record<string, string | number | boolean | string[] | undefined>;
 }
 
 // 에러 응답 구조 정의 (백엔드 에러 스펙에 맞춰 수정 가능)
@@ -32,6 +32,16 @@ export class ApiError extends Error {
 /**
  * 범용 Fetch Wrapper (Server-side 전용)
  */
+/**
+ * Generic fetch wrapper for making API requests.
+ * 
+ * @template T - The expected response data type
+ * @param endpoint - API endpoint path
+ * @param method - HTTP method
+ * @param options - Fetch options including headers, params, body
+ * @returns Promise resolving to the response data
+ * @throws {ApiError} When the response is not ok
+ */
 async function fetchWrapper<T>(
   endpoint: string,
   method: HttpMethod,
@@ -43,7 +53,11 @@ async function fetchWrapper<T>(
     const searchParams = new URLSearchParams();
     Object.entries(options.params).forEach(([key, value]) => {
       if (value !== undefined) {
-        searchParams.append(key, String(value));
+        if (Array.isArray(value)) {
+          value.forEach((item) => searchParams.append(key, String(item)));
+        } else {
+          searchParams.append(key, String(value));
+        }
       }
     });
     url += `?${searchParams.toString()}`;
@@ -111,29 +125,77 @@ async function fetchWrapper<T>(
 }
 
 //  api 객체: Request Body에 제네릭 D 추가 (기본값 unknown)
+/**
+ * API client object with methods for common HTTP operations.
+ */
 export const api = {
+  /**
+   * Perform a GET request.
+   * 
+   * @template T - Response data type
+   * @param url - API endpoint URL
+   * @param options - Fetch options
+   * @returns Promise resolving to response data
+   */
   get: <T>(url: string, options?: FetchOptions) =>
     fetchWrapper<T>(url, 'GET', options),
 
-  // D: Request Body Type
+  /**
+   * Perform a POST request.
+   * 
+   * @template T - Response data type
+   * @template D - Request body type (defaults to unknown)
+   * @param url - API endpoint URL
+   * @param body - Request body data
+   * @param options - Fetch options
+   * @returns Promise resolving to response data
+   */
   post: <T, D = unknown>(url: string, body: D, options?: FetchOptions) =>
     fetchWrapper<T>(url, 'POST', {
       ...options,
       body: JSON.stringify(body),
     }),
 
+  /**
+   * Perform a PUT request.
+   * 
+   * @template T - Response data type
+   * @template D - Request body type (defaults to unknown)
+   * @param url - API endpoint URL
+   * @param body - Request body data
+   * @param options - Fetch options
+   * @returns Promise resolving to response data
+   */
   put: <T, D = unknown>(url: string, body: D, options?: FetchOptions) =>
     fetchWrapper<T>(url, 'PUT', {
       ...options,
       body: JSON.stringify(body),
     }),
 
+  /**
+   * Perform a PATCH request.
+   * 
+   * @template T - Response data type
+   * @template D - Request body type (defaults to unknown)
+   * @param url - API endpoint URL
+   * @param body - Request body data
+   * @param options - Fetch options
+   * @returns Promise resolving to response data
+   */
   patch: <T, D = unknown>(url: string, body: D, options?: FetchOptions) =>
     fetchWrapper<T>(url, 'PATCH', {
       ...options,
       body: JSON.stringify(body),
     }),
 
+  /**
+   * Perform a DELETE request.
+   * 
+   * @template T - Response data type
+   * @param url - API endpoint URL
+   * @param options - Fetch options
+   * @returns Promise resolving to response data
+   */
   delete: <T>(url: string, options?: FetchOptions) =>
     fetchWrapper<T>(url, 'DELETE', options),
 };

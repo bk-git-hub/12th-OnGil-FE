@@ -59,7 +59,7 @@ export function RecommendedProductCard({
           className="h-[264px] w-[236px] object-cover"
         />
         {isAuction && hasDiscount && (
-          <div className="absolute right-2 bottom-2 flex h-14 w-14 items-center justify-center rounded-full bg-red-500/90 text-center text-lg font-bold text-white">
+          <div className="text-red-500 absolute right-6 -bottom-7 flex h-14 w-14 items-center justify-center rounded-full bg-transparent text-center text-[40px] font-bold">
             {productInfo.discountRate}%
           </div>
         )}

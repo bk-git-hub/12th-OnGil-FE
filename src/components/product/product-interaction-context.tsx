@@ -10,6 +10,13 @@ interface ProductContextType {
 
 const ProductContext = createContext<ProductContextType | undefined>(undefined);
 
+/**
+ * Provider component for product interaction context.
+ * Manages scroll state for product detail tabs.
+ * 
+ * @param children - React children to be wrapped by the provider
+ * @returns The context provider component
+ */
 export function ProductInteractionProvider({
   children,
 }: {
@@ -34,6 +41,12 @@ export function ProductInteractionProvider({
 }
 
 // 하위 컴포넌트에서 컨텍스트 데이터 사용을 위한 커스텀 훅
+/**
+ * Custom hook to access product interaction context.
+ * 
+ * @returns The product interaction context value
+ * @throws Error if used outside of ProductInteractionProvider
+ */
 export function useProductInteraction() {
   const context = useContext(ProductContext);
   if (!context) {
