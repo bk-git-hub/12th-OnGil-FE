@@ -29,9 +29,9 @@ export function ReviewItem({ review, isAccessory = false }: ReviewItemProps) {
    * 상태를 원자적으로 업데이트하여 일관성을 유지합니다.
    */
   const toggleHelpful = () => {
-    setIsHelpful((prev) => {
-      const next = !prev;
-      setHelpfulCount((count) => (next ? count + 1 : count - 1));
+    setIsHelpful((prevIsHelpful) => {
+      const next = !prevIsHelpful;
+      setHelpfulCount((prevCount) => (next ? prevCount + 1 : prevCount - 1));
       return next;
     });
   };
