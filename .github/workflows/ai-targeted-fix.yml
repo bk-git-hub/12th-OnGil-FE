@@ -38,7 +38,7 @@ jobs:
       - name: Install Tools
         run: |
           export PATH="$HOME/.cargo/bin:$PATH"
-          uv pip install --system aider-chat
+          uv pip install --system --break-system-packages aider-chat
 
       - name: Resolve comment context
         env:
