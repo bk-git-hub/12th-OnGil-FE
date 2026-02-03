@@ -20,7 +20,15 @@ interface AnalysisContentProps {
   filterOptions?: string[];
 }
 
-export function AnalysisContent({
+/**
+ * 리뷰 통계의 특정 카테고리(사이즈, 색감, 소재 등) 분석 컨텐츠 컴포넌트
+ * @param {AnalysisContentProps} props - 컴포넌트 props
+ * @param {string} props.category - 카테고리 이름
+ * @param {ReviewCategorySummary} props.stat - 통계 데이터
+ * @param {string[]} [props.filterOptions] - 필터 옵션 목록
+ * @returns {JSX.Element} 분석 컨텐츠 컴포넌트
+ */
+export default function AnalysisContent({
   category,
   stat,
   filterOptions = [],
@@ -44,9 +52,10 @@ export function AnalysisContent({
 
     const total = details.reduce((acc, curr) => acc + curr.count, 0);
 
-    details.forEach((d) => {
-      d.percentage = total === 0 ? 0 : Math.round((d.count / total) * 100);
-    });
+    details = details.map((d) => ({
+      ...d,
+      percentage: total === 0 ? 0 : Math.round((d.count / total) * 100),
+    }));
 
     if (selectedOption === 'all') {
       details.sort((a, b) => b.count - a.count);

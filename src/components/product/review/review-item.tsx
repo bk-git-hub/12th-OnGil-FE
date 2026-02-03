@@ -24,9 +24,16 @@ export function ReviewItem({ review, isAccessory = false }: ReviewItemProps) {
   const [isImageModalOpen, setIsImageModalOpen] = useState(false);
   const [initialSlide, setInitialSlide] = useState(0);
 
+  /**
+   * 도움돼요 버튼 클릭 핸들러
+   * 상태를 원자적으로 업데이트하여 일관성을 유지합니다.
+   */
   const toggleHelpful = () => {
-    setIsHelpful(!isHelpful);
-    setHelpfulCount((prev) => (isHelpful ? prev - 1 : prev + 1));
+    setIsHelpful((prev) => {
+      const next = !prev;
+      setHelpfulCount((count) => (next ? count + 1 : count - 1));
+      return next;
+    });
   };
 
   const handleImageClick = (index: number) => {
@@ -116,9 +123,18 @@ export function ReviewItem({ review, isAccessory = false }: ReviewItemProps) {
       )}
 
       {/* 5. 상세 평가 정보 (클릭 시 팝업 오픈) */}
-      <div
-        className="mb-4 flex cursor-pointer flex-col gap-4"
+      <button
+        type="button"
+        className="mb-4 flex w-full cursor-pointer flex-col gap-4 text-left"
         onClick={() => setIsDetailPopupOpen(true)}
+        onKeyDown={(e) => {
+          if (e.key === 'Enter' || e.key === ' ') {
+            e.preventDefault();
+            setIsDetailPopupOpen(true);
+          }
+        }}
+        aria-label="상세 평가 정보 보기"
+        tabIndex={0}
       >
         {EVALUATION_CONFIG.map(({ label, key }) => {
           const value = review.initialFirstAnswers[key];
@@ -135,7 +151,7 @@ export function ReviewItem({ review, isAccessory = false }: ReviewItemProps) {
             </div>
           );
         })}
-      </div>
+      </button>
 
       {/* 6. 선택지 태그 더보기 버튼 */}
       <div className="mb-5 flex items-center justify-between">

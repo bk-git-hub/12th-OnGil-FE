@@ -9,10 +9,18 @@ import { PRODUCT_TABS } from '@/config/product-tabs';
 interface ProductTabProps {
   activateTab: string;
   onTabChange: (tabId: string) => void;
-  reviewCount: number;
+  reviewCount?: number;
 }
 
-export function ProductTab({
+/**
+ * 상품 상세 정보 탭 컴포넌트
+ * @param {ProductTabProps} props - 컴포넌트 props
+ * @param {string} props.activateTab - 활성화된 탭 ID
+ * @param {(tabId: string) => void} props.onTabChange - 탭 변경 콜백
+ * @param {number} [props.reviewCount=0] - 리뷰 개수
+ * @returns {JSX.Element} 상품 탭 컴포넌트
+ */
+export default function ProductTab({
   activateTab,
   onTabChange,
   reviewCount = 0,

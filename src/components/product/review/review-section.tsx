@@ -23,6 +23,7 @@ import { Label } from '@/components/ui/label';
 // 상품 리뷰 섹션 컴포넌트, 리뷰 탭, 필터, 정렬, 리뷰 리스트 포함
 // 리뷰 관련 모든 UI와 상태 관리를 담당
 
+// TODO: API 연동 시 실제 사용자 정보로 대체 필요
 const MOCK_CURRENT_USER: CurrentUserType = {
   height: 165,
   weight: 55,
@@ -43,7 +44,23 @@ interface ProductReviewContentProps {
   monthStats?: ReviewStatsData;
 }
 
-export function ProductReviewContent({
+/**
+ * 상품 리뷰 섹션 컴포넌트, 리뷰 탭, 필터, 정렬, 리뷰 리스트 포함
+ * 리뷰 관련 모든 UI와 상태 관리를 담당
+ * @param {ProductReviewContentProps} props - 컴포넌트 props
+ * @param {Object} props.productInfo - 상품 정보
+ * @param {number} props.productInfo.productId - 상품 ID
+ * @param {string} props.productInfo.name - 상품 이름
+ * @param {MaterialDescription} [props.productInfo.materialDescription] - 소재 설명
+ * @param {string} [props.productInfo.materialName] - 소재 이름
+ * @param {Object} props.productInfo.availableOptions - 사용 가능한 옵션
+ * @param {string[]} props.productInfo.availableOptions.sizes - 사이즈 목록
+ * @param {string[]} props.productInfo.availableOptions.colors - 색상 목록
+ * @param {ReviewStatsData} props.stats - 일반 리뷰 통계
+ * @param {ReviewStatsData} [props.monthStats] - 한달 후 리뷰 통계
+ * @returns {JSX.Element} 상품 리뷰 컨텐츠 컴포넌트
+ */
+export default function ProductReviewContent({
   productInfo,
   stats,
   monthStats,
@@ -53,7 +70,7 @@ export function ProductReviewContent({
   const [filters, setFilters] = useState<FilterState>({
     sizes: [],
     colors: [],
-    mySize: true,
+    mySize: false,
   });
   const [sortOption, setSortOption] = useState<SortOptionType>('best');
 
@@ -150,7 +167,7 @@ export function ProductReviewContent({
           </div>
 
           {/* Sticky 필터/정렬 바 */}
-          <div className="sticky top-0 z-10 flex flex-col gap-3 border-y border-gray-100 bg-white px-4 py-3 transition-all">
+          <div className="sticky top-[104px] z-0 flex flex-col gap-3 border-y border-gray-100 bg-white px-4 py-3 transition-all">
             <div className="flex items-center justify-between">
               <ReviewOptionSheet
                 availableSizes={productInfo.availableOptions.sizes}

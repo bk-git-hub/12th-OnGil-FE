@@ -31,6 +31,7 @@ function FilterGroup({
           const isSelected = selectedItems.includes(item);
           return (
             <button
+              type="button"
               key={item}
               onClick={() => onToggle(item)}
               className={cn(
@@ -55,7 +56,16 @@ interface ReviewOptionSheetProps {
   onApply: (newFilters: Partial<FilterState>) => void;
 }
 
-export function ReviewOptionSheet({
+/**
+ * 리뷰 필터 옵션(색상, 사이즈)을 선택할 수 있는 시트 컴포넌트
+ * @param {ReviewOptionSheetProps} props - 컴포넌트 props
+ * @param {string[]} props.availableSizes - 사용 가능한 사이즈 목록
+ * @param {string[]} props.availableColors - 사용 가능한 색상 목록
+ * @param {FilterState} props.filters - 현재 필터 상태
+ * @param {(newFilters: Partial<FilterState>) => void} props.onApply - 필터 적용 콜백
+ * @returns {JSX.Element} 리뷰 옵션 시트 컴포넌트
+ */
+export default function ReviewOptionSheet({
   availableSizes,
   availableColors,
   filters,

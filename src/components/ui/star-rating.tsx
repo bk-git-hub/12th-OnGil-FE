@@ -13,10 +13,19 @@ interface StarRatingProps {
   className?: string; // 추가 스타일
 }
 
-export function StarRating({
+/**
+ * 별점을 표시하는 컴포넌트
+ * @param {StarRatingProps} props - 컴포넌트 props
+ * @param {number} props.rating - 1.0 ~ 5.0 점수
+ * @param {number} [props.max=5] - 별 최대 개수
+ * @param {number} [props.size=16] - 아이콘 크기
+ * @param {string} [props.className] - 추가 스타일 클래스
+ * @returns {JSX.Element} 별점 컴포넌트
+ */
+export default function StarRating({
   rating,
   max = 5,
-  size,
+  size = 16,
   className,
 }: StarRatingProps) {
   return (
@@ -51,7 +60,7 @@ export function StarRating({
           <Image
             key={i}
             src="/icons/star-gray.svg"
-            alt="star-full"
+            alt="star-empty"
             width={size}
             height={size}
           />

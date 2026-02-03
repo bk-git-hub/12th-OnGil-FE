@@ -41,7 +41,17 @@ function sortReviews(reviews: ReviewDetail[], option: SortOptionType) {
 }
 
 // 메인 컴포넌트
-export function ReviewList({
+/**
+ * 리뷰 목록 컴포넌트, 필터링 및 정렬 기능 포함
+ * @param {ReviewListProps} props - 컴포넌트 props
+ * @param {ReviewTabType} props.activeTab - 활성화된 리뷰 탭
+ * @param {number} props.totalCount - 총 리뷰 개수
+ * @param {FilterState} props.filters - 필터 상태
+ * @param {SortOptionType} props.sortOption - 정렬 옵션
+ * @param {CurrentUserType} props.currentUser - 현재 사용자 정보
+ * @returns {JSX.Element} 리뷰 목록 컴포넌트
+ */
+export default function ReviewList({
   activeTab,
   totalCount,
   filters,

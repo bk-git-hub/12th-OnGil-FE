@@ -19,7 +19,7 @@ export function ReviewDetailModal({
   answers,
 }: ReviewDetailModalProps) {
   return (
-    <Dialog open={isOpen} onOpenChange={onClose}>
+    <Dialog open={isOpen} onOpenChange={(open) => !open && onClose()}>
       <DialogContent className="max-h-xl max-w-xl rounded-none bg-white p-4">
         <div className="mt-4 space-y-4">
           {EVALUATION_CONFIG.map(({ label, key }) => {

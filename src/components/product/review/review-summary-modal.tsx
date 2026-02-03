@@ -18,7 +18,7 @@ import { ReviewStatsData } from '@/types/domain/review';
 interface ReviewSummaryModalProps {
   isOpen: boolean;
   onClose: () => void;
-  stats: ReviewStatsData;
+  stats?: ReviewStatsData | null;
   availableOptions?: {
     sizes: string[];
     colors: string[];
@@ -71,7 +71,6 @@ export function ReviewSummaryModal({
               <CarouselContent>
                 {cards.map((card, index) => {
                   let options: string[] = [];
-                  let recommendText: React.ReactNode = null;
 
                   if (card.category === '사이즈') {
                     options = availableOptions.sizes;

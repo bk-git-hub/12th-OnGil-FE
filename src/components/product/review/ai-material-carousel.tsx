@@ -14,7 +14,14 @@ interface AiMaterialCarouselProps {
   materialName?: string;
 }
 
-export function AiMaterialCarousel({
+/**
+ * AI 소재 분석 정보를 캐러셀로 표시하는 컴포넌트
+ * @param {AiMaterialCarouselProps} props - 컴포넌트 props
+ * @param {MaterialDescription} [props.materialDescription] - 소재 설명 정보
+ * @param {string} [props.materialName] - 소재 이름
+ * @returns {JSX.Element} AI 소재 캐러셀 컴포넌트
+ */
+export default function AiMaterialCarousel({
   materialDescription,
   materialName,
 }: AiMaterialCarouselProps) {

@@ -10,7 +10,14 @@ interface ProductInfoProps {
   discountRef?: Ref<HTMLButtonElement | null>;
 }
 
-export function ProductInfo({ product, discountRef }: ProductInfoProps) {
+/**
+ * 상품 기본 정보(브랜드, 상품명, 가격, 할인 알림 버튼)를 표시하는 컴포넌트
+ * @param {ProductInfoProps} props - 컴포넌트 props
+ * @param {Product} props.product - 상품 정보
+ * @param {Ref<HTMLButtonElement | null>} [props.discountRef] - 할인 알림 버튼에 대한 ref
+ * @returns {JSX.Element} 상품 정보 컴포넌트
+ */
+export default function ProductInfo({ product, discountRef }: ProductInfoProps) {
   const hasDiscount = !!product.discountRate;
   return (
     <div className="font-pretendard px-4 py-6">

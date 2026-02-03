@@ -3,11 +3,7 @@ import { Product, MaterialDescription } from '@/types/domain/product';
 import { generateReviewStats } from '@/mocks/review-data';
 import { ReviewStatsData } from '@/types/domain/review';
 
-export interface MockProduct extends Omit<
-  Product,
-  'id' | 'materialDescription'
-> {
-  id: number;
+export interface MockProduct extends Omit<Product, 'materialDescription'> {
   categoryId: string;
   stockStatus: StockStatus;
 
@@ -128,14 +124,21 @@ function generateDummyProducts(
   });
 }
 
-// 각 호출마다 누적된 ID 시작값 전달
-export const PRODUCTS: MockProduct[] = [
-  ...generateDummyProducts('top-1', 15, '프리미엄 니트', 0),
-  ...generateDummyProducts('top-2', 12, '오버핏 후드', 15),
-  ...generateDummyProducts('outer-1', 10, '캐시미어 코트', 27),
-  ...generateDummyProducts('outer-3', 10, '덕다운 패딩', 37),
-  ...generateDummyProducts('pants-1', 15, '와이드 데님', 47),
-  ...generateDummyProducts('shoes-1', 12, '데일리 스니커즈', 62),
-  ...generateDummyProducts('bag-1', 8, '미니 크로스백', 74),
-  ...generateDummyProducts('hat-1', 10, '베이직 캡', 82),
+const productConfigs = [
+  { categoryId: 'top-1', count: 15, baseName: '프리미엄 니트' },
+  { categoryId: 'top-2', count: 12, baseName: '오버핏 후드' },
+  { categoryId: 'outer-1', count: 10, baseName: '캐시미어 코트' },
+  { categoryId: 'outer-3', count: 10, baseName: '덕다운 패딩' },
+  { categoryId: 'pants-1', count: 15, baseName: '와이드 데님' },
+  { categoryId: 'shoes-1', count: 12, baseName: '데일리 스니커즈' },
+  { categoryId: 'bag-1', count: 8, baseName: '미니 크로스백' },
+  { categoryId: 'hat-1', count: 10, baseName: '베이직 캡' },
 ];
+
+export const PRODUCTS: MockProduct[] = productConfigs.reduce<MockProduct[]>(
+  (acc, config) => [
+    ...acc,
+    ...generateDummyProducts(config.categoryId, config.count, config.baseName, acc.length),
+  ],
+  [],
+);

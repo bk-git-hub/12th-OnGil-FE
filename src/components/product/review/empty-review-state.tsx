@@ -3,7 +3,11 @@
 import { FileText } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 
-export function EmptyReviewState() {
+/**
+ * 리뷰가 없을 때 표시되는 빈 상태 컴포넌트
+ * @returns {JSX.Element} 빈 리뷰 상태 컴포넌트
+ */
+export default function EmptyReviewState() {
   return (
     <div className="flex flex-col items-center justify-center py-20 text-center">
       <div className="mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-gray-50">

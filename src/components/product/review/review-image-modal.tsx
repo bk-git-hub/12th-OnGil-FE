@@ -22,7 +22,16 @@ interface ReviewImageModalProps {
   initialSlide: number;
 }
 
-export function ReviewImageModal({
+/**
+ * 리뷰 이미지를 전체 화면으로 보여주는 모달 컴포넌트
+ * @param {ReviewImageModalProps} props - 컴포넌트 props
+ * @param {boolean} props.isOpen - 모달 열림 상태
+ * @param {() => void} props.onClose - 모달 닫기 콜백
+ * @param {string[]} props.imageUrls - 이미지 URL 목록
+ * @param {number} props.initialSlide - 초기 슬라이드 인덱스
+ * @returns {JSX.Element} 리뷰 이미지 모달 컴포넌트
+ */
+export default function ReviewImageModal({
   isOpen,
   onClose,
   imageUrls,

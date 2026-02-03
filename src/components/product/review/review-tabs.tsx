@@ -30,7 +30,7 @@ export function ReviewTabs({
                 : 'text-gray-400 hover:text-gray-600',
             )}
           >
-            <div className="font-2xl line-height-1.5 flex flex-col items-center font-medium not-italic">
+            <div className="text-2xl leading-[1.5] flex flex-col items-center font-medium not-italic">
               <span>전체 리뷰</span>
               <span>({generalCount}개)</span>
             </div>
@@ -47,7 +47,7 @@ export function ReviewTabs({
                 : 'text-gray-400 hover:text-gray-600',
             )}
           >
-            <div className="font-2xl line-height-1.5 flex flex-col items-center font-medium not-italic">
+            <div className="text-2xl leading-[1.5] flex flex-col items-center font-medium not-italic">
               <span>한달 후 리뷰</span>
               <span>({monthCount}개)</span>
             </div>

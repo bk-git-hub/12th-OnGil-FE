@@ -38,7 +38,15 @@ interface ReviewSummarySectionProps {
   };
 }
 
-export function ReviewSummarySection({
+/**
+ * 리뷰 요약 섹션 컴포넌트
+ * @param {ReviewSummarySectionProps} props - 컴포넌트 props
+ * @param {ReviewStatsData} props.stats - 리뷰 통계 데이터
+ * @param {number} props.reviewCount - 리뷰 개수
+ * @param {{ sizes: string[]; colors: string[] }} [props.availableOptions] - 사용 가능한 옵션
+ * @returns {JSX.Element} 리뷰 요약 섹션 컴포넌트
+ */
+export default function ReviewSummarySection({
   stats,
   reviewCount,
   availableOptions = { sizes: [], colors: [] },

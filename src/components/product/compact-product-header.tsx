@@ -7,10 +7,13 @@ interface CompactProductHeaderProps {
   product: Product;
 }
 
-// 상품 상세 페이지를 스크롤 하였을 때 상단에 작게 상품 정보를 요약하여 보여주는 컴포넌트
-// 탭바와 같이 상단에 고정된다.
-
-export function CompactProductHeader({ product }: CompactProductHeaderProps) {
+/**
+ * 상품 상세 페이지 스크롤 시 상단에 고정되는 요약 헤더 컴포넌트
+ * @param {CompactProductHeaderProps} props - 컴포넌트 props
+ * @param {Product} props.product - 상품 정보
+ * @returns {JSX.Element} 컴팩트 상품 헤더 컴포넌트
+ */
+export default function CompactProductHeader({ product }: CompactProductHeaderProps) {
   return (
     <div className="flex h-14 w-full items-center justify-between bg-white px-4">
       <div className="flex items-center gap-3 overflow-hidden pt-2">
@@ -36,7 +39,7 @@ export function CompactProductHeader({ product }: CompactProductHeaderProps) {
               </span>
             )}
             <span className="font-bold text-black">
-              {product.price.toLocaleString()}원
+              {product.finalPrice.toLocaleString()}원
             </span>
           </div>
         </div>

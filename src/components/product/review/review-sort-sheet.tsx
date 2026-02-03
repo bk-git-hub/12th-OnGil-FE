@@ -44,7 +44,14 @@ interface ReviewSortSheetProps {
   onSortChange: (sort: SortOptionType) => void;
 }
 
-export function ReviewSortSheet({
+/**
+ * 리뷰 정렬 옵션을 선택할 수 있는 시트 컴포넌트
+ * @param {ReviewSortSheetProps} props - 컴포넌트 props
+ * @param {SortOptionType} props.currentSort - 현재 선택된 정렬 옵션
+ * @param {(sort: SortOptionType) => void} props.onSortChange - 정렬 옵션 변경 콜백
+ * @returns {JSX.Element} 리뷰 정렬 시트 컴포넌트
+ */
+export default function ReviewSortSheet({
   currentSort,
   onSortChange,
 }: ReviewSortSheetProps) {
