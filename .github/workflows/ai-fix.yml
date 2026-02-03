@@ -54,7 +54,7 @@ jobs:
           fi
 
           # 2. Generate strategy with Claude (auto-approve Read/Edit so it creates strategy.md without asking)
-          claude -p "Read reviews.txt. Create strategy.md with detailed instructions for aider. 1. Fix all logic issues from the reviews. 2. Add JSDoc to every function (Docstring Coverage 80%). Write step-by-step instructions so aider can execute without asking. Output the full strategy into strategy.md." --allowedTools "Read,Edit,Bash"
+          claude -p "Read reviews.txt. Create strategy.md with detailed instructions for aider. 1. Fix all logic issues from the reviews. 2. Add JSDoc to every function (Docstring Coverage 80%). 3. IMPORTANT: Include commit guidelines - make SMALL ATOMIC commits (break into multiple commits), use format '<type>: <description in Korean>' where type is in English (feat/fix/refactor/docs/style/test/chore) and description is in Korean. Write step-by-step instructions so aider can execute without asking. Output the full strategy into strategy.md." --allowedTools "Read,Edit,Bash"
 
           if [ ! -f strategy.md ] || [ ! -s strategy.md ]; then
             echo "Strategy file not created. Fallback: inject review content into strategy."
@@ -68,6 +68,17 @@ jobs:
               echo "## Instructions"
               echo "- Fix every issue mentioned above."
               echo "- Add JSDoc comments to every function in the touched files."
+              echo ""
+              echo "## Commit Guidelines (IMPORTANT)"
+              echo "- Make SMALL, ATOMIC commits for each logical change (break into multiple commits)"
+              echo "- Use conventional commit format: <type>: <description in Korean>"
+              echo "- Types (in English): feat, fix, refactor, docs, style, test, chore"
+              echo "- Description (in Korean): Clear explanation of what was changed"
+              echo "- Examples:"
+              echo "  - feat: 사용자 인증 로직 추가"
+              echo "  - fix: 로그인 버그 수정"
+              echo "  - refactor: 컴포넌트 구조 개선"
+              echo "  - docs: JSDoc 주석 추가"
             } > strategy.md
           fi
 
