@@ -12,7 +12,7 @@ tone_instructions: 'Technical and concise. Focus on Next.js 16 PPR, strict TypeS
 reviews:
   profile: chill
   request_changes_workflow: false
-  high_level_summary: true
+  high_level_summary: false # 속도 향상을 위해 비활성화
   auto_title_placeholder: '@coderabbitai'
   poem: false
   collapse_walkthrough: false
@@ -38,41 +38,13 @@ reviews:
     - '!**/node_modules/**'
     - '!**/public/**'
 
-  # Path-Specific Instructions
+  # Path-Specific Instructions (핵심만 유지하여 속도 향상)
   path_instructions:
-    - path: 'src/app/**/page.tsx'
-      instructions: |
-        - Verify Next.js 16 App Router conventions are followed
-        - Ensure PPR (Partial Prerendering) best practices: page.tsx should be synchronous
-        - Check if dynamic data fetching is properly wrapped in Suspense boundaries
-        - Validate proper use of params/searchParams as Promise types
-
-    - path: 'src/app/**/layout.tsx'
-      instructions: |
-        - Verify layout conventions and proper TypeScript types
-        - Check metadata exports
-        - Ensure no data fetching in layout (use loading.tsx or Suspense in children)
-
     - path: 'src/components/**/*.tsx'
       instructions: |
-        - Enforce 'export default function ComponentName()' pattern (NO arrow functions for components)
-        - Verify kebab-case file naming
-        - Check component is in proper domain directory (e.g., /product, /category, /cart)
-        - Ensure NO components are created inside /src/app (only page.tsx, layout.tsx, loading.tsx, error.tsx allowed)
-        - Validate strict TypeScript (NO 'any' types)
-        - Check Client Components have 'use client' directive when needed
-
-    - path: 'src/lib/**/*.ts'
-      instructions: |
-        - Review utility functions for reusability and type safety
-        - Check proper error handling
-        - Ensure no 'any' types
-
-    - path: 'src/types/**/*.ts'
-      instructions: |
-        - Validate type definitions match API contracts
-        - Ensure no 'any' types
-        - Check for proper use of Domain types vs API response types
+        - export default function 패턴 (화살표 함수 금지)
+        - any 타입 금지
+        - Client Component는 'use client' 필수
 
   # Tools Configuration
   tools:
@@ -80,10 +52,10 @@ reviews:
       enabled: true
 
     markdownlint:
-      enabled: true
+      enabled: false
 
     yamllint:
-      enabled: true
+      enabled: false
 
     gitleaks:
       enabled: true
@@ -143,9 +115,4 @@ knowledge_base:
     scope: global
 
   code_guidelines:
-    enabled: true
-    filePatterns:
-      - '**/.cursorrules'
-      - '.github/copilot-instructions.md'
-      - '**/AGENT.md'
-      - '**/AGENTS.md'
+    enabled: false # 속도 향상을 위해 비활성화 (AI prompt는 자동 생성되므로 영향 없음)
