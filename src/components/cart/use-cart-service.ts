@@ -40,12 +40,35 @@ function cartOptimisticReducer(
 
 export function useCartService(initialCartItems: CartResponse[]) {
   const { fetchCount } = useCartStore();
-  const [selectedIds, setSelectedIds] = useState<Set<number>>(new Set());
 
+  // 초기 로드 시 '전체 선택' 상태로 시작
+  const [selectedIds, setSelectedIds] = useState<Set<number>>(() => {
+    return new Set(initialCartItems.map((item) => item.cartId));
+  });
+
+  // 서버 데이터(initialCartItems)가 갱신되어도 사용자의 선택 상태 유지
   useEffect(() => {
-    if (initialCartItems.length > 0) {
-      setSelectedIds(new Set(initialCartItems.map((item) => item.cartId)));
+    if (initialCartItems.length === 0) {
+      // 장바구니가 비워지면 선택 목록도 초기화
+      setSelectedIds(new Set());
+      return;
     }
+
+    setSelectedIds((prev) => {
+      const next = new Set(prev);
+      const currentIdSet = new Set(initialCartItems.map((item) => item.cartId));
+
+      // 현재 서버 데이터에 없는 ID는 선택 목록에서 제거
+      next.forEach((id) => {
+        if (!currentIdSet.has(id)) {
+          next.delete(id);
+        }
+      });
+
+      // 새로운 아이템 추가 시 추가된 아이템 자동 선택 로직 추가해야함.
+
+      return next;
+    });
   }, [initialCartItems]);
 
   const [optimisticCart, addOptimisticAction] = useOptimistic(
