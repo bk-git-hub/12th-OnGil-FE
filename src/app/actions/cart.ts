@@ -79,8 +79,12 @@ export async function deleteCartItems(cartIds: number[]) {
 /** 장바구니 개수 조회 (뱃지용) */
 export async function getCartCount(): Promise<number> {
   try {
-    const count = await api.get<number>('/carts/count');
-    return count;
+    const data = await api.get<{ count: number }>('/carts/count');
+
+    if (typeof data === 'number') {
+      return data;
+    }
+    return data.count;
   } catch (error) {
     console.error('장바구니 개수 조회 실패:', error);
     return 0;
