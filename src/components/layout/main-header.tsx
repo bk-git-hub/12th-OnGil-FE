@@ -2,6 +2,8 @@
 
 import { useState } from 'react';
 import SearchBar from '../search-bar/search-bar';
+import { CartCountBadge } from '../cart/cart-count-badge';
+import Link from 'next/link';
 
 export default function MainHeader() {
   const [isSearchFocused, setIsSearchFocused] = useState(false);
@@ -15,10 +17,20 @@ export default function MainHeader() {
         } `}
       >
         <div className="flex items-center gap-2">
-          <button className="flex flex-col items-center px-1">
-            <img src="/icons/cart.svg" alt="장바구니" width={30} height={30} />
-            <span className="font-pretendard text-[11px]">장바구니</span>
-          </button>
+          <Link href="/cart">
+            <button className="flex flex-col items-center px-1">
+              <div className="relative">
+                <img
+                  src="/icons/cart.svg"
+                  alt="장바구니"
+                  width={30}
+                  height={30}
+                />
+                <CartCountBadge className="absolute -top-1 -right-1 text-[10px]" />
+              </div>
+              <span className="font-pretendard text-[11px]">장바구니</span>
+            </button>
+          </Link>
           <button className="flex shrink-0 flex-col items-center px-1">
             <img src="/icons/notice.svg" alt="알림" width={30} height={30} />
             <span className="font-pretendard text-[11px]">알림</span>
