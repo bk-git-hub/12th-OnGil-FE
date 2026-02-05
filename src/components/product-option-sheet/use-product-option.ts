@@ -175,6 +175,11 @@ export default function useProductOption({
     0,
   );
 
+  const navigateToCart = () => {
+    setIsSuccessModalOpen(false);
+    router.push('/cart');
+  };
+
   return {
     state: {
       isOpen,
@@ -195,6 +200,7 @@ export default function useProductOption({
       updateQuantity,
       removeItem,
       handleAction,
+      navigateToCart,
     },
   };
 }

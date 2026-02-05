@@ -103,7 +103,6 @@ export default function ProductOptionSheet({
         </SheetContent>
       </Sheet>
 
-      {/* 성공 모달 */}
       <Dialog
         open={state.isSuccessModalOpen}
         onOpenChange={actions.setIsSuccessModalOpen}
@@ -125,7 +124,7 @@ export default function ProductOptionSheet({
               className="bg-ongil-teal h-12 w-full rounded-xl text-lg font-bold hover:bg-teal-600"
               onClick={() => {
                 actions.setIsSuccessModalOpen(false);
-                window.location.href = '/cart';
+                actions.navigateToCart();
               }}
             >
               담은 상품 보러가기
