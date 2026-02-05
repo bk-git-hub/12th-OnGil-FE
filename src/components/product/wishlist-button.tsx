@@ -1,51 +1,42 @@
 'use client';
 
-import { useState } from 'react';
 import { cn } from '@/lib/utils';
-
-// In a real app, you would import a hook for mutations, e.g., from react-query or SWR
-// import { useToggleWishlist } from '@/hooks/use-wishlist';
+import { useWishlist } from '@/hooks/use-wishlist';
 
 interface WishlistButtonProps {
-  productId: number | string;
-  initialIsLiked?: boolean;
+  productId: number;
+  initialIsLiked: boolean;
+  initialWishlistId?: number;
   className?: string;
 }
 
 export function WishlistButton({
   productId,
-  initialIsLiked = false,
+  initialIsLiked,
+  initialWishlistId,
   className,
 }: WishlistButtonProps) {
-  const [isLiked, setIsLiked] = useState(initialIsLiked);
-  // const { mutate, isPending } = useToggleWishlist(); // Example with a real hook
+  const { isLiked, isPending, toggle } = useWishlist({
+    productId,
+    initialIsLiked,
+    initialWishlistId,
+  });
 
-  const handleToggle = (e: React.MouseEvent<HTMLButtonElement>) => {
+  const handleClick = (e: React.MouseEvent<HTMLButtonElement>) => {
     e.preventDefault();
     e.stopPropagation();
-
-    // Optimistic update of the UI
-    const newIsLiked = !isLiked;
-    setIsLiked(newIsLiked);
-
-    // In a real app, you would call the mutation here to update the backend
-    // mutate({ productId, isLiked: newIsLiked });
-    console.log(
-      `Toggling wishlist for product ${productId}. New state: ${
-        newIsLiked ? 'liked' : 'unliked'
-      }. (API call would happen here)`,
-    );
+    toggle();
   };
 
   return (
     <button
-      onClick={handleToggle}
-      // disabled={isPending} // Example: Disable button while the request is in flight
+      onClick={handleClick}
+      disabled={isPending}
       className={cn(
         'z-10 flex h-8 w-8 items-center justify-center rounded-full bg-white/80 p-1.5 shadow-md',
         className,
       )}
-      aria-label={isLiked ? 'Remove from wishlist' : 'Add to wishlist'}
+      aria-label={isLiked ? '찜 취소' : '찜하기'}
     >
       <svg
         width="100%"
