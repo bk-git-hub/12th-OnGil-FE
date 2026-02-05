@@ -1,7 +1,7 @@
 import { notFound } from 'next/navigation';
 import { getProductById } from '@/components/product/product-service';
 import { fetchUserBodyInfo, fetchSizeAnalysis } from '@/mocks/size';
-import { ProductDetailView } from '@/components/product/product-detail-view';
+import ProductDetailView from '@/components/product/product-detail-view';
 
 interface PageProps {
   params: Promise<{ id: string }>;

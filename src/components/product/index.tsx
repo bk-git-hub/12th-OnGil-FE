@@ -11,7 +11,7 @@ export { ProductFilterBar } from './product-filter-bar';
 export { ProductImageSlider } from './product-image-slider';
 export { default as ProductInfo } from './product-info';
 export { default as ProductTab } from './product-tab';
-export { ProductDetailView } from './product-detail-view';
+export { default as ProductDetailView } from './product-detail-view';
 
 // ----------------------------------------------------------------------
 // 3. 상품 상세 - 설명 및 레이아웃
@@ -24,7 +24,7 @@ export { ProductDescription } from './descriptions/product-description';
 // ----------------------------------------------------------------------
 export { default as CompactProductHeader } from './compact-product-header';
 export { default as ProductHeader } from './product-header';
-export { ProductBottomBar } from './product-bottom-bar';
+export { default as ProductBottomBar } from './product-bottom-bar';
 export { ProductNotice } from './descriptions/product-notice';
 export { RecommendedProductsCarousel } from './descriptions/recommended-products-carousel';
 
