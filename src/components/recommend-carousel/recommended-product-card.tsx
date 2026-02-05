@@ -59,13 +59,13 @@ export function RecommendedProductCard({
           className="h-[264px] w-[236px] object-cover"
         />
         {isAuction && hasDiscount && (
-          <div className="text-red-500 absolute right-6 -bottom-7 flex h-14 w-14 items-center justify-center rounded-full bg-transparent text-center text-[40px] font-bold">
+          <div className="absolute right-6 -bottom-7 flex h-14 w-14 items-center justify-center rounded-full bg-transparent text-center text-[40px] font-bold text-red-500">
             {productInfo.discountRate}%
           </div>
         )}
         <WishlistButton
           productId={productInfo.id}
-          initialIsLiked={productInfo.isLiked}
+          initialIsLiked={productInfo.isLiked || false}
           className="absolute top-2 right-2"
         />
       </div>
