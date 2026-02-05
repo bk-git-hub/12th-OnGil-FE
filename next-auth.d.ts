@@ -17,7 +17,7 @@ declare module 'next-auth' {
     user: {
       userId: string;
       nickName: string;
-      profileImageUrl: string | null;
+      profileUrl: string | null;
     } & DefaultSession['user'];
     accessToken: string;
     refreshToken: string;
@@ -28,8 +28,8 @@ declare module 'next-auth' {
 declare module 'next-auth/jwt' {
   interface JWT extends DefaultJWT {
     userId: string;
-    nickname: string;
-    profileImageUrl: string | null;
+    nickName: string;
+    profileUrl: string | null;
     accessToken: string;
     refreshToken: string;
     accessTokenExpires: number;

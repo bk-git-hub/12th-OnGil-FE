@@ -143,7 +143,7 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
           refreshToken: user.refreshToken,
           userId: user.userId,
           nickName: user.nickName,
-          profileImageUrl: user.profileUrl,
+          profileUrl: user.profileUrl,
           accessTokenExpires: Date.now() + expiresIn * 1000,
         };
       }
@@ -157,7 +157,7 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
     async session({ session, token }) {
       session.user.userId = token.userId as string;
       session.user.nickName = token.nickName as string;
-      session.user.profileUrl = token.profileImageUrl;
+      session.user.profileUrl = token.profileUrl;
       session.accessToken = token.accessToken as string;
       session.refreshToken = token.refreshToken as string;
       session.error = token.error;
