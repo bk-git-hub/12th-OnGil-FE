@@ -10,6 +10,7 @@ declare module 'next-auth' {
     profileUrl: string | null;
     accessToken: string;
     refreshToken: string;
+    expiresIn?: number;
   }
 
   interface Session extends DefaultSession {
@@ -20,6 +21,7 @@ declare module 'next-auth' {
     } & DefaultSession['user'];
     accessToken: string;
     refreshToken: string;
+    error?: 'RefreshAccessTokenError';
   }
 }
 
@@ -30,5 +32,7 @@ declare module 'next-auth/jwt' {
     profileImageUrl: string | null;
     accessToken: string;
     refreshToken: string;
+    accessTokenExpires: number;
+    error?: 'RefreshAccessTokenError';
   }
 }
