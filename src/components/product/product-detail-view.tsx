@@ -16,7 +16,11 @@ import { ProductDescription } from '@/components/product/descriptions/product-de
 import { ProductSizeContent } from '@/components/product/size/product-size-content';
 import ProductReviewContent from '@/components/product/review/review-section';
 
-import { Product, MaterialDescription } from '@/types/domain/product';
+import {
+  Product,
+  MaterialDescription,
+  ProductDetail,
+} from '@/types/domain/product';
 import { ReviewStatsData } from '@/types/domain/review';
 import { UserBodyInfo, SizeAnalysisResult } from '@/mocks/size';
 
@@ -41,7 +45,7 @@ interface ProductDetailViewProps {
   analysisData: SizeAnalysisResult | null;
 }
 
-export function ProductDetailView({
+export default function ProductDetailView({
   product,
   userInfo,
   analysisData,
@@ -130,7 +134,7 @@ export function ProductDetailView({
         </ProductStickyContainer>
 
         {/* 플로팅 요소 */}
-        <ProductBottomBar />
+        <ProductBottomBar product={product} />
         <ScrollToTop />
       </ProductInteractionProvider>
     </div>
