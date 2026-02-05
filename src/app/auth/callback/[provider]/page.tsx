@@ -23,7 +23,7 @@ export default function OAuthCallbackPage() {
         redirect: false,
       }).then((result) => {
         if (result?.ok) {
-          router.replace('/'); // Success!
+          window.location.href = '/';
         } else {
           console.error('Login Failed', result?.error);
           router.replace('/login?error=auth_failed');

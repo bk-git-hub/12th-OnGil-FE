@@ -2,17 +2,19 @@
 
 import Link from 'next/link';
 import Image from 'next/image';
-import { useParams } from 'next/navigation';
 import { CloseButton } from '../ui/close-button';
+import { CartCountBadge } from '@/components/cart/cart-count-badge';
 
 interface ProductHeaderProps {
   categoryID: string | number | undefined;
+  initialCartCount?: number;
 }
 
 /**
  * 상품 상세 페이지 헤더 컴포넌트
  * @param {ProductHeaderProps} props - 컴포넌트 props
  * @param {string | number | undefined} props.categoryID - 카테고리 ID
+ * @param {number} props.initialCartCount - 초기 장바구니 담긴 개수 (SSR)
  * @returns {JSX.Element} 상품 헤더 컴포넌트
  */
 export default function ProductHeader({ categoryID }: ProductHeaderProps) {
@@ -39,17 +41,20 @@ export default function ProductHeader({ categoryID }: ProductHeaderProps) {
           />
         </Link>
         <Link
-          href="/cart-list"
+          href="/cart"
           className="flex flex-col items-center justify-center pt-3 transition-opacity hover:opacity-70"
           aria-label="장바구니 리스트"
         >
-          <Image
-            src="/icons/cart.svg"
-            width={30}
-            height={30}
-            alt="장바구니 리스트"
-          />
-          <span className="text-right text-xs leading-normal font-semibold not-italic">
+          <div className="relative">
+            <Image
+              src="/icons/cart.svg"
+              width={30}
+              height={30}
+              alt="장바구니 리스트"
+            />
+            <CartCountBadge className="absolute -top-1 -right-1 h-4 w-4 text-[10px]" />
+          </div>
+          <span className="mt-1 text-right text-xs leading-normal font-semibold not-italic">
             장바구니
           </span>
         </Link>
