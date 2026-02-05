@@ -17,19 +17,17 @@ export default function MainHeader() {
         } `}
       >
         <div className="flex items-center gap-2">
-          <Link href="/cart">
-            <button className="flex flex-col items-center px-1">
-              <div className="relative">
-                <img
-                  src="/icons/cart.svg"
-                  alt="장바구니"
-                  width={30}
-                  height={30}
-                />
-                <CartCountBadge className="absolute -top-1 -right-1 text-[10px]" />
-              </div>
-              <span className="font-pretendard text-[11px]">장바구니</span>
-            </button>
+          <Link href="/cart" className="flex flex-col items-center px-1">
+            <div className="relative">
+              <img
+                src="/icons/cart.svg"
+                alt="장바구니"
+                width={30}
+                height={30}
+              />
+              <CartCountBadge className="absolute -top-1 -right-1 text-[10px]" />
+            </div>
+            <span className="font-pretendard text-[11px]">장바구니</span>
           </Link>
           <button className="flex shrink-0 flex-col items-center px-1">
             <img src="/icons/notice.svg" alt="알림" width={30} height={30} />
