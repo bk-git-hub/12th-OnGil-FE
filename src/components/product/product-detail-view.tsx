@@ -43,12 +43,16 @@ interface ProductDetailViewProps {
   product: ProductDetailProps;
   userInfo: UserBodyInfo | null;
   analysisData: SizeAnalysisResult | null;
+  isLiked?: boolean;
+  wishlistId?: number;
 }
 
 export default function ProductDetailView({
   product,
   userInfo,
   analysisData,
+  isLiked = false,
+  wishlistId,
 }: ProductDetailViewProps) {
   const [activeTab, setActiveTab] = useState('desc');
 
@@ -134,7 +138,11 @@ export default function ProductDetailView({
         </ProductStickyContainer>
 
         {/* 플로팅 요소 */}
-        <ProductBottomBar product={product} />
+        <ProductBottomBar
+          product={product}
+          initialIsLiked={isLiked}
+          initialWishlistId={wishlistId}
+        />
         <ScrollToTop />
       </ProductInteractionProvider>
     </div>
