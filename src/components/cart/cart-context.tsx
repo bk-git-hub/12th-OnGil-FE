@@ -1,6 +1,6 @@
 'use client';
 
-import { createContext, useContext, useMemo, type ReactNode } from 'react';
+import { createContext, useContext, type ReactNode } from 'react';
 import type { CartResponse } from '@/types/domain/cart';
 import { useCartService } from './use-cart-service';
 
