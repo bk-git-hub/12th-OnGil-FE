@@ -38,6 +38,7 @@ export default function ProductBottomBar({
   initialWishlistId,
 }: ProductBottomBarProps) {
   const router = useRouter();
+
   const [isSheetOpen, setIsSheetOpen] = useState(false);
   const [isWishlistModalOpen, setIsWishlistModalOpen] = useState(false);
 
@@ -47,6 +48,9 @@ export default function ProductBottomBar({
     initialWishlistId,
     onAddSuccess: () => setIsWishlistModalOpen(true),
   });
+  const handleOpenSheet = () => {
+    setIsSheetOpen(true);
+  };
 
   return (
     <>
@@ -72,7 +76,7 @@ export default function ProductBottomBar({
 
         <Button
           variant="ghost"
-          onClick={() => setIsSheetOpen(true)}
+          onClick={handleOpenSheet}
           className="flex h-auto flex-col items-center gap-1 hover:bg-gray-50"
         >
           <Image src="/icons/tag.svg" alt="구매하기" width={36} height={36} />
@@ -81,7 +85,7 @@ export default function ProductBottomBar({
 
         <Button
           variant="ghost"
-          onClick={() => setIsSheetOpen(true)}
+          onClick={handleOpenSheet}
           className="flex h-auto flex-col items-center gap-1 hover:bg-gray-50"
         >
           <Image src="/icons/cart.svg" alt="장바구니" width={36} height={36} />
