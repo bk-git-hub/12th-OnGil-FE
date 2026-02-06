@@ -11,7 +11,7 @@ export default async function Profile() {
     <div>
       {session.user.nickName}
       <img
-        src={session.user.profileImageUrl || '/icons/heart.svg'}
+        src={session.user.profileUrl || '/icons/heart.svg'}
         alt="프로필 이미지"
         width={40}
         height={40}
