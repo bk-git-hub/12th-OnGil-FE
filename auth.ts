@@ -1,6 +1,45 @@
 import NextAuth from 'next-auth';
 import Credentials from 'next-auth/providers/credentials';
 import { z } from 'zod';
+import { JWT } from 'next-auth/jwt';
+import { TokenRefreshReqDto, TokenRefreshResDto } from '@/types/domain/auth';
+import { ApiResponse } from '@/types/common';
+
+const TOKEN_REFRESH_BUFFER = 60 * 1000;
+
+async function refreshAccessToken(token: JWT): Promise<JWT> {
+  try {
+    const response = await fetch(
+      `${process.env.BACKEND_API_URL}/auth/token/refresh`,
+      {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          refreshToken: token.refreshToken,
+        } satisfies TokenRefreshReqDto),
+      },
+    );
+
+    if (!response.ok) {
+      throw new Error('Failed to refresh access token');
+    }
+
+    const { data }: ApiResponse<TokenRefreshResDto> = await response.json();
+
+    return {
+      ...token,
+      accessToken: data.accessToken,
+      refreshToken: data.refreshToken,
+      accessTokenExpires: Date.now() + 60 * 60 * 1000,
+    };
+  } catch (error) {
+    console.error('Refresh token error:', error);
+    return {
+      ...token,
+      error: 'RefreshAccessTokenError',
+    };
+  }
+}
 
 export const { handlers, signIn, signOut, auth } = NextAuth({
   providers: [
@@ -41,6 +80,7 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
             accessToken: data.accessToken,
             refreshToken: data.refreshToken,
             profileUrl: data.profileUrl || null,
+            expiresIn: data.expires_in,
           };
         } catch (error) {
           console.error('Social Auth Error:', error);
@@ -83,6 +123,7 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
             accessToken: data.accessToken,
             refreshToken: data.refreshToken,
             profileUrl: data.profileUrl,
+            expiresIn: data.expires_in,
           };
         } catch (error) {
           console.error('Login Error:', error);
@@ -95,21 +136,31 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
   callbacks: {
     async jwt({ token, user }) {
       if (user) {
-        const u = user;
-        token.accessToken = u.accessToken;
-        token.refreshToken = u.refreshToken;
-        token.userId = u.userId;
-        token.nickName = u.nickName;
-        token.profileImageUrl = u.profileUrl;
+        const expiresIn = user.expiresIn ?? 60 * 60;
+        return {
+          ...token,
+          accessToken: user.accessToken,
+          refreshToken: user.refreshToken,
+          userId: user.userId,
+          nickName: user.nickName,
+          profileUrl: user.profileUrl,
+          accessTokenExpires: Date.now() + expiresIn * 1000,
+        };
       }
-      return token;
+
+      if (Date.now() < (token.accessTokenExpires ?? 0) - TOKEN_REFRESH_BUFFER) {
+        return token;
+      }
+
+      return refreshAccessToken(token);
     },
     async session({ session, token }) {
       session.user.userId = token.userId as string;
       session.user.nickName = token.nickName as string;
-      session.user.profileUrl = token.profileImageUrl;
-      session.accessToken = token.accessToken;
-      session.refreshToken = token.refreshToken;
+      session.user.profileUrl = token.profileUrl;
+      session.accessToken = token.accessToken as string;
+      session.refreshToken = token.refreshToken as string;
+      session.error = token.error;
       return session;
     },
   },
