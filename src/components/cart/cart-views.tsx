@@ -92,7 +92,8 @@ export function CartItemList() {
 // [3] 하단 결제 바
 // ----------------------------------------------------------------------
 export function CartSummaryFooter() {
-  const { optimisticCart, totalAmount, selectedIds } = useCartContext();
+  const { optimisticCart, totalAmount, selectedIds, handleCartCheckout } =
+    useCartContext();
 
   if (optimisticCart.length === 0) return null;
 
@@ -102,6 +103,7 @@ export function CartSummaryFooter() {
   return (
     <Button
       disabled={!hasSelection}
+      onClick={handleCartCheckout}
       className={cn(
         'safe-area-pb fixed right-0 bottom-0 left-0 z-50 flex h-20 rounded-none transition-colors',
         'disabled:opacity-100',
@@ -114,7 +116,7 @@ export function CartSummaryFooter() {
           hasSelection ? 'text-black' : 'text-white',
         )}
       >
-        {formattedPrice}원
+        {formattedPrice}원 구매하기
       </span>
     </Button>
   );
