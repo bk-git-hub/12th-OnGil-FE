@@ -3,6 +3,7 @@ import Image from 'next/image';
 import Link from 'next/link';
 import { getOrderDetail } from '@/app/actions/order';
 import { CloseButton } from '@/components/ui/close-button';
+import { notFound } from 'next/dist/client/components/navigation';
 
 export const metadata: Metadata = {
   title: '주문 상세 | OnGil',
@@ -15,7 +16,11 @@ interface OrderPageProps {
 
 export default async function OrderDetailPage({ params }: OrderPageProps) {
   const { orderId } = await params;
-  const order = await getOrderDetail(Number(orderId));
+  const numericId = Number(orderId);
+  if (Number.isNaN(numericId)) {
+    notFound();
+  }
+  const order = await getOrderDetail(numericId);
 
   const formatDate = (dateString: string) => {
     const date = new Date(dateString);

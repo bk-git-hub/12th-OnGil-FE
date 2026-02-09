@@ -55,6 +55,8 @@ export function useWishlist({
           if (!response.success) {
             setOptimisticState(previousState);
           }
+        } else {
+          setOptimisticState(previousState);
         }
       } catch {
         setOptimisticState(previousState);

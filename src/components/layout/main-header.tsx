@@ -13,8 +13,11 @@ export default function MainHeader() {
       <SearchBar onFocusChange={setIsSearchFocused} />
       <div
         className={`flex items-center whitespace-nowrap ${
-          isSearchFocused ? 'max-w-0 opacity-0' : 'ml-2 max-w-50 opacity-100'
+          isSearchFocused
+            ? 'pointer-events-none max-w-0 overflow-hidden opacity-0'
+            : 'ml-2 max-w-50 opacity-100'
         } `}
+        aria-hidden={isSearchFocused}
       >
         <div className="flex items-center gap-2">
           <Link href="/cart" className="flex flex-col items-center px-1">

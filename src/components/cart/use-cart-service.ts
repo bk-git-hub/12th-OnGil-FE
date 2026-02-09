@@ -155,9 +155,11 @@ export function useCartService(initialCartItems: CartResponse[]) {
       alert(`주문이 성공적으로 완료되었습니다! 주문 ID: ${orderId}`);
       fetchCount();
       router.push(`/orders/${orderId}`);
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error('Checkout failed:', error);
-      alert(`결제 처리 중 오류가 발생했습니다: ${error.message}`);
+      const message =
+        error instanceof Error ? error.message : '알 수 없는 오류';
+      alert(`결제 처리 중 오류가 발생했습니다: ${message}`);
     }
   };
 
