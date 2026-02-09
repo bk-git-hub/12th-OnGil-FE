@@ -3,7 +3,7 @@ import Image from 'next/image';
 import Link from 'next/link';
 import { getOrderDetail } from '@/app/actions/order';
 import { CloseButton } from '@/components/ui/close-button';
-import { notFound } from 'next/dist/client/components/navigation';
+import { notFound } from 'next/navigation';
 
 export const metadata: Metadata = {
   title: '주문 상세 | OnGil',

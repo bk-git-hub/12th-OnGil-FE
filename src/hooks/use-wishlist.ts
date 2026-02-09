@@ -32,6 +32,7 @@ export function useWishlist({
   );
 
   const toggle = () => {
+    if (isPending) return;
     const previousState = optimisticState;
     const nextIsLiked = !previousState.isLiked;
 
