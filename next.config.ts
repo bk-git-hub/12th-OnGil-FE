@@ -16,6 +16,10 @@ const nextConfig: NextConfig = {
         protocol: 'https',
         hostname: 'example.com', // TODO: 실제 API 이미지 호스트로 교체 필요
       },
+      {
+        protocol: 'http',
+        hostname: 'img1.kakaocdn.net', // 카카오 프로필 이미지 호스팅
+      },
     ],
   },
 
