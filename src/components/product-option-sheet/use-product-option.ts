@@ -4,9 +4,7 @@ import { useState, useEffect, useTransition } from 'react';
 import { useRouter } from 'next/navigation';
 import { ProductOption } from '@/types/domain/product';
 import { addToCart } from '@/app/actions/cart';
-import { createOrderFromProduct } from '@/app/actions/order';
 import { useCartStore } from '@/store/cart';
-import { placeholderOrderData } from '@/mocks/order-data';
 import { StockStatus } from '@/types/enums';
 
 export interface SelectedItem {
@@ -162,25 +160,22 @@ export default function useProductOption({
           setCurrentColor('');
           setCurrentSize('');
         } else {
-          const orderItems = selectedItems.map((item) => ({
-            productId,
-            selectedColor: item.color,
-            selectedSize: item.size,
+          const selections = selectedItems.map((item) => ({
+            color: item.color,
+            size: item.size,
             quantity: item.quantity,
           }));
 
-          const orderData = {
-            items: orderItems,
-            ...placeholderOrderData,
-          };
+          const params = new URLSearchParams({
+            productId: String(productId),
+            selections: JSON.stringify(selections),
+          });
 
-          const orderId = await createOrderFromProduct(orderData);
-          alert(`주문이 성공적으로 완료되었습니다! 주문 ID: ${orderId}`);
           setIsOpen(false);
           setSelectedItems([]);
           setCurrentColor('');
           setCurrentSize('');
-          router.push(`/orders/${orderId}`);
+          router.push(`/payment?${params.toString()}`);
         }
       } catch (error) {
         console.error(error);
