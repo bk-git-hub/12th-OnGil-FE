@@ -3,7 +3,7 @@ import Image from 'next/image';
 
 const customerServiceItems = [
   {
-    icon: 'icons/many-questions.svg',
+    icon: 'icons/many-question.svg',
     label: '자주 묻는\n질문',
     href: '/faq',
   },
