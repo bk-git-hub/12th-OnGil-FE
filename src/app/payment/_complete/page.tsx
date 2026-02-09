@@ -25,7 +25,7 @@ export default async function OrderCompletePage({ searchParams }: PageProps) {
     <main className="flex min-h-screen flex-col gap-12 bg-white pb-40">
       <div className="mt-[152px] flex w-full flex-col justify-center gap-6 px-5 text-center">
         <Image
-          src="icons/bag-check.svg"
+          src="/icons/bag-check.svg"
           width={64}
           height={72}
           alt="주문 완료"
@@ -107,7 +107,7 @@ export default async function OrderCompletePage({ searchParams }: PageProps) {
               <span>연락처</span>
               <span>{order.recipientPhone}</span>
             </div>
-            <div className="flex justify-between gap-8">
+            <div className="flex justify-between">
               <span>주소</span>
               <span className="text-right text-xl whitespace-pre-line">
                 {order.deliveryAddress.replace('(', '\n(')}
