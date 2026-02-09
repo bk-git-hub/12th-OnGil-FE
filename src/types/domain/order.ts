@@ -1,3 +1,44 @@
+import { OrderStatus } from '../enums';
+
+// --- 주문 내역 조회 (GET /orders) ---
+
+export interface OrderListItem {
+  productId: number;
+  productName: string;
+  productImage: string;
+  brandName: string;
+  selectedSize: string;
+  selectedColor: string;
+  quantity: number;
+  price: number;
+}
+
+export interface OrderSummary {
+  orderId: number;
+  orderNumber: string;
+  orderStatus: OrderStatus;
+  totalAmount: number;
+  orderDate: string;
+  items: OrderListItem[];
+}
+
+export interface OrderListResponse {
+  content: OrderSummary[];
+  totalElements: number;
+  totalPages: number;
+  currentPage: number;
+}
+
+export interface OrderListParams {
+  keyword?: string;
+  startDate?: string;
+  endDate?: string;
+  page?: number;
+  size?: number;
+}
+
+// --- 주문 생성 ---
+
 export interface OrderFromCartRequest {
   cartItemIds: number[];
   usedPoints: number;

@@ -22,6 +22,11 @@ export enum CategoryType {
   CHILD = 'CHILD',
 }
 
+// Order
+export enum OrderStatus {
+  ORDER_RECEIVED = 'ORDER_RECEIVED',
+}
+
 // Search Sort (Parameter Enum)
 export enum ProductSortType {
   POPULAR = 'POPULAR',
