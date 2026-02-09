@@ -47,7 +47,7 @@ export default async function OrderCompletePage({ searchParams }: PageProps) {
             href="/"
             className="bg-ongil-teal flex items-center justify-center rounded-md px-6 py-2"
           >
-            <span>홈화면으로 </span>
+            <span>홈화면으로</span>
           </Link>
         </div>
       </div>
