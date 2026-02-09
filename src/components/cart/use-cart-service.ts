@@ -1,13 +1,16 @@
 'use client';
 
 import { useOptimistic, startTransition, useState, useEffect } from 'react';
+import { useRouter } from 'next/navigation';
 import { type CartResponse } from '@/types/domain/cart';
 import {
   updateCartItem,
   deleteCartItem,
   deleteCartItems,
 } from '@/app/actions/cart';
+import { createOrderFromCart } from '@/app/actions/order';
 import { useCartStore } from '@/store/cart';
+import { placeholderOrderData } from '@/mocks/order-data';
 
 type CartAction =
   | { type: 'UPDATE'; payload: { cartId: number; quantity: number } }
@@ -40,6 +43,7 @@ function cartOptimisticReducer(
 
 export function useCartService(initialCartItems: CartResponse[]) {
   const { fetchCount } = useCartStore();
+  const router = useRouter();
 
   // 초기 로드 시 '전체 선택' 상태로 시작
   const [selectedIds, setSelectedIds] = useState<Set<number>>(() => {
@@ -135,6 +139,30 @@ export function useCartService(initialCartItems: CartResponse[]) {
     });
   };
 
+  const handleCartCheckout = async () => {
+    if (selectedIds.size === 0) {
+      alert('결제할 상품을 선택해주세요.');
+      return;
+    }
+
+    const orderData = {
+      cartItemIds: Array.from(selectedIds),
+      ...placeholderOrderData,
+    };
+
+    try {
+      const orderId = await createOrderFromCart(orderData);
+      alert(`주문이 성공적으로 완료되었습니다! 주문 ID: ${orderId}`);
+      fetchCount();
+      router.push(`/orders/${orderId}`);
+    } catch (error: unknown) {
+      console.error('Checkout failed:', error);
+      const message =
+        error instanceof Error ? error.message : '알 수 없는 오류';
+      alert(`결제 처리 중 오류가 발생했습니다: ${message}`);
+    }
+  };
+
   const totalAmount = optimisticCart
     .filter((item) => selectedIds.has(item.cartId))
     .reduce((acc, item) => acc + item.totalPrice, 0);
@@ -148,5 +176,6 @@ export function useCartService(initialCartItems: CartResponse[]) {
     handleQuantity,
     handleDelete,
     handleDeleteSelected,
+    handleCartCheckout,
   };
 }

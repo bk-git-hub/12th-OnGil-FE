@@ -10,25 +10,29 @@ declare module 'next-auth' {
     profileUrl: string | null;
     accessToken: string;
     refreshToken: string;
+    expiresIn?: number;
   }
 
   interface Session extends DefaultSession {
     user: {
       userId: string;
       nickName: string;
-      profileImageUrl: string | null;
+      profileUrl: string | null;
     } & DefaultSession['user'];
     accessToken: string;
     refreshToken: string;
+    error?: 'RefreshAccessTokenError';
   }
 }
 
 declare module 'next-auth/jwt' {
   interface JWT extends DefaultJWT {
     userId: string;
-    nickname: string;
-    profileImageUrl: string | null;
+    nickName: string;
+    profileUrl: string | null;
     accessToken: string;
     refreshToken: string;
+    accessTokenExpires: number;
+    error?: 'RefreshAccessTokenError';
   }
 }

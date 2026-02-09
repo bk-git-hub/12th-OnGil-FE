@@ -29,7 +29,7 @@ export default function MainNavBar() {
         매거진
       </Link>
 
-      <Link href={'/'} className="flex flex-col items-center">
+      <Link href={'/me/wishlist'} className="flex flex-col items-center">
         <img src="/icons/heart.svg" alt="찜으로 이동" width={30} height={30} />
         찜 페이지
       </Link>
@@ -37,7 +37,7 @@ export default function MainNavBar() {
       <Link href={'/me'} className="flex flex-col items-center">
         <img
           src="/icons/profile.svg"
-          alt="찜으로 이동"
+          alt="마이페이지로 이동"
           width={30}
           height={30}
         />

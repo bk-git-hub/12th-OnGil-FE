@@ -4,7 +4,9 @@ import { useState, useEffect, useTransition } from 'react';
 import { useRouter } from 'next/navigation';
 import { ProductOption } from '@/types/domain/product';
 import { addToCart } from '@/app/actions/cart';
+import { createOrderFromProduct } from '@/app/actions/order';
 import { useCartStore } from '@/store/cart';
+import { placeholderOrderData } from '@/mocks/order-data';
 import { StockStatus } from '@/types/enums';
 
 export interface SelectedItem {
@@ -132,7 +134,7 @@ export default function useProductOption({
     setSelectedItems((prev) => prev.filter((item) => item.id !== id));
   };
 
-  const handleAction = (type: 'cart' | 'buy') => {
+  const handleAction = async (type: 'cart' | 'buy') => {
     if (selectedItems.length === 0) {
       alert('옵션을 선택해주세요.');
       return;
@@ -140,28 +142,45 @@ export default function useProductOption({
 
     startTransition(async () => {
       try {
-        await Promise.all(
-          selectedItems.map((item) =>
-            addToCart({
-              productId,
-              selectedColor: item.color,
-              selectedSize: item.size,
-              quantity: item.quantity,
-            }),
-          ),
-        );
-
-        await fetchCount();
-
         if (type === 'cart') {
+          await Promise.all(
+            selectedItems.map((item) =>
+              addToCart({
+                productId,
+                selectedColor: item.color,
+                selectedSize: item.size,
+                quantity: item.quantity,
+              }),
+            ),
+          );
+
+          await fetchCount();
+
           setIsOpen(false);
           setIsSuccessModalOpen(true);
           setSelectedItems([]);
           setCurrentColor('');
           setCurrentSize('');
         } else {
+          const orderItems = selectedItems.map((item) => ({
+            productId,
+            selectedColor: item.color,
+            selectedSize: item.size,
+            quantity: item.quantity,
+          }));
+
+          const orderData = {
+            items: orderItems,
+            ...placeholderOrderData,
+          };
+
+          const orderId = await createOrderFromProduct(orderData);
+          alert(`주문이 성공적으로 완료되었습니다! 주문 ID: ${orderId}`);
           setIsOpen(false);
-          router.push('/cart');
+          setSelectedItems([]);
+          setCurrentColor('');
+          setCurrentSize('');
+          router.push(`/orders/${orderId}`);
         }
       } catch (error) {
         console.error(error);
