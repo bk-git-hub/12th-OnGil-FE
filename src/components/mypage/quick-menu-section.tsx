@@ -25,7 +25,7 @@ const menuItems = [
 
 export default function QuickMenuSection() {
   return (
-    <div className="mt-6 border-t border-gray-200 px-5 py-5">
+    <div className="mt-6 border-y border-black px-5 py-5">
       <div className="grid grid-cols-4 gap-4">
         {menuItems.map((item) => (
           <Link
@@ -40,7 +40,7 @@ export default function QuickMenuSection() {
                 className="h-full w-full"
               />
             </div>
-            <span className="text-xs font-medium text-gray-700">
+            <span className="text-lg leading-normal font-normal">
               {item.label}
             </span>
           </Link>

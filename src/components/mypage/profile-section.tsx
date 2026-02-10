@@ -11,7 +11,7 @@ export default async function ProfileSection() {
   }
 
   return (
-    <div className="flex items-center gap-4 px-5 py-6">
+    <div className="mt-4 flex items-center gap-5 px-4 py-6">
       <div className="relative">
         <div className="flex h-16 w-16 items-center justify-center overflow-hidden rounded-full bg-gray-100">
           <Profile session={session} />
@@ -19,14 +19,14 @@ export default async function ProfileSection() {
       </div>
 
       <div className="flex flex-col gap-2">
-        <span className="text-xl font-semibold">
+        <span className="text-xl leading-normal font-medium">
           {session.user.nickName || '사용자'}님
         </span>
         <Link
           href="/me/edit"
-          className="bg-ongil-mint text-ongil-teal inline-flex items-center justify-center rounded-full px-4 py-1.5 text-sm font-medium"
+          className="bg-ongil-teal flex items-center justify-center rounded-md px-4 py-1 text-xl font-medium text-white"
         >
-          내 정보 수정
+          <span>내 정보 수정</span>
         </Link>
       </div>
     </div>
