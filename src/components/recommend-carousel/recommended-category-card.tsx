@@ -1,4 +1,4 @@
-import { Category } from '@/mocks/categories';
+import { Category } from '@/types/domain/category';
 interface CategoryCarouselCardProps {
   category: Category;
 }
@@ -7,10 +7,10 @@ export function RecommendedCategoryCard({
   category,
 }: CategoryCarouselCardProps) {
   let categorySquare;
-  if (category.imageUrl !== null) {
+  if (category.iconUrl !== null) {
     categorySquare = (
       <img
-        src={category.imageUrl}
+        src={category.iconUrl}
         alt={category.name}
         width={200}
         height={200}
