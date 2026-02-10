@@ -74,7 +74,7 @@ export function PaymentProvider({
   const [usedPoints, setUsedPoints] = useState(0);
 
   const totalItemPrice = items.reduce((acc, item) => acc + item.totalPrice, 0);
-  const finalPrice = totalItemPrice - usedPoints;
+  const finalPrice = Math.max(0, totalItemPrice - usedPoints);
 
   /**
    * 결제 처리 함수
@@ -82,8 +82,12 @@ export function PaymentProvider({
    */
   const handlePayment = async () => {
     if (isSubmitting) return;
-
-    if (!shippingInfo.deliveryAddress || !shippingInfo.postalCode) {
+    if (
+      !shippingInfo.recipient.trim() ||
+      !shippingInfo.recipientPhone.trim() ||
+      !shippingInfo.deliveryAddress ||
+      !shippingInfo.postalCode
+    ) {
       alert('배송지 정보를 모두 입력해주세요.');
       scrollToId(SECTIONS.SHIPPING);
       return;
@@ -95,7 +99,9 @@ export function PaymentProvider({
 
       if (orderType === 'cart') {
         orderId = await createOrderFromCart({
-          cartItemIds: items.map((item) => item.cartItemId!),
+          cartItemIds: items
+            .map((item) => item.cartItemId)
+            .filter((id): id is number => id != null),
           usedPoints,
           ...shippingInfo,
         });

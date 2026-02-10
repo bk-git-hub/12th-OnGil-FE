@@ -64,7 +64,7 @@ export default function OrderItemsSection({ items }: Props) {
         ))}
       </ul>
       {hasDiscount && (
-        <p className="text-red text-center text-xl leading-normal font-medium">
+        <p className="text-center text-xl leading-normal font-medium text-red-500">
           최대 할인이 적용 됐어요
         </p>
       )}

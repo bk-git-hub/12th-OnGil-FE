@@ -95,7 +95,10 @@ export async function fetchDirectOrderItems(
 
   let selections: { color: string; size: string; quantity: number }[];
   try {
-    selections = JSON.parse((params.selections as string) || '[]');
+    const raw = Array.isArray(params.selections)
+      ? params.selections[0]
+      : params.selections;
+    selections = JSON.parse(raw || '[]');
   } catch {
     notFound();
   }

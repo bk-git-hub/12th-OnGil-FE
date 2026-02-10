@@ -31,10 +31,12 @@ export default function PaymentInfoSection({
       <div className="mb-6">
         <div className="flex justify-around">
           <Input
-            value={usedPoints}
+            value={usedPoints || ''}
             onChange={handlePointChange}
             className="h-[87px] w-[239px] rounded-lg border border-black text-left text-3xl leading-normal font-medium placeholder:text-black"
             placeholder="0원"
+            aria-label="적립금 사용 금액"
+            inputMode="numeric"
           />
           <button
             onClick={() => onPointsChange(Math.min(userPoints, totalPrice))}

@@ -3,6 +3,8 @@ import { notFound } from 'next/navigation';
 import type { Metadata } from 'next';
 import { getOrderDetail } from '@/app/actions/order';
 import Image from 'next/image';
+import { auth } from '/auth';
+import { redirect } from 'next/navigation';
 
 export const metadata: Metadata = {
   title: '주문 완료 - 온길',
@@ -13,12 +15,12 @@ interface PageProps {
 }
 
 export default async function OrderCompletePage({ searchParams }: PageProps) {
+  const session = await auth();
+  if (!session) redirect('/login');
   const { orderId } = await searchParams;
-
   if (!orderId || isNaN(Number(orderId))) {
     notFound();
   }
-
   const order = await getOrderDetail(Number(orderId));
 
   return (
@@ -36,7 +38,7 @@ export default async function OrderCompletePage({ searchParams }: PageProps) {
           주문번호: <span className="">{order.orderNumber}</span>
         </p>
 
-        <div className="mt-5 grid max-w-sm grid-cols-2 gap-3 text-xl font-medium text-white">
+        <div className="mx-auto mt-5 grid max-w-sm grid-cols-2 gap-3 text-xl font-medium text-white">
           <Link
             href={`/orders/${order.id}`}
             className="bg-ongil-teal flex items-center justify-center rounded-md px-6 py-2"
@@ -87,7 +89,7 @@ export default async function OrderCompletePage({ searchParams }: PageProps) {
           <div className="mt-4 flex items-center justify-between pt-3 text-lg font-bold">
             <span>총 결제금액</span>
             <span className="text-xl text-blue-600">
-              {order.totalAmount.toLocaleString()}원
+              {(order.totalAmount ?? 0).toLocaleString()}원
             </span>
           </div>
         </div>

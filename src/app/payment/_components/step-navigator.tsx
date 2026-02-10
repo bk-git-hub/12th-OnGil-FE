@@ -50,7 +50,7 @@ export default function StepNavigator({ activeStep, onStepChange }: Props) {
                 return (
                   <div
                     key={step.id}
-                    className="bg- relative z-10 flex flex-col items-center"
+                    className="relative z-10 flex flex-col items-center"
                   >
                     <button
                       type="button"
@@ -86,7 +86,7 @@ export default function StepNavigator({ activeStep, onStepChange }: Props) {
       </header>
 
       {/* 헤더 높이만큼 공간 확보 */}
-      <div className="h-52 w-full" aria-hidden="true" />
+      <div className="h-[220px] w-full" aria-hidden="true" />
     </>
   );
 }

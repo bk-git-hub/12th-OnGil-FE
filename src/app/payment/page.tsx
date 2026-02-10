@@ -37,7 +37,7 @@ export default async function PaymentPage({ searchParams }: PageProps) {
   ]);
 
   return (
-    <main className="max-h-screen">
+    <main className="min-h-screen">
       <PaymentProvider
         user={user}
         items={items}
@@ -46,14 +46,11 @@ export default async function PaymentPage({ searchParams }: PageProps) {
         <ConnectedStepNavigator />
 
         <div className="mx-auto mt-4 max-w-xl space-y-8 pb-32">
-          <section id={SECTIONS.ITEMS} className="min-h-auto scroll-mt-[120px]">
+          <section id={SECTIONS.ITEMS} className="scroll-mt-[120px]">
             <OrderItemsSection items={items} />
           </section>
 
-          <section
-            id={SECTIONS.SHIPPING}
-            className="min-h-auto scroll-mt-[120px]"
-          >
+          <section id={SECTIONS.SHIPPING} className="scroll-mt-[120px]">
             <ConnectedShippingSection />
           </section>
 

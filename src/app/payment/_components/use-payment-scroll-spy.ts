@@ -14,23 +14,19 @@ export default function usePaymentScrollSpy(ids: string[]) {
   const timeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   const scrollToId = (id: string) => {
-    isClickScrolling.current = true;
-
     startTransition(() => {
       setActiveId(id);
     });
-
     const element = document.getElementById(id);
-    if (element) {
-      const top =
-        element.getBoundingClientRect().top + window.scrollY - HEADER_HEIGHT;
-      window.scrollTo({ top, behavior: 'smooth' });
-
-      if (timeoutRef.current) clearTimeout(timeoutRef.current);
-      timeoutRef.current = setTimeout(() => {
-        isClickScrolling.current = false;
-      }, 1000);
-    }
+    if (!element) return;
+    isClickScrolling.current = true;
+    const top =
+      element.getBoundingClientRect().top + window.scrollY - HEADER_HEIGHT;
+    window.scrollTo({ top, behavior: 'smooth' });
+    if (timeoutRef.current) clearTimeout(timeoutRef.current);
+    timeoutRef.current = setTimeout(() => {
+      isClickScrolling.current = false;
+    }, 1000);
   };
 
   useEffect(() => {
