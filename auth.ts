@@ -134,7 +134,7 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
   ],
 
   callbacks: {
-    async jwt({ token, user }) {
+    async jwt({ token, user, trigger }) {
       if (user) {
         const expiresIn = user.expiresIn ?? 60 * 60;
         return {
@@ -155,6 +155,11 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
       return refreshAccessToken(token);
     },
     async session({ session, token }) {
+      // If refresh token failed, return null to trigger sign out
+      if (token.error === 'RefreshAccessTokenError') {
+        return { ...session, user: { ...session.user }, expires: '' };
+      }
+
       session.user.userId = token.userId as string;
       session.user.nickName = token.nickName as string;
       session.user.profileUrl = token.profileUrl;
@@ -163,6 +168,9 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
       session.error = token.error;
       return session;
     },
+  },
+  pages: {
+    signIn: '/login', // Update this to your login page path
   },
   session: { strategy: 'jwt' },
   secret: process.env.AUTH_SECRET,
