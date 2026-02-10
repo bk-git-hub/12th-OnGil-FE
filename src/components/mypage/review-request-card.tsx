@@ -26,9 +26,9 @@ export default function ReviewRequestCard({
         </p>
         <Link
           href={reviewId ? `/review/write/${reviewId}` : '/review/write'}
-          className="bg-ongil-teal rounded-lg px-7 py-2 text-white"
+          className="bg-ongil-teal inline-block rounded-lg px-7 py-2 text-white"
         >
-          <span>받으러가기</span>
+          받으러가기
         </Link>
       </div>
     </div>

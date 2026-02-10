@@ -12,10 +12,8 @@ export default function MyPage() {
   return (
     <main className="mx-auto min-h-screen max-w-2xl bg-white pb-20">
       {/* 헤더 */}
-      <header className="sticky top-0 z-20 flex h-16 items-center justify-center bg-white">
-        <h1 className="mt-6 text-3xl leading-normal font-semibold">
-          마이페이지
-        </h1>
+      <header className="sticky top-0 z-20 flex h-20 items-center justify-center bg-white">
+        <h1 className="text-3xl leading-normal font-semibold">마이페이지</h1>
       </header>
       <div>
         {/* 프로필 섹션 */}
