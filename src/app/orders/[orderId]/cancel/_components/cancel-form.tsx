@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import { cancelOrder, getRefundInfo } from '@/app/actions/order';
 import {
@@ -36,6 +36,43 @@ interface CancelFormProps {
   orderDetail: OrderDetail;
 }
 
+function useFocusTrap(active: boolean) {
+  const ref = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (!active || !ref.current) return;
+    const el = ref.current;
+    const prev = document.activeElement as HTMLElement | null;
+    const firstBtn = el.querySelector<HTMLElement>('button:not([disabled])');
+    firstBtn?.focus();
+
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key !== 'Tab') return;
+      const focusable = el.querySelectorAll<HTMLElement>(
+        'button:not([disabled]), input:not([disabled]), [tabindex]:not([tabindex="-1"])',
+      );
+      if (focusable.length === 0) return;
+      const first = focusable[0];
+      const last = focusable[focusable.length - 1];
+      if (e.shiftKey && document.activeElement === first) {
+        e.preventDefault();
+        last.focus();
+      } else if (!e.shiftKey && document.activeElement === last) {
+        e.preventDefault();
+        first.focus();
+      }
+    };
+
+    document.addEventListener('keydown', handleKeyDown);
+    return () => {
+      document.removeEventListener('keydown', handleKeyDown);
+      prev?.focus();
+    };
+  }, [active]);
+
+  return ref;
+}
+
 export function CancelForm({ orderDetail }: CancelFormProps) {
   const router = useRouter();
   const orderId = orderDetail.id;
@@ -46,7 +83,10 @@ export function CancelForm({ orderDetail }: CancelFormProps) {
   const [submitting, setSubmitting] = useState(false);
   const [addToCart, setAddToCart] = useState(false);
   const [showModal, setShowModal] = useState(false);
-  const [alertMessage, setAlertMessage] = useState<string | null>(null);
+  const [alertMessage, setAlertMessage] = useState<{
+    message: string;
+    retryable: boolean;
+  } | null>(null);
   const [cancelResult, setCancelResult] = useState<OrderCancelResponse | null>(
     null,
   );
@@ -54,6 +94,9 @@ export function CancelForm({ orderDetail }: CancelFormProps) {
     null,
   );
   const [refundLoading, setRefundLoading] = useState(false);
+
+  const alertRef = useFocusTrap(!!alertMessage);
+  const confirmRef = useFocusTrap(showModal);
 
   useEffect(() => {
     if (step !== 'confirm') return;
@@ -65,11 +108,13 @@ export function CancelForm({ orderDetail }: CancelFormProps) {
       })
       .catch((err) => {
         console.error(err);
-        setAlertMessage(
-          err instanceof Error
-            ? err.message
-            : '환불 정보를 불러오지 못했습니다.',
-        );
+        setAlertMessage({
+          message:
+            err instanceof Error
+              ? err.message
+              : '환불 정보를 불러오지 못했습니다.',
+          retryable: true,
+        });
         setStep('reason');
       })
       .finally(() => setRefundLoading(false));
@@ -93,9 +138,11 @@ export function CancelForm({ orderDetail }: CancelFormProps) {
       setStep('complete');
     } catch (error) {
       setShowModal(false);
-      setAlertMessage(
-        error instanceof Error ? error.message : '주문 취소에 실패했습니다.',
-      );
+      setAlertMessage({
+        message:
+          error instanceof Error ? error.message : '주문 취소에 실패했습니다.',
+        retryable: false,
+      });
     } finally {
       setSubmitting(false);
     }
@@ -105,14 +152,39 @@ export function CancelForm({ orderDetail }: CancelFormProps) {
   if (alertMessage) {
     return (
       <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
-        <div className="mx-5 w-full max-w-md rounded-2xl bg-white p-6">
-          <p className="mb-6 text-center text-xl font-bold">{alertMessage}</p>
-          <button
-            className="bg-ongil-teal w-full rounded-xl py-3 text-lg text-white"
-            onClick={() => router.replace('/orders')}
-          >
-            주문 내역으로 돌아가기
-          </button>
+        <div
+          ref={alertRef}
+          role="dialog"
+          aria-modal="true"
+          aria-labelledby="alert-title"
+          className="mx-5 w-full max-w-md rounded-2xl bg-white p-6"
+        >
+          <p id="alert-title" className="mb-6 text-center text-xl font-bold">
+            {alertMessage.message}
+          </p>
+          {alertMessage.retryable ? (
+            <div className="grid grid-cols-2 gap-4">
+              <button
+                className="rounded-xl bg-[#D9D9D9] py-3 text-lg"
+                onClick={() => router.replace('/orders')}
+              >
+                돌아가기
+              </button>
+              <button
+                className="bg-ongil-teal rounded-xl py-3 text-lg text-white"
+                onClick={() => setAlertMessage(null)}
+              >
+                다시 시도
+              </button>
+            </div>
+          ) : (
+            <button
+              className="bg-ongil-teal w-full rounded-xl py-3 text-lg text-white"
+              onClick={() => router.replace('/orders')}
+            >
+              주문 내역으로 돌아가기
+            </button>
+          )}
         </div>
       </div>
     );
@@ -238,8 +310,17 @@ export function CancelForm({ orderDetail }: CancelFormProps) {
         {/* 취소 확인 모달 */}
         {showModal && (
           <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
-            <div className="mx-5 w-full max-w-md rounded-2xl bg-white p-6">
-              <p className="mb-6 text-center text-xl font-bold">
+            <div
+              ref={confirmRef}
+              role="dialog"
+              aria-modal="true"
+              aria-labelledby="confirm-title"
+              className="mx-5 w-full max-w-md rounded-2xl bg-white p-6"
+            >
+              <p
+                id="confirm-title"
+                className="mb-6 text-center text-xl font-bold"
+              >
                 주문을 취소하시겠습니까?
               </p>
               <label className="mb-6 flex cursor-pointer items-center justify-center gap-3">
