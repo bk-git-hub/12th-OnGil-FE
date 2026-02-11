@@ -11,6 +11,7 @@ import {
   OrderListParams,
   OrderCancelRequest,
   OrderCancelResponse,
+  OrderRefundInfoResponse,
 } from '@/types/domain/order';
 import type { PaymentDisplayItem } from '@/app/payment/_components/order-items';
 import { getCartItems } from '@/app/actions/cart';
@@ -136,6 +137,23 @@ export async function getOrders(
     console.error('주문 내역 조회 실패:', error);
     throw new Error(
       error instanceof Error ? error.message : '주문 내역 조회에 실패했습니다.',
+    );
+  }
+}
+
+/** 환불 정보 조회 */
+export async function getRefundInfo(
+  orderId: number,
+): Promise<OrderRefundInfoResponse> {
+  try {
+    const response = await api.get<OrderRefundInfoResponse>(
+      `/orders/${orderId}/cancel/refund-info`,
+    );
+    return response;
+  } catch (error) {
+    console.error('환불 정보 조회 실패:', error);
+    throw new Error(
+      error instanceof Error ? error.message : '환불 정보 조회에 실패했습니다.',
     );
   }
 }

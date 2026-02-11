@@ -106,6 +106,11 @@ export interface RefundInfo {
   refundAmount: number;
 }
 
+export interface OrderRefundInfoResponse {
+  orderItems: OrderItem[];
+  refundInfo: RefundInfo;
+}
+
 export interface OrderCancelResponse {
   orderId: number;
   orderNumber: string;
