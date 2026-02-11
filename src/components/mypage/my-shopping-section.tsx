@@ -16,10 +16,12 @@ const shoppingMenuItems = [
 
 export default function MyShoppingSection() {
   return (
-    <div className="border-t border-gray-200">
-      <h2 className="px-5 py-4 text-lg font-bold">내 쇼핑</h2>
-      <div className="mx-5 rounded-lg border border-gray-200 px-5 py-5">
-        <div className="flex justify-center gap-12">
+    <div className="flex flex-col gap-10">
+      <h2 className="border-b border-black px-7 py-8 text-3xl leading-normal font-semibold">
+        내 쇼핑
+      </h2>
+      <div className="mx-5 mb-10 rounded-lg border border-black px-10 py-14">
+        <div className="flex items-center justify-center gap-[122px]">
           {shoppingMenuItems.map((item) => (
             <Link
               key={item.label}
@@ -35,7 +37,7 @@ export default function MyShoppingSection() {
                   height={48}
                 />
               </div>
-              <span className="text-xs font-medium text-gray-700">
+              <span className="text-lg leading-normal font-normal">
                 {item.label}
               </span>
             </Link>
