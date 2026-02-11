@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useRef } from 'react';
+import { useRouter } from 'next/navigation';
 import { X } from 'lucide-react';
 import { VoiceOverlay } from './voice-overlay';
 import { useRecentSearches } from './use-recent-searches';
@@ -18,6 +19,7 @@ export default function SearchBar({ onFocusChange }: SearchBarProps) {
   const [isVoiceActive, setIsVoiceActive] = useState(false);
   const [isFocused, setIsFocused] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
+  const router = useRouter();
 
   const { history, addSearch, removeSearch, clearHistory } =
     useRecentSearches();
@@ -36,10 +38,13 @@ export default function SearchBar({ onFocusChange }: SearchBarProps) {
 
   const handleSearch = (text: string) => {
     if (!text.trim()) return;
-    setQuery(text);
-    addSearch(text);
     inputRef.current?.blur();
     updateFocus(false);
+
+    // Navigate to search results page (keyword will be saved after API response)
+    const searchUrl = `/search?q=${encodeURIComponent(text)}`;
+    router.push(searchUrl);
+    router.refresh(); // Force refresh to trigger server component re-render
   };
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -48,7 +53,7 @@ export default function SearchBar({ onFocusChange }: SearchBarProps) {
   };
 
   return (
-    <div className="relative z-50 flex-1">
+    <div className="relative z-110 flex-1">
       {isVoiceActive && (
         <VoiceOverlay
           onClose={() => setIsVoiceActive(false)}

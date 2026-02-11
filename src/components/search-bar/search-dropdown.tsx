@@ -33,7 +33,7 @@ export const SearchDropdown = ({
   const hasQuery = query.trim().length > 0;
 
   return (
-    <div className="absolute top-full left-0 z-40 -mt-2 w-full overflow-hidden border border-black bg-white py-2 shadow-xl ring-1 ring-black/5">
+    <div className="absolute top-full left-0 z-110 -mt-2 w-full overflow-hidden border border-black bg-white py-2 shadow-xl ring-1 ring-black/5">
       {hasQuery && (
         <div>
           {isLoading ? (
