@@ -7,7 +7,7 @@ import { ApiResponse } from '@/types/common';
 
 const TOKEN_REFRESH_BUFFER = 60 * 1000;
 
-async function refreshAccessToken(token: JWT): Promise<JWT> {
+async function refreshAccessToken(token: JWT): Promise<JWT | null> {
   try {
     const response = await fetch(
       `${process.env.BACKEND_API_URL}/auth/token/refresh`,
@@ -21,7 +21,9 @@ async function refreshAccessToken(token: JWT): Promise<JWT> {
     );
 
     if (!response.ok) {
-      throw new Error('Failed to refresh access token');
+      console.error('Failed to refresh access token - server may have restarted');
+      // Return null to trigger sign out
+      return null;
     }
 
     const { data }: ApiResponse<TokenRefreshResDto> = await response.json();
@@ -33,11 +35,9 @@ async function refreshAccessToken(token: JWT): Promise<JWT> {
       accessTokenExpires: Date.now() + 60 * 60 * 1000,
     };
   } catch (error) {
-    console.error('Refresh token error:', error);
-    return {
-      ...token,
-      error: 'RefreshAccessTokenError',
-    };
+    console.error('Refresh token error - clearing session:', error);
+    // Return null to clear the session and force re-login
+    return null;
   }
 }
 
@@ -152,12 +152,20 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
         return token;
       }
 
-      return refreshAccessToken(token);
+      // Try to refresh the token
+      const refreshedToken = await refreshAccessToken(token);
+
+      // If refresh failed (returns null), return null to clear session
+      if (!refreshedToken) {
+        return null;
+      }
+
+      return refreshedToken;
     },
     async session({ session, token }) {
-      // If refresh token failed, return null to trigger sign out
-      if (token.error === 'RefreshAccessTokenError') {
-        return { ...session, user: { ...session.user }, expires: '' };
+      // If token is null or has error, the session will be invalid
+      if (!token) {
+        return null;
       }
 
       session.user.userId = token.userId as string;
@@ -165,7 +173,6 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
       session.user.profileUrl = token.profileUrl;
       session.accessToken = token.accessToken as string;
       session.refreshToken = token.refreshToken as string;
-      session.error = token.error;
       return session;
     },
   },

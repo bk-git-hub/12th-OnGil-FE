@@ -1,5 +1,6 @@
 import { auth } from '/auth';
 import { ApiResponse } from '@/types/common';
+import { redirect } from 'next/navigation';
 
 // 백엔드 API 기본 URL
 const BASE_URL = process.env.BACKEND_API_URL;
@@ -72,6 +73,12 @@ async function fetchWrapper<T>(
   //  Auth.js v5: 서버 세션에서 토큰 가져오기
   const session = await auth();
 
+  // Check if session exists - if not, user needs to log in
+  // This handles cases where backend restarted and refresh tokens are invalid
+  if (!session && endpoint !== '/auth/login' && endpoint !== '/auth/oauth') {
+    redirect('/login');
+  }
+
   // 타입 에러가 난다면 types/next-auth.d.ts에서 Session 타입을 확장해야 합니다.
   const accessToken = session?.accessToken as string | undefined;
 
@@ -100,9 +107,10 @@ async function fetchWrapper<T>(
 
   // 5. 에러 핸들링
   if (!response.ok) {
-    // 401 처리 (필요 시 로직 추가)
+    // 401 처리 - 토큰 만료 시 로그인 페이지로 리다이렉트
     if (response.status === 401) {
-      console.error('🔒 Unauthorized access - Token might be expired');
+      console.error('🔒 Unauthorized access - Redirecting to login');
+      redirect('/login');
     }
 
     // unknown 타입인 responseData를 ErrorResponse로 단언하여 안전하게 접근
