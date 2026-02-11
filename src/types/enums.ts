@@ -25,6 +25,7 @@ export enum CategoryType {
 // Order
 export enum OrderStatus {
   ORDER_RECEIVED = 'ORDER_RECEIVED',
+  CANCELLED = 'CANCELLED',
 }
 
 // Search Sort (Parameter Enum)
