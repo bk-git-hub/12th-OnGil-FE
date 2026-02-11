@@ -10,7 +10,7 @@ export default async function RecommendCategoryContainer() {
   console.log(categories);
 
   return (
-    <div>
+    <div className="w-full overflow-hidden">
       <h2>추천 카테고리</h2>
       <RecommendCarousel heading="추천 카테고리">
         {categories.map((category) => (
