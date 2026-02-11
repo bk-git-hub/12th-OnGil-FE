@@ -3,6 +3,8 @@ import { getOrderDetail } from '@/app/actions/order';
 import { notFound } from 'next/navigation';
 import { CloseXButton } from '@/components/ui/close-button';
 import { CancelForm } from './_components/cancel-form';
+import { auth } from '/auth';
+import { redirect } from 'next/navigation';
 
 export const metadata: Metadata = {
   title: '주문 취소 | OnGil',
@@ -14,6 +16,8 @@ interface CancelPageProps {
 }
 
 export default async function CancelReasonPage({ params }: CancelPageProps) {
+  const session = await auth();
+  if (!session) redirect('/login');
   const { orderId } = await params;
   const numericId = Number(orderId);
   if (Number.isNaN(numericId)) {

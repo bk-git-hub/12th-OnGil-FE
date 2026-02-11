@@ -9,7 +9,7 @@ import {
   OrderRefundInfoResponse,
   OrderSummary,
 } from '@/types/domain/order';
-import { OrderListCard } from '@/components/orders/order-list-card';
+import OrderListCard from '@/components/orders/order-list-card';
 import Image from 'next/image';
 
 const CANCEL_REASONS = [
@@ -46,6 +46,7 @@ export function CancelForm({ orderDetail }: CancelFormProps) {
   const [submitting, setSubmitting] = useState(false);
   const [addToCart, setAddToCart] = useState(false);
   const [showModal, setShowModal] = useState(false);
+  const [alertMessage, setAlertMessage] = useState<string | null>(null);
   const [cancelResult, setCancelResult] = useState<OrderCancelResponse | null>(
     null,
   );
@@ -64,7 +65,11 @@ export function CancelForm({ orderDetail }: CancelFormProps) {
       })
       .catch((err) => {
         console.error(err);
-        alert('환불 정보를 불러오지 못했습니다.');
+        setAlertMessage(
+          err instanceof Error
+            ? err.message
+            : '환불 정보를 불러오지 못했습니다.',
+        );
         setStep('reason');
       })
       .finally(() => setRefundLoading(false));
@@ -87,13 +92,31 @@ export function CancelForm({ orderDetail }: CancelFormProps) {
       setShowModal(false);
       setStep('complete');
     } catch (error) {
-      alert(
+      setShowModal(false);
+      setAlertMessage(
         error instanceof Error ? error.message : '주문 취소에 실패했습니다.',
       );
     } finally {
       setSubmitting(false);
     }
   };
+
+  // --- 알림 모달 ---
+  if (alertMessage) {
+    return (
+      <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
+        <div className="mx-5 w-full max-w-md rounded-2xl bg-white p-6">
+          <p className="mb-6 text-center text-xl font-bold">{alertMessage}</p>
+          <button
+            className="bg-ongil-teal w-full rounded-xl py-3 text-lg text-white"
+            onClick={() => router.replace('/orders')}
+          >
+            주문 내역으로 돌아가기
+          </button>
+        </div>
+      </div>
+    );
+  }
 
   // --- 완료 단계 ---
   if (step === 'complete' && cancelResult) {

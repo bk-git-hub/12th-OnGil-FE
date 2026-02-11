@@ -1,18 +1,34 @@
 'use client';
 
+import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Image from 'next/image';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { OrderSummary } from '@/types/domain/order';
 
+const STATUS_LABEL: Record<string, string> = {
+  ORDER_RECEIVED: '주문 완료',
+  CANCELLED: '주문 취소',
+};
+
 interface OrderListCardProps {
   order: OrderSummary;
 }
 
-export function OrderListCard({ order }: OrderListCardProps) {
+export default function OrderListCard({ order }: OrderListCardProps) {
   const router = useRouter();
   const repItem = order.items[0];
+  const [showAlert, setShowAlert] = useState(false);
+  const isCancelled = String(order.orderStatus).includes('CANCEL');
+
+  const handleCancelClick = () => {
+    if (isCancelled) {
+      setShowAlert(true);
+    } else {
+      router.push(`/orders/${order.orderId}/cancel`);
+    }
+  };
 
   return (
     <Card className="rounded-lg border-black p-5">
@@ -25,7 +41,7 @@ export function OrderListCard({ order }: OrderListCardProps) {
             </span>
             {/* 상태(주문 완료/취소 인지) */}
             <span className="text-xl leading-normal font-bold text-[#FF0000]">
-              {order.orderStatus}
+              {STATUS_LABEL[order.orderStatus] ?? order.orderStatus}
             </span>
           </div>
         </div>
@@ -62,7 +78,7 @@ export function OrderListCard({ order }: OrderListCardProps) {
           <Button
             variant="outline"
             className="h-full rounded-md bg-[#C1C1C1] text-xl"
-            onClick={() => router.push(`/orders/${order.orderId}/cancel`)}
+            onClick={handleCancelClick}
           >
             <span>상품 취소하기</span>
           </Button>
@@ -74,6 +90,22 @@ export function OrderListCard({ order }: OrderListCardProps) {
           </Button>
         </div>
       </CardContent>
+
+      {showAlert && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
+          <div className="mx-5 w-full max-w-md rounded-2xl bg-white p-6">
+            <p className="mb-6 text-center text-xl font-bold">
+              이미 취소된 주문입니다.
+            </p>
+            <button
+              className="bg-ongil-teal w-full rounded-xl py-3 text-lg text-white"
+              onClick={() => setShowAlert(false)}
+            >
+              확인
+            </button>
+          </div>
+        </div>
+      )}
     </Card>
   );
 }

@@ -3,7 +3,7 @@ import Image from 'next/image';
 import Link from 'next/link';
 import { getOrderDetail } from '@/app/actions/order';
 import { CloseXButton } from '@/components/ui/close-button';
-import { DeleteOrderButton } from '@/components/orders/delete-order-button';
+import DeleteOrderButton from '@/components/orders/delete-order-button';
 import { notFound } from 'next/navigation';
 
 export const metadata: Metadata = {
@@ -37,6 +37,11 @@ export default async function OrderDetailPage({ params }: OrderPageProps) {
   const formatPrice = (price: number) => {
     return price.toLocaleString('ko-KR');
   };
+  const itemsTotal = order.orderItems.reduce(
+    (sum, item) => sum + item.priceAtOrder * item.quantity,
+    0,
+  );
+  const discountAmount = itemsTotal - order.totalAmount;
 
   return (
     <main className="mx-auto min-h-screen max-w-2xl bg-white px-5 pb-20 leading-normal">
@@ -119,31 +124,13 @@ export default async function OrderDetailPage({ params }: OrderPageProps) {
       <div className="rounded-xl border-2 border-gray-300 p-5 text-lg">
         <div className="flex justify-between py-2">
           <span>상품 금액</span>
-          <span>
-            {formatPrice(
-              order.orderItems.reduce(
-                (sum, item) => sum + item.priceAtOrder * item.quantity,
-                0,
-              ),
-            )}
-            원
-          </span>
+          <span>{formatPrice(itemsTotal)}원</span>
         </div>
-        {order.orderItems.reduce(
-          (sum, item) => sum + item.priceAtOrder * item.quantity,
-          0,
-        ) - order.totalAmount > 0 && (
+        {discountAmount > 0 && (
           <div className="flex justify-between py-2">
             <span>할인 금액</span>
             <span className="text-red-500">
-              -
-              {formatPrice(
-                order.orderItems.reduce(
-                  (sum, item) => sum + item.priceAtOrder * item.quantity,
-                  0,
-                ) - order.totalAmount,
-              )}
-              원
+              -{formatPrice(discountAmount)}원
             </span>
           </div>
         )}

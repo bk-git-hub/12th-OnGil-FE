@@ -1,6 +1,8 @@
 import { Metadata } from 'next';
 import Image from 'next/image';
 import Link from 'next/link';
+import { redirect } from 'next/navigation';
+import { auth } from '/auth';
 import { getOrders } from '@/app/actions/order';
 import { getDefaultDateRange } from '@/lib/date-utils';
 import { OrderList } from '@/components/orders/order-list';
@@ -13,6 +15,9 @@ export const metadata: Metadata = {
 };
 
 export default async function OrderListPage() {
+  const session = await auth();
+  if (!session) redirect('/login');
+
   const defaults = getDefaultDateRange('1m');
   const response = await getOrders({
     startDate: defaults.startDate,

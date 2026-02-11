@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import { Button } from '@/components/ui/button';
-import { OrderListCard } from '@/components/orders/order-list-card';
+import OrderListCard from '@/components/orders/order-list-card';
 import {
   OrderSearchModal,
   type OrderSearchParams,
@@ -99,7 +99,7 @@ export function OrderList({
             {keyword || '검색어를 입력하세요'}
           </span>
           <Image
-            src="icons/search.svg"
+            src="/icons/search.svg"
             alt="검색 아이콘"
             width={26}
             height={26}

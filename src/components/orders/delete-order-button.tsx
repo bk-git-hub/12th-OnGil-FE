@@ -8,7 +8,7 @@ interface DeleteOrderButtonProps {
   orderId: number;
 }
 
-export function DeleteOrderButton({ orderId }: DeleteOrderButtonProps) {
+export default function DeleteOrderButton({ orderId }: DeleteOrderButtonProps) {
   const router = useRouter();
   const [showModal, setShowModal] = useState(false);
   const [deleting, setDeleting] = useState(false);
