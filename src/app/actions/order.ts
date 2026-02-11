@@ -9,6 +9,8 @@ import {
   OrderDetail,
   OrderListResponse,
   OrderListParams,
+  OrderCancelRequest,
+  OrderCancelResponse,
 } from '@/types/domain/order';
 import type { PaymentDisplayItem } from '@/app/payment/_components/order-items';
 import { getCartItems } from '@/app/actions/cart';
@@ -134,6 +136,26 @@ export async function getOrders(
     console.error('주문 내역 조회 실패:', error);
     throw new Error(
       error instanceof Error ? error.message : '주문 내역 조회에 실패했습니다.',
+    );
+  }
+}
+
+/** 주문 취소 */
+export async function cancelOrder(
+  orderId: number,
+  data: OrderCancelRequest,
+): Promise<OrderCancelResponse> {
+  try {
+    const response = await api.post<OrderCancelResponse, OrderCancelRequest>(
+      `/orders/${orderId}/cancel`,
+      data,
+    );
+    revalidatePath('/orders');
+    return response;
+  } catch (error) {
+    console.error('주문 취소 실패:', error);
+    throw new Error(
+      error instanceof Error ? error.message : '주문 취소에 실패했습니다.',
     );
   }
 }
