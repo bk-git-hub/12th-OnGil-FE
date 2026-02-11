@@ -5,6 +5,8 @@ import { getOrders } from '@/app/actions/order';
 import { getDefaultDateRange } from '@/lib/date-utils';
 import { OrderList } from '@/components/orders/order-list';
 
+export const dynamic = 'force-dynamic';
+
 export const metadata: Metadata = {
   title: '주문 내역 | OnGil',
   description: '주문 내역을 확인합니다.',
