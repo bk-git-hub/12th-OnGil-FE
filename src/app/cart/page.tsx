@@ -20,6 +20,7 @@ export default async function CartPage() {
   try {
     cartItems = await getCartItems();
   } catch (error) {
+    if (error instanceof Error && 'digest' in error) throw error;
     console.error('Failed to fetch cart items:', error);
   }
 

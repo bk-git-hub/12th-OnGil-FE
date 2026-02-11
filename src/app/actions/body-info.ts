@@ -39,6 +39,7 @@ export async function getBodyInfoTermsAction(): Promise<{
     const data = await api.get<TermsData>('/users/body-info/terms');
     return { success: true, data };
   } catch (error) {
+    if (error instanceof Error && 'digest' in error) throw error;
     console.error('Failed to fetch terms:', error);
     return { success: false, message: '약관 정보를 불러오지 못했습니다.' };
   }
@@ -82,6 +83,7 @@ export async function getMyBodyInfoAction(): Promise<{
       },
     };
   } catch (error) {
+    if (error instanceof Error && 'digest' in error) throw error;
     console.error('Failed to fetch my body info:', error);
     return { success: false, message: '내 정보를 불러오지 못했습니다.' };
   }
@@ -132,6 +134,7 @@ export async function updateBodyInfoAction(
 
     return { success: true, message: '체형 정보가 저장되었습니다.' };
   } catch (error) {
+    if (error instanceof Error && 'digest' in error) throw error;
     console.error('Save Error:', error);
 
     // 백엔드 에러 처리
@@ -161,6 +164,7 @@ export async function getSizeOptionsAction(): Promise<{
     );
     return { success: true, data };
   } catch (error) {
+    if (error instanceof Error && 'digest' in error) throw error;
     console.error('Failed to fetch size options:', error);
     return { success: false, message: '사이즈 정보를 불러오지 못했습니다.' };
   }
