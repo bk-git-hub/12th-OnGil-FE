@@ -90,3 +90,40 @@ export interface OrderDetail {
   deliveryMessage: string;
   createdAt: string;
 }
+
+// --- 주문 취소 ---
+
+export interface OrderCancelRequest {
+  cancelReason: string;
+  cancelDetail?: string;
+  addToCart?: boolean;
+}
+
+export interface RefundInfo {
+  productAmount: number;
+  shippingFee: number;
+  usedPoints: number;
+  refundAmount: number;
+}
+
+export interface OrderRefundInfoResponse {
+  orderItems: OrderItem[];
+  refundInfo: RefundInfo;
+}
+
+export interface OrderCancelResponse {
+  orderId: number;
+  orderNumber: string;
+  orderStatus: OrderStatus;
+  totalAmount: number;
+  canceledAt: string;
+  cancelReason: string;
+  cancelDetail: string;
+  orderItems: OrderItem[];
+  refundInfo: RefundInfo;
+  deliveryAddress: string;
+  recipient: string;
+  recipientPhone: string;
+  deliveryMessage: string;
+  createdAt: string;
+}

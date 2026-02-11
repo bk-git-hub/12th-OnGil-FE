@@ -15,3 +15,16 @@ export function CloseButton() {
     </button>
   );
 }
+
+export function CloseXButton() {
+  const router = useRouter();
+
+  return (
+    <button
+      onClick={() => router.back()}
+      className="-ml-2 flex h-10 w-10 items-center justify-center rounded-full hover:bg-gray-100"
+    >
+      <Image src="/icons/X.svg" width={23} height={23} alt="닫기" />
+    </button>
+  );
+}

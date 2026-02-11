@@ -16,6 +16,8 @@ import {
   PaymentButton,
 } from './_components/payment-context';
 
+export const dynamic = 'force-dynamic';
+
 export const metadata: Metadata = {
   title: '주문/결제 - 온길',
 };
