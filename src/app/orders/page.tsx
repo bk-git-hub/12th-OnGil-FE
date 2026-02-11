@@ -21,10 +21,6 @@ export default async function OrderListPage() {
     size: 10,
   });
 
-  const initialOrders = response.content.filter(
-    (order) => !String(order.orderStatus).includes('CANCEL'),
-  );
-
   return (
     <div className="bg-background relative min-h-screen">
       {/* 헤더 */}
@@ -43,7 +39,7 @@ export default async function OrderListPage() {
 
       {/* 검색 + 리스트 */}
       <OrderList
-        initialOrders={initialOrders}
+        initialOrders={response.content}
         initialTotalPages={response.totalPages}
         initialCurrentPage={response.currentPage}
         defaultStartDate={defaults.startDate}

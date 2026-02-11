@@ -18,6 +18,7 @@ export function DeleteOrderButton({ orderId }: DeleteOrderButtonProps) {
     try {
       await deleteOrder(orderId);
       router.replace('/orders');
+      router.refresh();
     } catch (error) {
       alert(
         error instanceof Error ? error.message : '주문 삭제에 실패했습니다.',

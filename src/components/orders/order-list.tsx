@@ -53,13 +53,10 @@ export function OrderList({
         page: params.page,
         size: 10,
       });
-      const filtered = response.content.filter(
-        (order) => !String(order.orderStatus).includes('CANCEL'),
-      );
       if (params.append) {
-        setOrders((prev) => [...prev, ...filtered]);
+        setOrders((prev) => [...prev, ...response.content]);
       } else {
-        setOrders(filtered);
+        setOrders(response.content);
       }
       setTotalPages(response.totalPages);
       setCurrentPage(response.currentPage);
