@@ -190,3 +190,16 @@ export async function getOrderDetail(orderId: number): Promise<OrderDetail> {
     );
   }
 }
+
+/** 주문 내역 삭제 */
+export async function deleteOrder(orderId: number): Promise<void> {
+  try {
+    await api.delete(`/orders/${orderId}`);
+    revalidatePath('/orders');
+  } catch (error) {
+    console.error('주문 내역 삭제 실패:', error);
+    throw new Error(
+      error instanceof Error ? error.message : '주문 내역 삭제에 실패했습니다.',
+    );
+  }
+}
