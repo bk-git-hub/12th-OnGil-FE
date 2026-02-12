@@ -7,6 +7,7 @@ import {
   CartUpdateRequest,
 } from '@/types/domain/cart';
 import { revalidatePath } from 'next/cache';
+import { rethrowNextError } from '@/lib/server-action-utils';
 
 /** 내 장바구니 목록 조회 */
 export async function getCartItems(): Promise<CartResponse[]> {
@@ -14,7 +15,7 @@ export async function getCartItems(): Promise<CartResponse[]> {
     const cartItems = await api.get<CartResponse[]>('/carts');
     return cartItems;
   } catch (error) {
-    if (error instanceof Error && 'digest' in error) throw error;
+    rethrowNextError(error);
     console.error('장바구니 조회 실패:', error);
     return [];
   }
@@ -27,7 +28,7 @@ export async function addToCart(data: CartCreateRequest) {
     revalidatePath('/cart');
     return { success: true, message: '장바구니에 상품을 담았습니다.' };
   } catch (error) {
-    if (error instanceof Error && 'digest' in error) throw error;
+    rethrowNextError(error);
     console.error('장바구니 담기 실패:', error);
     return {
       success: false,
@@ -44,7 +45,7 @@ export async function updateCartItem(cartId: number, data: CartUpdateRequest) {
     revalidatePath('/cart');
     return { success: true, message: '장바구니가 수정되었습니다.' };
   } catch (error) {
-    if (error instanceof Error && 'digest' in error) throw error;
+    rethrowNextError(error);
     console.error('장바구니 수정 실패:', error);
     return {
       success: false,
@@ -60,7 +61,7 @@ export async function deleteCartItem(cartId: number) {
     revalidatePath('/cart');
     return { success: true, message: '상품이 삭제되었습니다.' };
   } catch (error) {
-    if (error instanceof Error && 'digest' in error) throw error;
+    rethrowNextError(error);
     console.error('장바구니 삭제 실패:', error);
     return {
       success: false,
@@ -82,7 +83,7 @@ export async function deleteCartItems(cartIds: number[]) {
     revalidatePath('/cart');
     return { success: true, message: '선택한 상품이 삭제되었습니다.' };
   } catch (error) {
-    if (error instanceof Error && 'digest' in error) throw error;
+    rethrowNextError(error);
     console.error('장바구니 일괄 삭제 실패:', error);
     return {
       success: false,
@@ -101,7 +102,7 @@ export async function getCartCount(): Promise<number> {
     }
     return data.count;
   } catch (error) {
-    if (error instanceof Error && 'digest' in error) throw error;
+    rethrowNextError(error);
     console.error('장바구니 개수 조회 실패:', error);
     return 0;
   }

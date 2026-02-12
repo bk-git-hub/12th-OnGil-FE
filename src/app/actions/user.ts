@@ -1,6 +1,7 @@
 'use server';
 
 import { api } from '@/lib/api-client';
+import { rethrowNextError } from '@/lib/server-action-utils';
 import type { UserInfoResDto } from '@/types/domain/user';
 
 /** 내 정보 조회 */
@@ -12,7 +13,7 @@ export async function getUserInfo(): Promise<UserInfoResDto> {
     }
     return user;
   } catch (error) {
-    if (error instanceof Error && 'digest' in error) throw error;
+    rethrowNextError(error);
     console.error('유저 정보 조회 실패:', error);
     throw new Error(
       error instanceof Error ? error.message : '유저 정보 조회에 실패했습니다.',

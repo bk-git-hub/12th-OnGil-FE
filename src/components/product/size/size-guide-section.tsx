@@ -4,7 +4,7 @@ import { useState } from 'react';
 import { ChevronDown, ChevronUp } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Progress } from '@/components/ui/progress';
-import { UserBodyInfo, SizeAnalysisResult } from '@/mocks/size';
+import { UserBodyInfo, SizeAnalysisResult } from '@/types/domain/size';
 import { SimilarUserTable } from './similar-user-table';
 import { MySize } from './my-size';
 import { BodyInfoModal } from './body-info-modal';

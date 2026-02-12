@@ -12,17 +12,17 @@ import {
   ProductHeader,
 } from '@/components/product';
 import { ScrollToTop } from '@/components/ui/scroll-to-top';
-import { ProductDescription } from '@/components/product/descriptions/product-description';
+import ProductDescription from '@/components/product/descriptions/product-description';
 import { ProductSizeContent } from '@/components/product/size/product-size-content';
 import ProductReviewContent from '@/components/product/review/review-section';
 
 import {
   Product,
   MaterialDescription,
-  ProductDetail,
+  ProductOption,
 } from '@/types/domain/product';
 import { ReviewStatsData } from '@/types/domain/review';
-import { UserBodyInfo, SizeAnalysisResult } from '@/mocks/size';
+import { UserBodyInfo, SizeAnalysisResult } from '@/types/domain/size';
 
 const ProductInquiryContent = () => (
   <div className="rounded-lg bg-gray-50 py-20 text-center text-gray-500">
@@ -31,16 +31,25 @@ const ProductInquiryContent = () => (
   </div>
 );
 
-interface ProductDetailProps extends Product {
+interface ProductDetailProps extends Omit<
+  Product,
+  'viewCount' | 'purchaseCount' | 'reviewCount'
+> {
+  viewCount?: number;
+  purchaseCount?: number;
+  reviewCount?: number;
   materialDescription?: MaterialDescription;
   materialOriginal?: string;
   reviewSummary?: ReviewStatsData;
   monthReviewSummary?: ReviewStatsData;
   categoryId?: string | number;
+  options?: ProductOption[];
+  imageUrls?: string[];
 }
 
 interface ProductDetailViewProps {
   product: ProductDetailProps;
+  similarProducts: Product[];
   userInfo: UserBodyInfo | null;
   analysisData: SizeAnalysisResult | null;
   isLiked?: boolean;
@@ -49,6 +58,7 @@ interface ProductDetailViewProps {
 
 export default function ProductDetailView({
   product,
+  similarProducts,
   userInfo,
   analysisData,
   isLiked = false,
@@ -102,7 +112,9 @@ export default function ProductDetailView({
         <ProductHeader categoryID={product.categoryId} />
 
         {/* 상단: 이미지 슬라이더 & 기본 정보 */}
-        <ProductImageSlider imageUrl={product.thumbnailImageUrl} />
+        <ProductImageSlider
+          imageUrls={product.imageUrls ?? [product.thumbnailImageUrl]}
+        />
         <ProductInfo product={product} />
 
         {/* 중단: Sticky 탭 & 가변 컨텐츠 
@@ -113,13 +125,18 @@ export default function ProductDetailView({
             <ProductTab
               activateTab={activeTab}
               onTabChange={setActiveTab}
-              reviewCount={product.reviewCount}
+              reviewCount={product.reviewCount ?? 0}
             />
           }
         >
           {/* 탭 상태에 따른 조건부 렌더링 */}
           <div className="min-h-[500px]">
-            {activeTab === 'desc' && <ProductDescription product={product} />}
+            {activeTab === 'desc' && (
+              <ProductDescription
+                product={product}
+                similarProducts={similarProducts}
+              />
+            )}
             {activeTab === 'size' && (
               <ProductSizeContent
                 userInfo={userInfo}

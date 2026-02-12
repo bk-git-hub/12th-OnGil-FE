@@ -3,6 +3,7 @@
 import { api } from '@/lib/api-client';
 import { revalidatePath } from 'next/cache';
 import { redirect, notFound } from 'next/navigation';
+import { rethrowNextError } from '@/lib/server-action-utils';
 import {
   OrderFromCartRequest,
   OrderFromProductRequest,
@@ -29,7 +30,7 @@ export async function createOrderFromCart(
     revalidatePath('/cart');
     return orderId;
   } catch (error) {
-    if (error instanceof Error && 'digest' in error) throw error;
+    rethrowNextError(error);
     console.error('장바구니 상품 주문 실패:', error);
     throw new Error(
       error instanceof Error
@@ -50,7 +51,7 @@ export async function createOrderFromProduct(
     );
     return orderId;
   } catch (error) {
-    if (error instanceof Error && 'digest' in error) throw error;
+    rethrowNextError(error);
     console.error('상품 직접 주문 실패:', error);
     throw new Error(
       error instanceof Error ? error.message : '상품 직접 주문에 실패했습니다.',
@@ -136,7 +137,7 @@ export async function getOrders(
     });
     return response;
   } catch (error) {
-    if (error instanceof Error && 'digest' in error) throw error;
+    rethrowNextError(error);
     console.error('주문 내역 조회 실패:', error);
     throw new Error(
       error instanceof Error ? error.message : '주문 내역 조회에 실패했습니다.',
@@ -154,7 +155,7 @@ export async function getRefundInfo(
     );
     return response;
   } catch (error) {
-    if (error instanceof Error && 'digest' in error) throw error;
+    rethrowNextError(error);
     console.error('환불 정보 조회 실패:', error);
     throw new Error(
       error instanceof Error ? error.message : '환불 정보 조회에 실패했습니다.',
@@ -175,7 +176,7 @@ export async function cancelOrder(
     revalidatePath('/orders');
     return response;
   } catch (error) {
-    if (error instanceof Error && 'digest' in error) throw error;
+    rethrowNextError(error);
     console.error('주문 취소 실패:', error);
     throw new Error(
       error instanceof Error ? error.message : '주문 취소에 실패했습니다.',
@@ -189,7 +190,7 @@ export async function getOrderDetail(orderId: number): Promise<OrderDetail> {
     const orderDetail = await api.get<OrderDetail>(`/orders/${orderId}`);
     return orderDetail;
   } catch (error) {
-    if (error instanceof Error && 'digest' in error) throw error;
+    rethrowNextError(error);
     console.error('주문 상세 조회 실패:', error);
     throw new Error(
       error instanceof Error ? error.message : '주문 상세 조회에 실패했습니다.',
@@ -203,7 +204,7 @@ export async function deleteOrder(orderId: number): Promise<void> {
     await api.delete(`/orders/${orderId}`);
     revalidatePath('/orders');
   } catch (error) {
-    if (error instanceof Error && 'digest' in error) throw error;
+    rethrowNextError(error);
     console.error('주문 내역 삭제 실패:', error);
     throw new Error(
       error instanceof Error ? error.message : '주문 내역 삭제에 실패했습니다.',

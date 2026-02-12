@@ -12,11 +12,11 @@ import {
 // 기능명세서 [8.1 상품 정보 표시] => 스와이프시 다음 이미지로 넘어가는 슬라이더.
 
 interface ProductImageSliderProps {
-  imageUrl: string;
+  imageUrls: string[];
 }
 
-export function ProductImageSlider({ imageUrl }: ProductImageSliderProps) {
-  const images = Array(5).fill(imageUrl);
+export function ProductImageSlider({ imageUrls }: ProductImageSliderProps) {
+  const images = imageUrls;
 
   // Carousel 상태 관리
   const [api, setApi] = useState<CarouselApi>();
@@ -54,14 +54,16 @@ export function ProductImageSlider({ imageUrl }: ProductImageSliderProps) {
         <CarouselContent>
           {images.map((src, index) => (
             <CarouselItem key={index} className="relative aspect-square w-full">
-              <Image
-                src={src}
-                alt={`상품 이미지 ${index + 1}`}
-                fill
-                className="object-cover"
-                priority={index === 0}
-                sizes="(max-width: 768px) 100vw, 40vw"
-              />
+              {src && (
+                <Image
+                  src={src}
+                  alt={`상품 이미지 ${index + 1}`}
+                  fill
+                  className="object-cover"
+                  priority={index === 0}
+                  sizes="(max-width: 768px) 100vw, 40vw"
+                />
+              )}
             </CarouselItem>
           ))}
         </CarouselContent>

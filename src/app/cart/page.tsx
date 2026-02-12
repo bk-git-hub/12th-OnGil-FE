@@ -1,12 +1,11 @@
 import { Metadata } from 'next';
 import { getCartItems } from '@/app/actions/cart';
+import { rethrowNextError } from '@/lib/server-action-utils';
 import { CloseButton } from '@/components/ui/close-button';
 import { CartProvider } from '@/components/cart/cart-context';
-import {
-  CartHeaderControl,
-  CartItemList,
-  CartSummaryFooter,
-} from '@/components/cart/cart-views';
+import CartHeaderControl from '@/components/cart/cart-header-control';
+import CartItemList from '@/components/cart/cart-item-list';
+import CartSummaryFooter from '@/components/cart/cart-summary-footer';
 import type { CartResponse } from '@/types/domain/cart';
 
 export const metadata: Metadata = {
@@ -20,7 +19,7 @@ export default async function CartPage() {
   try {
     cartItems = await getCartItems();
   } catch (error) {
-    if (error instanceof Error && 'digest' in error) throw error;
+    rethrowNextError(error);
     console.error('Failed to fetch cart items:', error);
   }
 

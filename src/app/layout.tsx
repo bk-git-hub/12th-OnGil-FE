@@ -3,7 +3,7 @@ import { Geist, Geist_Mono } from 'next/font/google';
 import './globals.css';
 import ServiceWorkerRegister from '@/components/sw-register';
 import { Suspense } from 'react';
-import { CartDataFetcher } from '@/components/cart/cart-data-fetcher';
+import CartDataFetcher from '@/components/cart/cart-data-fetcher';
 
 const geistSans = Geist({
   variable: '--font-geist-sans',

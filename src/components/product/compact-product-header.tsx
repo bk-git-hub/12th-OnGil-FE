@@ -4,7 +4,8 @@ import Image from 'next/image';
 import { Product } from '@/types/domain/product';
 
 interface CompactProductHeaderProps {
-  product: Product;
+  product: Omit<Product, 'viewCount' | 'purchaseCount' | 'reviewCount'> &
+    Partial<Pick<Product, 'viewCount' | 'purchaseCount' | 'reviewCount'>>;
 }
 
 /**
@@ -18,13 +19,15 @@ export default function CompactProductHeader({ product }: CompactProductHeaderPr
     <div className="flex h-14 w-full items-center justify-between bg-white px-4">
       <div className="flex items-center gap-3 overflow-hidden pt-2">
         <div className="relative h-10 w-10 shrink-0 overflow-hidden rounded-md border border-gray-100">
-          <Image
-            src={product.thumbnailImageUrl}
-            alt={product.name}
-            fill
-            className="object-cover"
-            sizes="40px"
-          />
+          {product.thumbnailImageUrl && (
+            <Image
+              src={product.thumbnailImageUrl}
+              alt={product.name}
+              fill
+              className="object-cover"
+              sizes="40px"
+            />
+          )}
         </div>
 
         {/* 정보 (상품명, 가격) */}

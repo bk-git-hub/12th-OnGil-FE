@@ -14,20 +14,20 @@ import { Product } from '@/types/domain/product';
 import Autoplay from 'embla-carousel-autoplay';
 
 interface RecommendedProductsCarouselProps {
-  products: Product[];
+  similarProducts: Product[];
   isLoading?: boolean;
 }
 
 // 추천 상품 캐러셀 컴포넌트, 유사 상품들을 가로 스크롤 형식으로 표시
 
-export function RecommendedProductsCarousel({
-  products,
+export default function RecommendedProductsCarousel({
+  similarProducts,
 }: RecommendedProductsCarouselProps) {
   const [api, setApi] = useState<CarouselApi>();
   const { current, count, scrollTo } = useCarouselDots(api);
 
   // 데이터가 빈 배열일 경우 렌더링 안 함
-  if (products.length === 0) return null;
+  // if (products.length === 0) return null;
 
   return (
     <div className="w-full pt-4">
@@ -48,13 +48,13 @@ export function RecommendedProductsCarousel({
         className="w-full"
       >
         <CarouselContent className="-ml-4">
-          {products.map((product, i) => (
+          {similarProducts.map((similarProduct, i) => (
             <CarouselItem
               // key에 product.id가 없으면 인덱스 사용
-              key={product.id || i}
+              key={similarProduct.id ?? i}
               className="basis-1/2 pl-4 md:basis-1/3 lg:basis-1/4"
             >
-              <ProductCard product={product} />
+              <ProductCard product={similarProduct} />
             </CarouselItem>
           ))}
         </CarouselContent>

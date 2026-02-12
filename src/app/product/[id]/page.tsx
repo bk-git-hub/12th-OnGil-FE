@@ -1,6 +1,7 @@
 import { notFound } from 'next/navigation';
-import { getProductById } from '@/components/product/product-service';
-import { fetchUserBodyInfo, fetchSizeAnalysis } from '@/mocks/size';
+import { getProductDetail, getSimilarProducts } from '@/app/actions/product';
+import { getMyBodyInfoAction } from '@/app/actions/body-info';
+import { fetchSizeAnalysis } from '@/mocks/size';
 import ProductDetailView from '@/components/product/product-detail-view';
 import { getMyWishlist } from '@/app/actions/wishlist';
 
@@ -10,29 +11,41 @@ interface PageProps {
 
 export default async function ProductPage({ params }: PageProps) {
   const { id } = await params;
+  const productId = Number(id);
 
-  // 1. 상품 데이터 가져오기
-  const product = await getProductById(id);
-  if (!product) {
+  // 1. 상품 상세 + 부가 데이터 병렬 조회
+  let product;
+  try {
+    product = await getProductDetail(productId);
+  } catch {
     notFound();
   }
 
-  // 2. 사이즈 분석 데이터 가져오기
-  const userInfo = await fetchUserBodyInfo();
+  const [bodyInfoResult, wishlist, similarProducts] = await Promise.all([
+    getMyBodyInfoAction(),
+    getMyWishlist(),
+    getSimilarProducts(productId),
+  ]);
+
+  const userInfo =
+    bodyInfoResult.success && bodyInfoResult.data?.hasBodyInfo
+      ? bodyInfoResult.data
+      : null;
+
   const analysisData = userInfo
     ? await fetchSizeAnalysis(id, userInfo.height, userInfo.weight)
     : null;
 
-  // 3. 찜 목록에서 현재 상품이 있는지 확인
-  const wishlist = await getMyWishlist();
-  const wishlistItem = wishlist.find((item) => item.productId === Number(id));
+  // 2. 찜 목록에서 현재 상품이 있는지 확인
+  const wishlistItem = wishlist.find((item) => item.productId === productId);
   const isLiked = !!wishlistItem;
   const wishlistId = wishlistItem?.wishlistId;
 
-  // 4. 클라이언트 뷰에 데이터 전달하며 렌더링
+  // 3. 클라이언트 뷰에 데이터 전달하며 렌더링
   return (
     <ProductDetailView
       product={product}
+      similarProducts={similarProducts}
       userInfo={userInfo}
       analysisData={analysisData}
       isLiked={isLiked}
