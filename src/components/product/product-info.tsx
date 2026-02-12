@@ -6,7 +6,8 @@ import { Button } from '@/components/ui/button';
 import StarRating from '../ui/star-rating';
 
 interface ProductInfoProps {
-  product: Product;
+  product: Omit<Product, 'viewCount' | 'purchaseCount' | 'reviewCount'> &
+    Partial<Pick<Product, 'viewCount' | 'purchaseCount' | 'reviewCount'>>;
   discountRef?: Ref<HTMLButtonElement | null>;
 }
 
@@ -58,7 +59,7 @@ export default function ProductInfo({
       <div className="mt-2 flex items-center gap-2">
         <StarRating rating={product.reviewRating} size={24} />
         <span className="font-Poppins text-sm leading-5 font-semibold not-italic">
-          ({product.reviewCount})
+          ({product.reviewCount ?? 0})
         </span>
       </div>
       {/* 8.2 할인 알림 받기 버튼, 추후 알림 로직 구현 해야함. */}

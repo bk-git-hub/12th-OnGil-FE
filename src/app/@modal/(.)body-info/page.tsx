@@ -1,4 +1,4 @@
-import { fetchUserBodyInfo } from '@/mocks/size';
+import { getMyBodyInfoAction } from '@/app/actions/body-info';
 import { BodyInfoModal } from '@/components/ui/body-info-modal';
 import { BodyInfoFormWrapper } from './_components/wrapper';
 import { CloseButton } from '@/components/ui/close-button';
@@ -6,7 +6,9 @@ import { CloseButton } from '@/components/ui/close-button';
 // 사이즈 탭에서 '내 신체 정보 수정' 클릭 시 나타나는 인터셉트 모달 페이지
 
 export default async function InterceptedBodyInfoPage() {
-  const userInfo = await fetchUserBodyInfo();
+  const result = await getMyBodyInfoAction();
+  const userInfo =
+    result.success && result.data?.hasBodyInfo ? result.data : null;
 
   return (
     <BodyInfoModal>

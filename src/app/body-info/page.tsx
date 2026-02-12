@@ -1,11 +1,13 @@
-import { fetchUserBodyInfo } from '@/mocks/size';
+import { getMyBodyInfoAction } from '@/app/actions/body-info';
 import { BodyInfoForm } from '@/components/product/size/body-info-form';
 import { CloseButton } from '../../components/ui/close-button';
 
 // 내 신체 정보 수정 페이지(마이페이지용)
 
 export default async function BodyInfoPage() {
-  const userInfo = await fetchUserBodyInfo();
+  const result = await getMyBodyInfoAction();
+  const userInfo =
+    result.success && result.data?.hasBodyInfo ? result.data : null;
 
   return (
     <div className="flex h-full items-center justify-center bg-gray-50">

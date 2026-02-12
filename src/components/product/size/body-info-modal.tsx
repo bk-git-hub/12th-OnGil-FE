@@ -7,7 +7,7 @@ import {
   DialogTitle,
 } from '@/components/ui/dialog';
 import { BodyInfoForm } from './body-info-form';
-import { UserBodyInfo } from '@/mocks/size';
+import { UserBodyInfo } from '@/types/domain/size';
 
 interface BodyInfoModalProps {
   isOpen: boolean;

@@ -1,6 +1,5 @@
 import { SizeInfo } from '@/components/product/size/size-info';
 import { SizeGuideSection } from '@/components/product/size/size-guide-section';
-import { fetchUserBodyInfo, fetchSizeAnalysis } from '@/mocks/size';
 
 interface ProductSizeContentProps {
   userInfo: any;

@@ -19,10 +19,10 @@ import ProductReviewContent from '@/components/product/review/review-section';
 import {
   Product,
   MaterialDescription,
-  ProductDetail,
+  ProductOption,
 } from '@/types/domain/product';
 import { ReviewStatsData } from '@/types/domain/review';
-import { UserBodyInfo, SizeAnalysisResult } from '@/mocks/size';
+import { UserBodyInfo, SizeAnalysisResult } from '@/types/domain/size';
 
 const ProductInquiryContent = () => (
   <div className="rounded-lg bg-gray-50 py-20 text-center text-gray-500">
@@ -31,12 +31,19 @@ const ProductInquiryContent = () => (
   </div>
 );
 
-interface ProductDetailProps extends Product {
+interface ProductDetailProps extends Omit<
+  Product,
+  'viewCount' | 'purchaseCount' | 'reviewCount'
+> {
+  viewCount?: number;
+  purchaseCount?: number;
+  reviewCount?: number;
   materialDescription?: MaterialDescription;
   materialOriginal?: string;
   reviewSummary?: ReviewStatsData;
   monthReviewSummary?: ReviewStatsData;
   categoryId?: string | number;
+  options?: ProductOption[];
 }
 
 interface ProductDetailViewProps {
@@ -113,7 +120,7 @@ export default function ProductDetailView({
             <ProductTab
               activateTab={activeTab}
               onTabChange={setActiveTab}
-              reviewCount={product.reviewCount}
+              reviewCount={product.reviewCount ?? 0}
             />
           }
         >

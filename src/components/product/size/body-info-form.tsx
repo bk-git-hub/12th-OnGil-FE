@@ -32,7 +32,7 @@ import {
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
 
-import { UserBodyInfo } from '@/mocks/size';
+import { UserBodyInfo } from '@/types/domain/size';
 import { bodyInfoSchema, BodyInfoSchemaType } from '@/schemas/body-info';
 import {
   updateBodyInfoAction,

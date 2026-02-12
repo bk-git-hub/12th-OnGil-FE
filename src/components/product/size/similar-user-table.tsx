@@ -9,7 +9,7 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table';
-import { SizeAnalysisResult } from '@/mocks/size';
+import { SizeAnalysisResult } from '@/types/domain/size';
 
 interface SimilarUserTableProps {
   similarUsersSample: SizeAnalysisResult['similarUsersSample'];
