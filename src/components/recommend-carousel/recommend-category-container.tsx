@@ -3,8 +3,13 @@ import { Category } from '@/types/domain/category';
 import { RecommendCarousel } from './recommend-carousel';
 import { RecommendCarouselItem } from './recommend-carousel-item';
 import { RecommendedCategoryCard } from './recommended-category-card';
+import { auth } from '/auth';
 
 export default async function RecommendCategoryContainer() {
+  const session = await auth();
+  if (!session) {
+    return null;
+  }
   const categories = await api.get<Category[]>('/categories/recommended-sub');
 
   console.log(categories);
