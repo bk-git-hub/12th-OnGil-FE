@@ -44,6 +44,7 @@ interface ProductDetailProps extends Omit<
   monthReviewSummary?: ReviewStatsData;
   categoryId?: string | number;
   options?: ProductOption[];
+  imageUrls?: string[];
 }
 
 interface ProductDetailViewProps {
@@ -111,7 +112,9 @@ export default function ProductDetailView({
         <ProductHeader categoryID={product.categoryId} />
 
         {/* 상단: 이미지 슬라이더 & 기본 정보 */}
-        <ProductImageSlider imageUrl={product.thumbnailImageUrl} />
+        <ProductImageSlider
+          imageUrls={product.imageUrls ?? [product.thumbnailImageUrl]}
+        />
         <ProductInfo product={product} />
 
         {/* 중단: Sticky 탭 & 가변 컨텐츠 

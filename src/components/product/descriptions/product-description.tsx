@@ -15,13 +15,16 @@ export default function ProductDescription({
   similarProducts,
 }: {
   product: Omit<Product, 'viewCount' | 'purchaseCount' | 'reviewCount'> &
-    Partial<Pick<Product, 'viewCount' | 'purchaseCount' | 'reviewCount'>>;
+    Partial<Pick<Product, 'viewCount' | 'purchaseCount' | 'reviewCount'>> & {
+      imageUrls?: string[];
+    };
   similarProducts: Product[];
 }) {
   const [isExpanded, setIsExpanded] = useState(false);
 
-  // 8.4.1 (4) 펼치면 상세 이미지 10개
-  const detailImages = Array(10).fill(product.thumbnailImageUrl);
+  const detailImages = product.imageUrls?.length
+    ? product.imageUrls
+    : [product.thumbnailImageUrl];
   // 8.4.1 (3) 펼치기 전에는 3개만
   const visibleImages = isExpanded ? detailImages : detailImages.slice(0, 3);
 
