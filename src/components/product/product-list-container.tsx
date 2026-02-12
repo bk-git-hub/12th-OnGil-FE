@@ -21,11 +21,15 @@ export default async function ProductListContainer({
     ? (sortType as ProductSortType)
     : ProductSortType.POPULAR;
 
-  const safePage = Number.isFinite(Number(page)) && Number(page) >= 0 ? Number(page) : 0;
-  
+  const safePage =
+    Number.isFinite(Number(page)) && Number(page) >= 0 ? Number(page) : 0;
+
   // subCategoryId 유효성 검증
   const parsedCategoryId = Number(subCategoryId);
-  const safeCategoryId = Number.isFinite(parsedCategoryId) && parsedCategoryId > 0 ? parsedCategoryId : null;
+  const safeCategoryId =
+    Number.isFinite(parsedCategoryId) && parsedCategoryId > 0
+      ? parsedCategoryId
+      : null;
 
   if (safeCategoryId === null) {
     throw new Error('Invalid category ID');
@@ -40,9 +44,12 @@ export default async function ProductListContainer({
     },
   });
 
-  const totalElements = result.products.page.totalElements;
+  const totalElements = result.products.totalElements;
 
   return (
-    <ProductList products={result.products.content} totalElements={totalElements} />
+    <ProductList
+      products={result.products.content}
+      totalElements={totalElements}
+    />
   );
 }

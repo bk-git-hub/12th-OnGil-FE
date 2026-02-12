@@ -163,9 +163,8 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
       return refreshedToken;
     },
     async session({ session, token }) {
-      // If token is null or has error, the session will be invalid
       if (!token) {
-        return null;
+        return session;
       }
 
       session.user.userId = token.userId as string;
