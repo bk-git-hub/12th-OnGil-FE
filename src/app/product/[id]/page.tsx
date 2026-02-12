@@ -1,5 +1,5 @@
 import { notFound } from 'next/navigation';
-import { getProductDetail } from '@/app/actions/product';
+import { getProductDetail, getSimilarProducts } from '@/app/actions/product';
 import { getMyBodyInfoAction } from '@/app/actions/body-info';
 import { fetchSizeAnalysis } from '@/mocks/size';
 import ProductDetailView from '@/components/product/product-detail-view';
@@ -21,9 +21,10 @@ export default async function ProductPage({ params }: PageProps) {
     notFound();
   }
 
-  const [bodyInfoResult, wishlist] = await Promise.all([
+  const [bodyInfoResult, wishlist, similarProducts] = await Promise.all([
     getMyBodyInfoAction(),
     getMyWishlist(),
+    getSimilarProducts(productId),
   ]);
 
   const userInfo =
@@ -44,6 +45,7 @@ export default async function ProductPage({ params }: PageProps) {
   return (
     <ProductDetailView
       product={product}
+      similarProducts={similarProducts}
       userInfo={userInfo}
       analysisData={analysisData}
       isLiked={isLiked}

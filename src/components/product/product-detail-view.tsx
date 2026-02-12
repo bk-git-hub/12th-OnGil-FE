@@ -48,6 +48,7 @@ interface ProductDetailProps extends Omit<
 
 interface ProductDetailViewProps {
   product: ProductDetailProps;
+  similarProducts: Product[];
   userInfo: UserBodyInfo | null;
   analysisData: SizeAnalysisResult | null;
   isLiked?: boolean;
@@ -56,6 +57,7 @@ interface ProductDetailViewProps {
 
 export default function ProductDetailView({
   product,
+  similarProducts,
   userInfo,
   analysisData,
   isLiked = false,
@@ -126,7 +128,12 @@ export default function ProductDetailView({
         >
           {/* 탭 상태에 따른 조건부 렌더링 */}
           <div className="min-h-[500px]">
-            {activeTab === 'desc' && <ProductDescription product={product} />}
+            {activeTab === 'desc' && (
+              <ProductDescription
+                product={product}
+                similarProducts={similarProducts}
+              />
+            )}
             {activeTab === 'size' && (
               <ProductSizeContent
                 userInfo={userInfo}
