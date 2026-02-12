@@ -84,8 +84,10 @@ function generateDummyProducts(
     const isSoldOut = i % 10 === 9;
     const isSpecial = i % 5 === 0;
 
-    const reviewCount = Math.floor(Math.random() * 200);
-    const reviewRating = parseFloat((Math.random() * 5).toFixed(1));
+    const reviewCount = ((startId + i) * 37 + 13) % 200;
+    const reviewRating = parseFloat(
+      ((((startId + i) * 53 + 7) % 50) / 10).toFixed(1),
+    );
     const monthReviewCount = Math.floor(reviewCount * 0.3);
 
     return {
@@ -107,8 +109,8 @@ function generateDummyProducts(
       monthReviewCount: monthReviewCount,
 
       reviewCount: reviewCount,
-      viewCount: Math.floor(Math.random() * 1000),
-      purchaseCount: Math.floor(Math.random() * 500),
+      viewCount: ((startId + i) * 71 + 29) % 1000,
+      purchaseCount: ((startId + i) * 43 + 17) % 500,
       reviewRating: reviewRating,
 
       reviewSummary: generateReviewStats(
@@ -140,7 +142,12 @@ const productConfigs = [
 export const PRODUCTS: MockProduct[] = productConfigs.reduce<MockProduct[]>(
   (acc, config) => [
     ...acc,
-    ...generateDummyProducts(config.categoryId, config.count, config.baseName, acc.length),
+    ...generateDummyProducts(
+      config.categoryId,
+      config.count,
+      config.baseName,
+      acc.length,
+    ),
   ],
   [],
 );
