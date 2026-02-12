@@ -6,10 +6,11 @@ import Image from 'next/image';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { OrderSummary } from '@/types/domain/order';
+import { OrderStatus } from '@/types/enums';
 
-const STATUS_LABEL: Record<string, string> = {
-  ORDER_RECEIVED: '주문 완료',
-  CANCELLED: '주문 취소',
+const STATUS_LABEL: Record<OrderStatus, string> = {
+  [OrderStatus.ORDER_RECEIVED]: '주문 완료',
+  [OrderStatus.CANCELED]: '주문 취소',
 };
 
 interface OrderListCardProps {
@@ -20,10 +21,10 @@ export default function OrderListCard({ order }: OrderListCardProps) {
   const router = useRouter();
   const repItem = order.items[0];
   const [showAlert, setShowAlert] = useState(false);
-  const isCancelled = String(order.orderStatus).includes('CANCEL');
+  const isCanceled = order.orderStatus === OrderStatus.CANCELED;
 
   const handleCancelClick = () => {
-    if (isCancelled) {
+    if (isCanceled) {
       setShowAlert(true);
     } else {
       router.push(`/orders/${order.orderId}/cancel`);
