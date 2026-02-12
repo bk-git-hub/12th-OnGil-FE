@@ -3,7 +3,7 @@ import { getCartCount } from '@/app/actions/cart';
 import { rethrowNextError } from '@/lib/server-action-utils';
 import CartStoreInitializer from '@/components/cart/cart-store-initializer';
 
-export async function CartDataFetcher() {
+export default async function CartDataFetcher() {
   await connection();
 
   let cartCount = 0;

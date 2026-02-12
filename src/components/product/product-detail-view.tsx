@@ -12,7 +12,7 @@ import {
   ProductHeader,
 } from '@/components/product';
 import { ScrollToTop } from '@/components/ui/scroll-to-top';
-import { ProductDescription } from '@/components/product/descriptions/product-description';
+import ProductDescription from '@/components/product/descriptions/product-description';
 import { ProductSizeContent } from '@/components/product/size/product-size-content';
 import ProductReviewContent from '@/components/product/review/review-section';
 

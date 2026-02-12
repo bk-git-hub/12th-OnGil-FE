@@ -17,7 +17,7 @@ export { default as ProductDetailView } from './product-detail-view';
 // 3. 상품 상세 - 설명 및 레이아웃
 // ----------------------------------------------------------------------
 export { ProductStickyContainer } from './descriptions/product-sticky-container';
-export { ProductDescription } from './descriptions/product-description';
+export { default as ProductDescription } from './descriptions/product-description';
 
 // ----------------------------------------------------------------------
 // 4. 상품 상세 - 고정 바, 헤더 및 부가 기능
@@ -26,7 +26,7 @@ export { default as CompactProductHeader } from './compact-product-header';
 export { default as ProductHeader } from './product-header';
 export { default as ProductBottomBar } from './product-bottom-bar';
 export { ProductNotice } from './descriptions/product-notice';
-export { RecommendedProductsCarousel } from './descriptions/recommended-products-carousel';
+export { default as RecommendedProductsCarousel } from './descriptions/recommended-products-carousel';
 
 // ----------------------------------------------------------------------
 // 5. 상태 관리

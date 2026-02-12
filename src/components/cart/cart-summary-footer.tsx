@@ -5,7 +5,7 @@ import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
 import { formatPrice } from '@/lib/format';
 
-export function CartSummaryFooter() {
+export default function CartSummaryFooter() {
   const { optimisticCart, totalAmount, selectedIds, handleCartCheckout } =
     useCartContext();
 

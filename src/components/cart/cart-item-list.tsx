@@ -2,8 +2,8 @@
 
 import { useState } from 'react';
 import { useCartContext } from './cart-context';
-import { CartItem } from './cart-item';
-import { CartOptionChangeSheet } from './cart-option-change-sheet';
+import CartItem from './cart-item';
+import CartOptionChangeSheet from './cart-option-change-sheet';
 import {
   Dialog,
   DialogContent,
@@ -24,7 +24,7 @@ function EmptyCartView() {
   );
 }
 
-export function CartItemList() {
+export default function CartItemList() {
   const {
     optimisticCart,
     selectedIds,

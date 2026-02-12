@@ -20,7 +20,7 @@ interface RecommendedProductsCarouselProps {
 
 // 추천 상품 캐러셀 컴포넌트, 유사 상품들을 가로 스크롤 형식으로 표시
 
-export function RecommendedProductsCarousel({
+export default function RecommendedProductsCarousel({
   similarProducts,
 }: RecommendedProductsCarouselProps) {
   const [api, setApi] = useState<CarouselApi>();
@@ -51,7 +51,7 @@ export function RecommendedProductsCarousel({
           {similarProducts.map((similarProduct, i) => (
             <CarouselItem
               // key에 product.id가 없으면 인덱스 사용
-              key={similarProduct.id || i}
+              key={similarProduct.id ?? i}
               className="basis-1/2 pl-4 md:basis-1/3 lg:basis-1/4"
             >
               <ProductCard product={similarProduct} />

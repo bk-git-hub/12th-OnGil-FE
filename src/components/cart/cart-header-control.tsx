@@ -4,7 +4,7 @@ import { useCartContext } from './cart-context';
 import { Checkbox } from '@/components/ui/checkbox';
 import { cn } from '@/lib/utils';
 
-export function CartHeaderControl() {
+export default function CartHeaderControl() {
   const { optimisticCart, selectedIds, toggleAll, handleDeleteSelected } =
     useCartContext();
 

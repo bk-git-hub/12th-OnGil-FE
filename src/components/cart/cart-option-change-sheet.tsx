@@ -23,7 +23,7 @@ interface CartOptionChangeSheetProps {
   onClose: () => void;
 }
 
-export function CartOptionChangeSheet({
+export default function CartOptionChangeSheet({
   item,
   onConfirm,
   onClose,
@@ -98,9 +98,9 @@ export function CartOptionChangeSheet({
         <div className="p-4">
           <Button
             disabled={!canConfirm}
-            onClick={() => {
+            onClick={async () => {
               if (item) {
-                onConfirm(item.cartId, currentColor, currentSize);
+                await onConfirm(item.cartId, currentColor, currentSize);
                 onClose();
               }
             }}

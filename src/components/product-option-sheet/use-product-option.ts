@@ -73,7 +73,10 @@ export default function useProductOption({
         );
         if (existingIdx > -1) {
           const newItems = [...prev];
-          newItems[existingIdx].quantity += 1;
+          newItems[existingIdx] = {
+            ...newItems[existingIdx],
+            quantity: newItems[existingIdx].quantity + 1,
+          };
           return newItems;
         }
         return [

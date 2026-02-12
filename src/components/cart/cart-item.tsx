@@ -19,7 +19,7 @@ interface CartItemProps {
   onOptionChange: () => void;
 }
 
-export function CartItem({
+export default function CartItem({
   item,
   isChecked,
   onToggleCheck,

@@ -5,12 +5,12 @@ import Image from 'next/image';
 import { Product } from '@/types/domain/product';
 import { Button } from '@/components/ui/button';
 import { ProductNotice } from './product-notice';
-import { RecommendedProductsCarousel } from './recommended-products-carousel';
+import RecommendedProductsCarousel from './recommended-products-carousel';
 import { ChevronDown, ChevronUp } from 'lucide-react';
 
 // 상품 설명 섹션 컴포넌트, 상세 이미지, 펼치기
 
-export function ProductDescription({
+export default function ProductDescription({
   product,
   similarProducts,
 }: {

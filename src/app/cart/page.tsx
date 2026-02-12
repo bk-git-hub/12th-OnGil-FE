@@ -3,9 +3,9 @@ import { getCartItems } from '@/app/actions/cart';
 import { rethrowNextError } from '@/lib/server-action-utils';
 import { CloseButton } from '@/components/ui/close-button';
 import { CartProvider } from '@/components/cart/cart-context';
-import { CartHeaderControl } from '@/components/cart/cart-header-control';
-import { CartItemList } from '@/components/cart/cart-item-list';
-import { CartSummaryFooter } from '@/components/cart/cart-summary-footer';
+import CartHeaderControl from '@/components/cart/cart-header-control';
+import CartItemList from '@/components/cart/cart-item-list';
+import CartSummaryFooter from '@/components/cart/cart-summary-footer';
 import type { CartResponse } from '@/types/domain/cart';
 
 export const metadata: Metadata = {
