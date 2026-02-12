@@ -12,6 +12,10 @@ import { useCartStore } from '@/store/cart';
 
 type CartAction =
   | { type: 'UPDATE'; payload: { cartId: number; quantity: number } }
+  | {
+      type: 'UPDATE_OPTION';
+      payload: { cartId: number; selectedColor: string; selectedSize: string };
+    }
   | { type: 'DELETE'; payload: { cartId: number } }
   | { type: 'DELETE_MANY'; payload: { ids: number[] } };
 
@@ -27,6 +31,16 @@ function cartOptimisticReducer(
               ...item,
               quantity: action.payload.quantity,
               totalPrice: item.price * action.payload.quantity,
+            }
+          : item,
+      );
+    case 'UPDATE_OPTION':
+      return state.map((item) =>
+        item.cartId === action.payload.cartId
+          ? {
+              ...item,
+              selectedColor: action.payload.selectedColor,
+              selectedSize: action.payload.selectedSize,
             }
           : item,
       );
@@ -89,6 +103,7 @@ export function useCartService(initialCartItems: CartResponse[]) {
     if (!result.success) {
       router.refresh();
     }
+    return result;
   };
 
   const handleDelete = async (cartId: number) => {
@@ -109,6 +124,27 @@ export function useCartService(initialCartItems: CartResponse[]) {
     } else {
       router.refresh();
     }
+  };
+
+  const handleOptionChange = async (
+    cartId: number,
+    selectedColor: string,
+    selectedSize: string,
+  ) => {
+    startTransition(() => {
+      addOptimisticAction({
+        type: 'UPDATE_OPTION',
+        payload: { cartId, selectedColor, selectedSize },
+      });
+    });
+    const result = await updateCartItem(cartId, {
+      selectedColor,
+      selectedSize,
+    });
+    if (!result.success) {
+      router.refresh();
+    }
+    return result;
   };
 
   const handleDeleteSelected = async () => {
@@ -170,6 +206,7 @@ export function useCartService(initialCartItems: CartResponse[]) {
     toggleItem,
     handleQuantity,
     handleDelete,
+    handleOptionChange,
     handleDeleteSelected,
     handleCartCheckout,
   };

@@ -1,9 +1,11 @@
 'use client';
 
+import { useState, useEffect, useRef } from 'react';
 import Image from 'next/image';
 import type { CartResponse } from '@/types/domain/cart';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
 import { Checkbox } from '@/components/ui/checkbox';
 import { cn } from '@/lib/utils';
 import { formatPrice } from '@/lib/format';
@@ -14,6 +16,7 @@ interface CartItemProps {
   onToggleCheck: (checked: boolean) => void;
   onQuantityChange: (newQuantity: number) => void;
   onDelete: () => void;
+  onOptionChange: () => void;
 }
 
 export function CartItem({
@@ -22,6 +25,7 @@ export function CartItem({
   onToggleCheck,
   onQuantityChange,
   onDelete,
+  onOptionChange,
 }: CartItemProps) {
   const {
     brandName,
@@ -33,11 +37,37 @@ export function CartItem({
     totalPrice,
   } = item;
 
+  const [inputValue, setInputValue] = useState(String(quantity));
+  const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  useEffect(() => {
+    setInputValue(String(quantity));
+  }, [quantity]);
+
+  const debouncedChange = (val: number) => {
+    if (debounceRef.current) clearTimeout(debounceRef.current);
+    debounceRef.current = setTimeout(() => onQuantityChange(val), 500);
+  };
+
+  const commitValue = () => {
+    if (debounceRef.current) clearTimeout(debounceRef.current);
+    const val = parseInt(inputValue, 10);
+    if (isNaN(val) || val < 1) {
+      setInputValue(String(quantity));
+    } else {
+      onQuantityChange(val);
+    }
+  };
+
   const handleDecrease = () => {
-    if (quantity > 1) onQuantityChange(quantity - 1);
+    if (quantity > 1) {
+      if (debounceRef.current) clearTimeout(debounceRef.current);
+      onQuantityChange(quantity - 1);
+    }
   };
 
   const handleIncrease = () => {
+    if (debounceRef.current) clearTimeout(debounceRef.current);
     onQuantityChange(quantity + 1);
   };
 
@@ -95,7 +125,25 @@ export function CartItem({
             >
               -
             </button>
-            <span>{quantity}</span>
+            <Input
+              type="number"
+              value={inputValue}
+              min={1}
+              onChange={(e) => {
+                const raw = e.target.value;
+                setInputValue(raw);
+                const val = parseInt(raw, 10);
+                if (!isNaN(val) && val >= 1) {
+                  debouncedChange(val);
+                }
+              }}
+              onBlur={commitValue}
+              onKeyDown={(e) => {
+                if (e.key === 'Enter') commitValue();
+              }}
+              className="h-6 w-6 [appearance:textfield] rounded-none border-none px-0 text-center text-xl shadow-none [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none"
+              aria-label="수량 입력"
+            />
             <button
               className="flex h-8 w-8 items-center justify-center text-gray-600"
               onClick={handleIncrease}
@@ -119,7 +167,7 @@ export function CartItem({
           <Button
             variant="ghost"
             className="bg-ongil-teal h-[57px] rounded-full font-bold text-white"
-            onClick={() => alert('구현 예정')}
+            onClick={onOptionChange}
           >
             <span className="text-xl leading-[18px] font-bold">옵션 변경</span>
           </Button>
