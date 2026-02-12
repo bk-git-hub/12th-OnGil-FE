@@ -8,9 +8,7 @@ import {
   deleteCartItem,
   deleteCartItems,
 } from '@/app/actions/cart';
-import { createOrderFromCart } from '@/app/actions/order';
 import { useCartStore } from '@/store/cart';
-import { placeholderOrderData } from '@/mocks/order-data';
 
 type CartAction =
   | { type: 'UPDATE'; payload: { cartId: number; quantity: number } }
@@ -87,7 +85,10 @@ export function useCartService(initialCartItems: CartResponse[]) {
         payload: { cartId, quantity: newQuantity },
       });
     });
-    await updateCartItem(cartId, { quantity: newQuantity });
+    const result = await updateCartItem(cartId, { quantity: newQuantity });
+    if (!result.success) {
+      router.refresh();
+    }
   };
 
   const handleDelete = async (cartId: number) => {
@@ -102,8 +103,12 @@ export function useCartService(initialCartItems: CartResponse[]) {
       });
     });
 
-    await deleteCartItem(cartId);
-    fetchCount();
+    const result = await deleteCartItem(cartId);
+    if (result.success) {
+      fetchCount();
+    } else {
+      router.refresh();
+    }
   };
 
   const handleDeleteSelected = async () => {
@@ -118,8 +123,12 @@ export function useCartService(initialCartItems: CartResponse[]) {
       setSelectedIds(new Set());
     });
 
-    await deleteCartItems(ids);
-    fetchCount();
+    const result = await deleteCartItems(ids);
+    if (result.success) {
+      fetchCount();
+    } else {
+      router.refresh();
+    }
   };
 
   const toggleAll = (checked: boolean) => {
@@ -139,28 +148,14 @@ export function useCartService(initialCartItems: CartResponse[]) {
     });
   };
 
-  const handleCartCheckout = async () => {
+  const handleCartCheckout = () => {
     if (selectedIds.size === 0) {
       alert('결제할 상품을 선택해주세요.');
       return;
     }
 
-    const orderData = {
-      cartItemIds: Array.from(selectedIds),
-      ...placeholderOrderData,
-    };
-
-    try {
-      const orderId = await createOrderFromCart(orderData);
-      alert(`주문이 성공적으로 완료되었습니다! 주문 ID: ${orderId}`);
-      fetchCount();
-      router.push(`/orders/${orderId}`);
-    } catch (error: unknown) {
-      console.error('Checkout failed:', error);
-      const message =
-        error instanceof Error ? error.message : '알 수 없는 오류';
-      alert(`결제 처리 중 오류가 발생했습니다: ${message}`);
-    }
+    const items = Array.from(selectedIds).join(',');
+    router.push(`/payment?cart=true&items=${items}`);
   };
 
   const totalAmount = optimisticCart

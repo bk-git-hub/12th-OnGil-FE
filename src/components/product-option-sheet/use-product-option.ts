@@ -1,11 +1,10 @@
 'use client';
 
-import { useState, useEffect, useTransition } from 'react';
+import { useState, useEffect, useCallback, useTransition } from 'react';
 import { useRouter } from 'next/navigation';
 import { ProductOption } from '@/types/domain/product';
 import { addToCart } from '@/app/actions/cart';
 import { useCartStore } from '@/store/cart';
-import { StockStatus } from '@/types/enums';
 
 export interface SelectedItem {
   id: string;
@@ -15,20 +14,6 @@ export interface SelectedItem {
   quantity: number;
   price: number;
 }
-
-const generateDummyOptions = (): ProductOption[] => {
-  const colors = ['블랙', '화이트', '네이비', '차콜'];
-  const sizes = ['S', 'M', 'L', 'XL'];
-  return colors.flatMap((color, i) =>
-    sizes.map((size, j) => ({
-      optionId: 1000 + i * 10 + j,
-      color,
-      size,
-      stock: 100,
-      stockStatus: StockStatus.AVAILABLE,
-    })),
-  );
-};
 
 interface UseProductOptionProps {
   productId: number;
@@ -68,8 +53,7 @@ export default function useProductOption({
   const [currentColor, setCurrentColor] = useState<string>('');
   const [currentSize, setCurrentSize] = useState<string>('');
 
-  const options =
-    initialOptions.length > 0 ? initialOptions : generateDummyOptions();
+  const options = initialOptions;
 
   const availableColors = Array.from(
     new Set(options.map((o) => o.color).filter(Boolean)),
@@ -80,6 +64,33 @@ export default function useProductOption({
     .map((o) => o.size)
     .filter(Boolean)
     .filter((val, idx, arr) => arr.indexOf(val) === idx);
+
+  const addItemToSelection = useCallback(
+    (option: ProductOption) => {
+      setSelectedItems((prev) => {
+        const existingIdx = prev.findIndex(
+          (item) => item.optionId === option.optionId,
+        );
+        if (existingIdx > -1) {
+          const newItems = [...prev];
+          newItems[existingIdx].quantity += 1;
+          return newItems;
+        }
+        return [
+          ...prev,
+          {
+            id: `${option.optionId}-${Date.now()}`,
+            optionId: option.optionId,
+            color: option.color,
+            size: option.size,
+            quantity: 1,
+            price,
+          },
+        ];
+      });
+    },
+    [price],
+  );
 
   useEffect(() => {
     if (currentColor && currentSize) {
@@ -92,31 +103,7 @@ export default function useProductOption({
       }
       setCurrentSize('');
     }
-  }, [currentColor, currentSize, options]);
-
-  const addItemToSelection = (option: ProductOption) => {
-    setSelectedItems((prev) => {
-      const existingIdx = prev.findIndex(
-        (item) => item.optionId === option.optionId,
-      );
-      if (existingIdx > -1) {
-        const newItems = [...prev];
-        newItems[existingIdx].quantity += 1;
-        return newItems;
-      }
-      return [
-        ...prev,
-        {
-          id: `${option.optionId}-${Date.now()}`,
-          optionId: option.optionId,
-          color: option.color,
-          size: option.size,
-          quantity: 1,
-          price,
-        },
-      ];
-    });
-  };
+  }, [currentColor, currentSize, options, addItemToSelection]);
 
   const updateQuantity = (id: string, delta: number) => {
     setSelectedItems((prev) =>
