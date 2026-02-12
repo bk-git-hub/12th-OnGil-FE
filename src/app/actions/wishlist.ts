@@ -2,6 +2,7 @@
 
 import { revalidatePath } from 'next/cache';
 import { api } from '@/lib/api-client';
+import { rethrowNextError } from '@/lib/server-action-utils';
 import { WishlistItem } from '@/types/domain/wishlist';
 
 /**
@@ -19,7 +20,7 @@ export async function addToWishlist(productId: number) {
 
     return { success: true, data };
   } catch (error) {
-    if (error instanceof Error && 'digest' in error) throw error;
+    rethrowNextError(error);
     console.error('Add to wishlist error:', error);
     return { success: false, error: '찜하기에 실패했습니다.' };
   }
@@ -36,7 +37,7 @@ export async function deleteFromWishlist(wishlistId: number) {
 
     return { success: true, wishlistId };
   } catch (error) {
-    if (error instanceof Error && 'digest' in error) throw error;
+    rethrowNextError(error);
     console.error('Delete from wishlist error:', error);
     return { success: false, error: '찜 취소에 실패했습니다.' };
   }
@@ -52,7 +53,7 @@ export async function getMyWishlist(categoryId?: number) {
 
     return data;
   } catch (error) {
-    if (error instanceof Error && 'digest' in error) throw error;
+    rethrowNextError(error);
     console.error('Get wishlist error:', error);
     return [];
   }

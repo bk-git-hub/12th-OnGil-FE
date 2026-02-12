@@ -1,5 +1,6 @@
 import { connection } from 'next/server';
 import { getCartCount } from '@/app/actions/cart';
+import { rethrowNextError } from '@/lib/server-action-utils';
 import CartStoreInitializer from '@/components/cart/cart-store-initializer';
 
 export async function CartDataFetcher() {
@@ -9,7 +10,7 @@ export async function CartDataFetcher() {
   try {
     cartCount = await getCartCount();
   } catch (error) {
-    if (error instanceof Error && 'digest' in error) throw error;
+    rethrowNextError(error);
     console.error('Failed to fetch cart count:', error);
   }
 
