@@ -19,3 +19,19 @@ export async function getProductDetail(
     );
   }
 }
+
+/** 상품 옵션 조회 */
+export async function getProductOptions(
+  productId: number,
+): Promise<ProductOption[]> {
+  try {
+    const options = await api.get<ProductOption[]>(
+      `/products/${productId}/options`,
+    );
+    return options;
+  } catch (error) {
+    rethrowNextError(error);
+    console.error('상품 옵션 조회 실패:', error);
+    return [];
+  }
+}
