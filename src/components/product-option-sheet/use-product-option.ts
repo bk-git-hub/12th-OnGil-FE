@@ -100,11 +100,14 @@ export default function useProductOption({
       const targetOption = options.find(
         (o) => o.color === currentColor && o.size === currentSize,
       );
-
       if (targetOption) {
+        if (targetOption.stockStatus === 'SOLD_OUT') {
+          alert('품절된 옵션입니다.');
+          setCurrentSize('');
+          return;
+        }
         addItemToSelection(targetOption);
       }
-      setCurrentSize('');
     }
   }, [currentColor, currentSize, options, addItemToSelection]);
 
