@@ -2,7 +2,11 @@
 
 import { api } from '@/lib/api-client';
 import { rethrowNextError } from '@/lib/server-action-utils';
-import type { ProductDetail, ProductOption } from '@/types/domain/product';
+import type {
+  Product,
+  ProductDetail,
+  ProductOption,
+} from '@/types/domain/product';
 
 /** 상품 상세 조회 */
 export async function getProductDetail(
@@ -17,6 +21,20 @@ export async function getProductDetail(
     throw new Error(
       error instanceof Error ? error.message : '상품 상세 조회에 실패했습니다.',
     );
+  }
+}
+
+/** 비슷한 상품 조회 */
+export async function getSimilarProducts(
+  productId: number,
+): Promise<Product[]> {
+  try {
+    const products = await api.get<Product[]>(`/products/${productId}/similar`);
+    return products;
+  } catch (error) {
+    rethrowNextError(error);
+    console.error('비슷한 상품 조회 실패:', error);
+    return [];
   }
 }
 
