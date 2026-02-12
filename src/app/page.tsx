@@ -1,4 +1,4 @@
-import { CarouselWithDots } from '@/components/banner-carousel';
+import BannerCarouselContainer from '@/components/banner-carousel';
 import {
   RecommendedCategoryCard,
   RecommendCarousel,
@@ -29,13 +29,25 @@ export default async function Home() {
     <div className="flex flex-col items-center">
       <MainHeader />
 
-      <CarouselWithDots />
+      <Suspense fallback={<div>Loading...</div>}>
+        <BannerCarouselContainer />
+      </Suspense>
       <Suspense fallback={<div>Loading...</div>}>
         <RecommendCategoryContainer />
       </Suspense>
 
       <Suspense fallback={<div>Loading...</div>}>
-        <RecommendProductContainer />
+        <RecommendProductContainer
+          endpoint="/products/special-sale"
+          heading="특가 상품"
+        />
+      </Suspense>
+
+      <Suspense fallback={<div>Loading...</div>}>
+        <RecommendProductContainer
+          endpoint="/products/recommend"
+          heading="추천 상품"
+        />
       </Suspense>
 
       <RecommendedBrandContainer brands={BRANDS} productLists={[p1, p2, p3]} />

@@ -4,10 +4,18 @@ import { RecommendedProductCard } from './recommended-product-card';
 import { RecommendCarouselItem } from './recommend-carousel-item';
 import { RecommendCarousel } from './recommend-carousel';
 
-export default async function RecommendProductContainer() {
-  const products = await api.get<Product[]>('/products/recommend');
+interface RecommendProductContainerProps {
+  endpoint: string;
+  heading: string;
+}
+
+export default async function RecommendProductContainer({
+  endpoint,
+  heading,
+}: RecommendProductContainerProps) {
+  const products = await api.get<Product[]>(endpoint);
   return (
-    <RecommendCarousel heading="추천 상품">
+    <RecommendCarousel heading={heading}>
       {products.map((product) => (
         <RecommendCarouselItem key={product.id}>
           <RecommendedProductCard productInfo={product} />
