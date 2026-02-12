@@ -6,6 +6,7 @@ import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Checkbox } from '@/components/ui/checkbox';
 import { cn } from '@/lib/utils';
+import { formatPrice } from '@/lib/format';
 
 interface CartItemProps {
   item: CartResponse;
@@ -14,9 +15,6 @@ interface CartItemProps {
   onQuantityChange: (newQuantity: number) => void;
   onDelete: () => void;
 }
-
-const formatPrice = (price: number) =>
-  new Intl.NumberFormat('ko-KR').format(price);
 
 export function CartItem({
   item,

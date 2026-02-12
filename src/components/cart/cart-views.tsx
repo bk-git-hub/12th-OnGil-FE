@@ -5,6 +5,7 @@ import { CartItem } from './cart-item';
 import { Button } from '@/components/ui/button';
 import { Checkbox } from '@/components/ui/checkbox';
 import { cn } from '@/lib/utils';
+import { formatPrice } from '@/lib/format';
 
 // ----------------------------------------------------------------------
 // [1] 상단 컨트롤 바 (전체 선택 / 선택 삭제)
@@ -98,7 +99,7 @@ export function CartSummaryFooter() {
   if (optimisticCart.length === 0) return null;
 
   const hasSelection = selectedIds.size > 0;
-  const formattedPrice = totalAmount.toLocaleString();
+  const formattedPrice = formatPrice(totalAmount);
 
   return (
     <Button
