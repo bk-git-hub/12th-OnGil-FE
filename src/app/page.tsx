@@ -13,6 +13,7 @@ import { BRANDS, MOCK_PRODUCTS } from '@/mocks/brands-and-products';
 import RecommendedBrandContainer from '@/components/recommend-brand/recommended-brand-container';
 import RecommendCategoryContainer from '@/components/recommend-carousel/recommend-category-container';
 import { Suspense } from 'react';
+import RecommendProductContainer from '@/components/recommend-carousel/recommend-product-container';
 // import { api } from '@/lib/api-client';
 // import { Advertisement } from '@/types/domain/etc';
 // import { Category } from '@/types/domain/category';
@@ -32,13 +33,10 @@ export default async function Home() {
       <Suspense fallback={<div>Loading...</div>}>
         <RecommendCategoryContainer />
       </Suspense>
-      <RecommendCarousel heading="추천 상품">
-        {MOCK_PRODUCTS.map((product) => (
-          <RecommendCarouselItem key={product.id}>
-            <RecommendedProductCard productInfo={product} />
-          </RecommendCarouselItem>
-        ))}
-      </RecommendCarousel>
+
+      <Suspense fallback={<div>Loading...</div>}>
+        <RecommendProductContainer />
+      </Suspense>
 
       <RecommendedBrandContainer brands={BRANDS} productLists={[p1, p2, p3]} />
 
