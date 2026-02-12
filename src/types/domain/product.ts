@@ -46,17 +46,14 @@ export interface ProductDetail extends Omit<
 }
 
 export interface ProductSearchResult {
-  products: {
-    content: Product[];
-    page: {
-      size: number;
-      number: number;
-      totalElements: number;
-      totalPages: number;
-    };
-  };
+  products: Page<Product>;
   alternatives: string[]; // 검색 결과 없을 때 추천 검색어
   hasResult: boolean;
+}
+
+export interface VoiceSearchResponse {
+  extractedKeyword: string;
+  searchResult: ProductSearchResult;
 }
 
 export interface SizeGuide {

@@ -11,6 +11,8 @@ import MainNavBar from '@/components/layout/main-nav-bar';
 
 import { BRANDS, MOCK_PRODUCTS } from '@/mocks/brands-and-products';
 import RecommendedBrandContainer from '@/components/recommend-brand/recommended-brand-container';
+import RecommendCategoryContainer from '@/components/recommend-carousel/recommend-category-container';
+import { Suspense } from 'react';
 // import { api } from '@/lib/api-client';
 // import { Advertisement } from '@/types/domain/etc';
 // import { Category } from '@/types/domain/category';
@@ -27,14 +29,9 @@ export default async function Home() {
       <MainHeader />
 
       <CarouselWithDots />
-      <RecommendCarousel heading="추천 카테고리">
-        {MAIN_CATEGORIES.map((category) => (
-          <RecommendCarouselItem key={category.id}>
-            <RecommendedCategoryCard category={category} />
-          </RecommendCarouselItem>
-        ))}
-      </RecommendCarousel>
-
+      <Suspense fallback={<div>Loading...</div>}>
+        <RecommendCategoryContainer />
+      </Suspense>
       <RecommendCarousel heading="추천 상품">
         {MOCK_PRODUCTS.map((product) => (
           <RecommendCarouselItem key={product.id}>

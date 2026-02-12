@@ -1,16 +1,33 @@
 'use client';
 
 import { useState } from 'react';
+import { usePathname, useRouter } from 'next/navigation';
+import { ChevronLeft } from 'lucide-react';
 import SearchBar from '../search-bar/search-bar';
 import { CartCountBadge } from '../cart/cart-count-badge';
 import Link from 'next/link';
 
 export default function MainHeader() {
   const [isSearchFocused, setIsSearchFocused] = useState(false);
+  const pathname = usePathname();
+  const router = useRouter();
+  const isHomePage = pathname === '/';
 
   return (
     <div className="sticky top-0 z-100 flex w-full items-center justify-between bg-white p-5 shadow-[0_4px_4px_0_rgba(0,0,0,0.25)]">
+      {/* Back button - only show when not on home page */}
+      {!isHomePage && (
+        <button
+          onClick={() => router.back()}
+          className="mr-2 flex items-center justify-center"
+          aria-label="뒤로 가기"
+        >
+          <ChevronLeft size={24} className="text-black" />
+        </button>
+      )}
+
       <SearchBar onFocusChange={setIsSearchFocused} />
+
       <div
         className={`flex items-center whitespace-nowrap ${
           isSearchFocused

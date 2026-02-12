@@ -34,7 +34,7 @@ export class ApiError extends Error {
  */
 /**
  * Generic fetch wrapper for making API requests.
- * 
+ *
  * @template T - The expected response data type
  * @param endpoint - API endpoint path
  * @param method - HTTP method
@@ -72,6 +72,9 @@ async function fetchWrapper<T>(
   //  Auth.js v5: 서버 세션에서 토큰 가져오기
   const session = await auth();
 
+  // Check if session exists - if not, user needs to log in
+  // This handles cases where backend restarted and refresh tokens are invalid
+
   // 타입 에러가 난다면 types/next-auth.d.ts에서 Session 타입을 확장해야 합니다.
   const accessToken = session?.accessToken as string | undefined;
 
@@ -100,11 +103,6 @@ async function fetchWrapper<T>(
 
   // 5. 에러 핸들링
   if (!response.ok) {
-    // 401 처리 (필요 시 로직 추가)
-    if (response.status === 401) {
-      console.error('🔒 Unauthorized access - Token might be expired');
-    }
-
     // unknown 타입인 responseData를 ErrorResponse로 단언하여 안전하게 접근
     const errorData =
       typeof responseData === 'object' && responseData !== null
@@ -131,7 +129,7 @@ async function fetchWrapper<T>(
 export const api = {
   /**
    * Perform a GET request.
-   * 
+   *
    * @template T - Response data type
    * @param url - API endpoint URL
    * @param options - Fetch options
@@ -142,7 +140,7 @@ export const api = {
 
   /**
    * Perform a POST request.
-   * 
+   *
    * @template T - Response data type
    * @template D - Request body type (defaults to unknown)
    * @param url - API endpoint URL
@@ -158,7 +156,7 @@ export const api = {
 
   /**
    * Perform a PUT request.
-   * 
+   *
    * @template T - Response data type
    * @template D - Request body type (defaults to unknown)
    * @param url - API endpoint URL
@@ -174,7 +172,7 @@ export const api = {
 
   /**
    * Perform a PATCH request.
-   * 
+   *
    * @template T - Response data type
    * @template D - Request body type (defaults to unknown)
    * @param url - API endpoint URL
@@ -190,7 +188,7 @@ export const api = {
 
   /**
    * Perform a DELETE request.
-   * 
+   *
    * @template T - Response data type
    * @param url - API endpoint URL
    * @param options - Fetch options
