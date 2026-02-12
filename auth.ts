@@ -58,21 +58,26 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
         if (!parsed.success) return null;
         const { provider, code } = parsed.data;
 
-        const backendUrl = `${process.env.BACKEND_API_URL}/auth/oauth/${provider}?code=${code}`;
-        console.log(backendUrl);
+        const backendUrl = `${process.env.BACKEND_API_URL}/auth/oauth/${provider}?code=${encodeURIComponent(code)}`;
+        const method = provider === 'google' ? 'GET' : 'POST';
+        console.log(`[${provider}] OAuth Request:`, method, backendUrl);
+
         try {
+          // Google uses GET, Kakao uses POST
           const res = await fetch(backendUrl, {
-            method: 'POST',
+            method,
             headers: { 'Content-Type': 'application/json' },
           });
 
+          console.log(`[${provider}] Response status:`, res.status);
+
           if (!res.ok) {
             const error = await res.json();
-            console.log(error);
+            console.error(`[${provider}] Backend error:`, error);
             throw new Error('Backend verification failed');
           }
           const { data } = await res.json();
-          console.log(data);
+          console.log(`[${provider}] Success data:`, data);
 
           return {
             userId: data.userId,
@@ -146,6 +151,11 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
           profileUrl: user.profileUrl,
           accessTokenExpires: Date.now() + expiresIn * 1000,
         };
+      }
+
+      // Only attempt refresh if we have a refresh token (user is logged in)
+      if (!token.refreshToken) {
+        return token;
       }
 
       if (Date.now() < (token.accessTokenExpires ?? 0) - TOKEN_REFRESH_BUFFER) {

@@ -21,7 +21,7 @@ export default function LoginForm() {
       const CLIENT_ID = process.env.NEXT_PUBLIC_AUTH_KAKAO_ID;
       authUrl = `https://kauth.kakao.com/oauth/authorize?client_id=${CLIENT_ID}&redirect_uri=${callbackUrl}&response_type=code`;
     } else if (provider === 'google') {
-      const CLIENT_ID = process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID;
+      const CLIENT_ID = process.env.NEXT_PUBLIC_AUTH_GOOGLE_ID;
       const SCOPE = 'openid email profile';
       authUrl = `https://accounts.google.com/o/oauth2/v2/auth?client_id=${CLIENT_ID}&redirect_uri=${callbackUrl}&response_type=code&scope=${SCOPE}`;
     }
