@@ -9,7 +9,9 @@ import {
   OrderRefundInfoResponse,
   OrderSummary,
 } from '@/types/domain/order';
+import { AddressItem } from '@/types/domain/address';
 import OrderListCard from '@/components/orders/order-list-card';
+import ShippingInfoCard from '@/components/address/shipping-info-card';
 import Image from 'next/image';
 
 const CANCEL_REASONS = [
@@ -30,10 +32,11 @@ const CANCEL_REASONS = [
   },
 ];
 
-type Step = 'reason' | 'confirm' | 'complete';
+type Step = 'reason' | 'address' | 'confirm' | 'complete';
 
 interface CancelFormProps {
   orderDetail: OrderDetail;
+  defaultAddress: AddressItem | null;
 }
 
 function useFocusTrap(active: boolean) {
@@ -73,7 +76,7 @@ function useFocusTrap(active: boolean) {
   return ref;
 }
 
-export function CancelForm({ orderDetail }: CancelFormProps) {
+export function CancelForm({ orderDetail, defaultAddress }: CancelFormProps) {
   const router = useRouter();
   const orderId = orderDetail.id;
 
@@ -355,6 +358,27 @@ export function CancelForm({ orderDetail }: CancelFormProps) {
     );
   }
 
+  // --- 배송지 단계 ---
+  if (step === 'address') {
+    return (
+      <div className="flex h-full flex-col justify-between bg-white">
+        <div className="flex-1 pb-10">
+          <ShippingInfoCard address={defaultAddress} />
+        </div>
+
+        {/* 하단 버튼 영역 */}
+        <div className="border-ongil-teal flex w-full border-t bg-white p-6">
+          <button
+            className="h-14 w-full rounded-xl bg-[#D9D9D9] text-lg font-bold"
+            onClick={() => setStep('reason')}
+          >
+            이전 단계
+          </button>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <>
       <p className="mb-8 text-center text-xl">취소 사유를 선택 해주세요</p>
@@ -393,9 +417,11 @@ export function CancelForm({ orderDetail }: CancelFormProps) {
           selectedReason ? 'bg-ongil-teal' : 'cursor-not-allowed bg-gray-300'
         }`}
         disabled={!selectedReason}
-        onClick={() => setStep('confirm')}
+        onClick={() =>
+          setStep(selectedReason === 'WRONG_ADDRESS' ? 'address' : 'confirm')
+        }
       >
-        주문 취소
+        {selectedReason === 'WRONG_ADDRESS' ? '배송지 수정' : '주문 취소'}
       </button>
     </>
   );

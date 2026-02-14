@@ -1,5 +1,6 @@
 import { Metadata } from 'next';
 import { getOrderDetail } from '@/app/actions/order';
+import { getAddresses } from '@/app/actions/address';
 import { notFound } from 'next/navigation';
 import { CloseXButton } from '@/components/ui/close-button';
 import { CancelForm } from './_components/cancel-form';
@@ -24,6 +25,8 @@ export default async function CancelReasonPage({ params }: CancelPageProps) {
     notFound();
   }
   const orderDetail = await getOrderDetail(numericId);
+  const addresses = await getAddresses();
+  const defaultAddress = addresses.find((addr) => addr.isDefault) || null;
 
   return (
     <div className="mx-auto min-h-screen max-w-2xl bg-white px-5 pb-20 leading-normal">
@@ -34,7 +37,7 @@ export default async function CancelReasonPage({ params }: CancelPageProps) {
         </div>
       </header>
 
-      <CancelForm orderDetail={orderDetail} />
+      <CancelForm orderDetail={orderDetail} defaultAddress={defaultAddress} />
     </div>
   );
 }
