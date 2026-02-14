@@ -14,6 +14,9 @@ const SENSITIVE_TOKEN_KEYS = new Set([
   'refresh_token',
   'id_token',
   'token',
+  'email',
+  'password',
+  'username',
 ]);
 
 function maskSensitiveUrl(url: string): string {
@@ -34,17 +37,22 @@ function maskTokenField(value: unknown): string {
   return `${value.slice(0, 4)}...${value.slice(-4)}`;
 }
 
-function sanitizeLogData(value: unknown): unknown {
+function sanitizeLogData(value: unknown, seen = new WeakSet<object>): unknown {
   if (Array.isArray(value)) {
-    return value.map(sanitizeLogData);
+    return value.map((entry) => sanitizeLogData(entry, seen));
   }
 
   if (value && typeof value === 'object') {
+    if (seen.has(value as object)) {
+      return '[Circular]';
+    }
+    seen.add(value as object);
+
     return Object.entries(value as Record<string, unknown>).reduce(
       (acc, [key, entryValue]) => {
         acc[key] = SENSITIVE_TOKEN_KEYS.has(key)
           ? maskTokenField(entryValue)
-          : sanitizeLogData(entryValue);
+          : sanitizeLogData(entryValue, seen);
         return acc;
       },
       {} as Record<string, unknown>,
