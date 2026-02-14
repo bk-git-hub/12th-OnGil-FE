@@ -20,11 +20,18 @@ interface CarouselWithDotsProps {
 export default function CarouselWithDots({
   advertisements,
 }: CarouselWithDotsProps) {
+  if (advertisements.length === 0) return null;
+
   const [api, setApi] = useState<CarouselApi>();
   const { current, count, scrollTo } = useCarouselDots(api);
 
   return (
-    <div className="w-screen max-w-200">
+    <div
+      className="w-screen max-w-200"
+      role="region"
+      aria-roledescription="carousel"
+      aria-label="배너 광고"
+    >
       <Carousel
         setApi={setApi}
         opts={{
@@ -47,6 +54,7 @@ export default function CarouselWithDots({
                   fill
                   className="object-cover"
                   priority={index === 0}
+                  sizes="(max-width: 800px) 100vw, 800px"
                 />
                 <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent" />
                 <div className="absolute bottom-0 left-0 right-0 p-6 text-white">
