@@ -132,6 +132,8 @@ export async function updateBodyInfoAction(
     }
     revalidatePath('/product/[id]', 'page');
     revalidatePath('/me', 'page');
+    revalidatePath('/me/edit', 'page');
+    revalidatePath('/me/edit/body-info', 'page');
 
     return { success: true, message: '체형 정보가 저장되었습니다.' };
   } catch (error) {
