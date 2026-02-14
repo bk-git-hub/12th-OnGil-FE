@@ -6,6 +6,53 @@ import { TokenRefreshReqDto, TokenRefreshResDto } from '@/types/domain/auth';
 import { ApiResponse } from '@/types/common';
 
 const TOKEN_REFRESH_BUFFER = 60 * 1000;
+const REDACTED = '[REDACTED]';
+const SENSITIVE_TOKEN_KEYS = new Set([
+  'accessToken',
+  'refreshToken',
+  'access_token',
+  'refresh_token',
+  'id_token',
+  'token',
+]);
+
+function maskSensitiveUrl(url: string): string {
+  try {
+    const parsedUrl = new URL(url);
+    if (parsedUrl.searchParams.has('code')) {
+      parsedUrl.searchParams.set('code', REDACTED);
+    }
+    return parsedUrl.toString();
+  } catch {
+    return url.replace(/([?&]code=)[^&]*/i, `$1${REDACTED}`);
+  }
+}
+
+function maskTokenField(value: unknown): string {
+  if (typeof value !== 'string') return REDACTED;
+  if (value.length <= 10) return REDACTED;
+  return `${value.slice(0, 4)}...${value.slice(-4)}`;
+}
+
+function sanitizeLogData(value: unknown): unknown {
+  if (Array.isArray(value)) {
+    return value.map(sanitizeLogData);
+  }
+
+  if (value && typeof value === 'object') {
+    return Object.entries(value as Record<string, unknown>).reduce(
+      (acc, [key, entryValue]) => {
+        acc[key] = SENSITIVE_TOKEN_KEYS.has(key)
+          ? maskTokenField(entryValue)
+          : sanitizeLogData(entryValue);
+        return acc;
+      },
+      {} as Record<string, unknown>,
+    );
+  }
+
+  return value;
+}
 
 async function refreshAccessToken(token: JWT): Promise<JWT | null> {
   try {
@@ -60,24 +107,33 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
 
         const backendUrl = `${process.env.BACKEND_API_URL}/auth/oauth/${provider}?code=${encodeURIComponent(code)}`;
         const method = provider === 'google' ? 'GET' : 'POST';
-        console.log(`[${provider}] OAuth Request:`, method, backendUrl);
+        console.log(
+          `[${provider}] OAuth Request:`,
+          method,
+          maskSensitiveUrl(backendUrl),
+        );
 
         try {
           // Google uses GET, Kakao uses POST
           const res = await fetch(backendUrl, {
             method,
-            headers: { 'Content-Type': 'application/json' },
+            ...(method === 'POST' && {
+              headers: { 'Content-Type': 'application/json' },
+            }),
           });
 
           console.log(`[${provider}] Response status:`, res.status);
 
           if (!res.ok) {
             const error = await res.json();
-            console.error(`[${provider}] Backend error:`, error);
+            console.error(
+              `[${provider}] Backend error:`,
+              sanitizeLogData(error),
+            );
             throw new Error('Backend verification failed');
           }
           const { data } = await res.json();
-          console.log(`[${provider}] Success data:`, data);
+          console.log(`[${provider}] Success data:`, sanitizeLogData(data));
 
           return {
             userId: data.userId,
@@ -120,7 +176,7 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
 
           if (!res.ok) throw new Error('Invalid credentials');
           const { data } = await res.json();
-          console.log(data);
+          console.log('Credentials login success:', sanitizeLogData(data));
 
           return {
             userId: data.userId,
