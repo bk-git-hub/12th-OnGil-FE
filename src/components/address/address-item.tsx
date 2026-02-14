@@ -44,56 +44,53 @@ export default function AddressItem({ item }: AddressItemProps) {
   };
 
   return (
-    <div className="flex flex-col gap-3 border-b py-5 last:border-0">
-      <div className="flex items-start justify-between">
-        <div className="flex flex-col gap-1">
-          <div className="flex items-center gap-2">
-            <span className="text-lg font-bold text-gray-900">
-              {item.recipientName}
-            </span>
-            {item.isDefault && (
-              <span className="bg-ongil-teal/10 text-ongil-teal rounded-full px-2 py-0.5 text-xs font-semibold">
-                기본 배송지
-              </span>
-            )}
-          </div>
-          <span className="text-gray-500">{item.recipientPhone}</span>
-          <div className="mt-1 text-gray-800">
-            <span>({item.postalCode}) </span>
-            <span>
-              {item.baseAddress} {item.detailAddress}
-            </span>
-          </div>
-        </div>
-
-        <Link
-          href={`/address/${item.addressId}`}
-          className="rounded-md border border-gray-300 px-3 py-1 text-sm text-gray-600 hover:bg-gray-50"
+    <div className="rounded-3xl border border-[#bdbdbd] bg-white p-4">
+      <div className="mb-5 flex items-center justify-between">
+        <span
+          className={`inline-flex rounded-xl px-5 py-2 text-2xl ${
+            item.isDefault
+              ? 'bg-ongil-teal text-white'
+              : 'bg-white text-gray-600'
+          }`}
         >
-          수정
-        </Link>
-      </div>
-
-      <div className="flex items-center gap-3">
-        {!item.isDefault && (
-          <button
-            onClick={handleSetDefault}
-            disabled={isSettingDefault}
-            className="text-sm text-gray-500 underline decoration-gray-300 underline-offset-4 hover:text-gray-800"
-          >
-            {isSettingDefault ? '설정 중...' : '기본 배송지로 설정'}
-          </button>
-        )}
-
-        {/* 구분선 */}
-        {!item.isDefault && <span className="h-3 w-px bg-gray-300"></span>}
-
+          {item.isDefault ? '기본 배송지' : '일반 배송지'}
+        </span>
         <button
           onClick={handleDelete}
           disabled={isDeleting}
-          className="text-sm text-gray-500 underline decoration-gray-300 underline-offset-4 hover:text-red-500"
+          className="text-base text-gray-500 underline underline-offset-4 hover:text-red-500"
         >
           {isDeleting ? '삭제 중...' : '삭제'}
+        </button>
+      </div>
+
+      <div className="space-y-7 px-2 text-xl">
+        <p>{item.recipientName}</p>
+        <p>{item.baseAddress}</p>
+        <p>{item.recipientPhone}</p>
+        <p className="break-words whitespace-pre-wrap">
+          {item.detailAddress || ' '}
+        </p>
+      </div>
+
+      <div className="mt-8 grid grid-cols-2 gap-4">
+        <Link
+          href={`/address/${item.addressId}`}
+          className="bg-ongil-teal flex h-16 items-center justify-center rounded-2xl text-xl font-semibold text-white"
+        >
+          수정
+        </Link>
+
+        <button
+          onClick={handleSetDefault}
+          disabled={item.isDefault || isSettingDefault}
+          className={`h-16 rounded-2xl text-xl font-semibold ${
+            item.isDefault
+              ? 'cursor-not-allowed bg-[#cfcfcf] text-[#666]'
+              : 'bg-[#cfcfcf] text-[#111]'
+          }`}
+        >
+          {isSettingDefault ? '선택 중...' : item.isDefault ? '선택됨' : '선택'}
         </button>
       </div>
     </div>
