@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { useDaumPostcodePopup } from 'react-daum-postcode';
+import type { Address as PostcodeData } from 'react-daum-postcode';
 import {
   registerAddress,
   setAsDefaultAddress,
@@ -14,14 +15,6 @@ import Label from '@/components/ui/label';
 
 interface AddressFormProps {
   initialData?: AddressItem;
-}
-
-interface PostcodeData {
-  address: string;
-  addressType: string;
-  bname: string;
-  buildingName: string;
-  zonecode: string;
 }
 
 export default function AddressForm({ initialData }: AddressFormProps) {
@@ -112,7 +105,12 @@ export default function AddressForm({ initialData }: AddressFormProps) {
       }
 
       if (isDefaultAddress && targetAddressId != null) {
-        await setAsDefaultAddress(targetAddressId);
+        try {
+          await setAsDefaultAddress(targetAddressId);
+        } catch (error) {
+          console.error('기본 배송지 설정 실패:', error);
+          alert('주소는 저장되었으나 기본 배송지 설정에 실패했습니다.');
+        }
       }
 
       alert(

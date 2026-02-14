@@ -27,7 +27,9 @@ export default async function AddressListPage({
       return {
         ...address,
         deliveryRequest:
-          myAddress.shippingDetail.deliveryRequest || address.deliveryRequest,
+          myAddress.shippingDetail.deliveryRequest ||
+          address.deliveryRequest ||
+          '',
       };
     }
     return address;
