@@ -23,11 +23,11 @@ export default function ShippingInfoCard({
 
       <div className="rounded-xl border border-[#cfcfcf] bg-white p-4">
         {address ? (
-          <div className="mb-5 flex flex-col gap-6 space-y-3 text-xl leading-normal text-black">
+          <div className="mb-5 flex flex-col gap-6 text-xl leading-normal text-black">
             <p>{address.recipientName}</p>
             <p>{address.baseAddress}</p>
             <p>{address.recipientPhone}</p>
-            <p className="wrap-break-words line-clamp-3 whitespace-pre-wrap">
+            <p className="wrap-break-word line-clamp-3 whitespace-pre-wrap">
               {address.detailAddress}
             </p>
           </div>

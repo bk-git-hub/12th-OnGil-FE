@@ -24,6 +24,7 @@ export default function AddressItem({ item }: AddressItemProps) {
       router.refresh();
     } catch (error) {
       alert(error instanceof Error ? error.message : '삭제 실패');
+    } finally {
       setIsDeleting(false);
     }
   };

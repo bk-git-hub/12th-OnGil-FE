@@ -358,21 +358,35 @@ export function CancelForm({ orderDetail, defaultAddress }: CancelFormProps) {
     );
   }
 
-  // --- 배송지 단계 ---
   if (step === 'address') {
+    const canProceed = !!defaultAddress;
+
     return (
       <div className="flex h-full flex-col justify-between bg-white">
         <div className="flex-1 pb-10">
           <ShippingInfoCard address={defaultAddress} />
+          <p className="mt-4 px-1 text-center text-sm text-gray-600">
+            {canProceed
+              ? '배송지를 수정한 뒤 주문 취소를 계속하려면 다음 단계를 눌러주세요.'
+              : '배송지 정보가 없어 다음 단계로 진행할 수 없습니다. 배송지를 먼저 입력해주세요.'}
+          </p>
         </div>
 
-        {/* 하단 버튼 영역 */}
-        <div className="border-ongil-teal flex w-full border-t bg-white p-6">
+        <div className="border-ongil-teal grid w-full grid-cols-2 gap-4 border-t bg-white p-6">
           <button
             className="h-14 w-full rounded-xl bg-[#D9D9D9] text-lg font-bold"
             onClick={() => setStep('reason')}
           >
             이전 단계
+          </button>
+          <button
+            className={`h-14 w-full rounded-xl text-lg font-bold text-white ${
+              canProceed ? 'bg-ongil-teal' : 'cursor-not-allowed bg-gray-300'
+            }`}
+            onClick={() => setStep('confirm')}
+            disabled={!canProceed}
+          >
+            다음 단계
           </button>
         </div>
       </div>

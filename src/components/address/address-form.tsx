@@ -1,4 +1,4 @@
-'use client';
+﻿'use client';
 
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
@@ -102,12 +102,13 @@ export default function AddressForm({ initialData }: AddressFormProps) {
       }
 
       alert(
-        isEditMode ? '배송지가 수정되었습니다.' : '배송지가 등록되었습니다.',
+        isEditMode
+          ? '배송지 정보가 수정되었습니다.'
+          : '배송지 정보가 등록되었습니다.',
       );
       router.back();
-      router.refresh();
     } catch (error) {
-      alert(error instanceof Error ? error.message : '작업에 실패했습니다.');
+      alert(error instanceof Error ? error.message : '오류가 발생했습니다.');
     } finally {
       setIsSubmitting(false);
     }
