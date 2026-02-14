@@ -26,10 +26,11 @@ export default async function CancelReasonPage({ params }: CancelPageProps) {
     notFound();
   }
 
-  const [orderDetail, addresses] = await Promise.all([
-    getOrderDetail(numericId),
-    getAddresses(),
-  ]);
+  const orderDetail = await getOrderDetail(numericId);
+  const addresses = await getAddresses().catch((error) => {
+    console.error('배송지 목록 조회 실패:', error);
+    return [];
+  });
   const defaultAddress = addresses.find((addr) => addr.isDefault) || null;
 
   return (

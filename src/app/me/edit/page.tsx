@@ -46,11 +46,11 @@ export default async function MyEditPage() {
           <div className="rounded-xl border border-[#cfcfcf] bg-white p-4">
             {bodyInfo ? (
               <div className="mb-5 flex flex-col gap-4 text-3xl leading-normal text-black">
-                <p>키: {bodyInfo.height}</p>
-                <p>몸무게: {bodyInfo.weight}</p>
-                <p>상의: {bodyInfo.usualTopSize}</p>
-                <p>하의: {bodyInfo.usualBottomSize}</p>
-                <p>신발 사이즈: {bodyInfo.usualShoeSize}</p>
+                <p>키: {bodyInfo.height ? `${bodyInfo.height}cm` : '-'}</p>
+                <p>몸무게: {bodyInfo.weight ? `${bodyInfo.weight}kg` : '-'}</p>
+                <p>상의: {bodyInfo.usualTopSize || '-'}</p>
+                <p>하의: {bodyInfo.usualBottomSize || '-'}</p>
+                <p>신발 사이즈: {bodyInfo.usualShoeSize || '-'}</p>
               </div>
             ) : (
               <div className="mb-5 flex min-h-[180px] items-center justify-center">
