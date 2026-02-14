@@ -3,6 +3,7 @@
 import { useState, useEffect, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import { cancelOrder, getRefundInfo } from '@/app/actions/order';
+import { getAddresses } from '@/app/actions/address';
 import {
   OrderDetail,
   OrderCancelResponse,
@@ -97,6 +98,9 @@ export function CancelForm({ orderDetail, defaultAddress }: CancelFormProps) {
     null,
   );
   const [refundLoading, setRefundLoading] = useState(false);
+  const [currentDefaultAddress, setCurrentDefaultAddress] =
+    useState<AddressItem | null>(defaultAddress);
+  const [addressLoading, setAddressLoading] = useState(false);
 
   const alertRef = useFocusTrap(!!alertMessage);
   const confirmRef = useFocusTrap(showModal);
@@ -122,6 +126,33 @@ export function CancelForm({ orderDetail, defaultAddress }: CancelFormProps) {
       })
       .finally(() => setRefundLoading(false));
   }, [step, orderId]);
+
+  useEffect(() => {
+    if (step !== 'address') return;
+
+    let isMounted = true;
+    setAddressLoading(true);
+
+    getAddresses()
+      .then((addresses) => {
+        if (!isMounted) return;
+        const latestDefaultAddress =
+          addresses.find((addr) => addr.isDefault) || null;
+        setCurrentDefaultAddress(latestDefaultAddress);
+      })
+      .catch((error) => {
+        if (!isMounted) return;
+        console.error(error);
+      })
+      .finally(() => {
+        if (!isMounted) return;
+        setAddressLoading(false);
+      });
+
+    return () => {
+      isMounted = false;
+    };
+  }, [step]);
 
   const handleReasonSelect = (reasonId: string) => {
     setSelectedReason(reasonId);
@@ -359,16 +390,18 @@ export function CancelForm({ orderDetail, defaultAddress }: CancelFormProps) {
   }
 
   if (step === 'address') {
-    const canProceed = !!defaultAddress;
+    const canProceed = !!currentDefaultAddress && !addressLoading;
 
     return (
       <div className="flex h-full flex-col justify-between bg-white">
         <div className="flex-1 pb-10">
-          <ShippingInfoCard address={defaultAddress} />
+          <ShippingInfoCard address={currentDefaultAddress} />
           <p className="mt-4 px-1 text-center text-sm text-gray-600">
-            {canProceed
-              ? '배송지를 수정한 뒤 주문 취소를 계속하려면 다음 단계를 눌러주세요.'
-              : '배송지 정보가 없어 다음 단계로 진행할 수 없습니다. 배송지를 먼저 입력해주세요.'}
+            {addressLoading
+              ? '최신 배송지 정보를 불러오는 중입니다.'
+              : canProceed
+                ? '배송지를 수정한 뒤 주문 취소를 계속하려면 다음 단계를 눌러주세요.'
+                : '배송지 정보가 없어 다음 단계로 진행할 수 없습니다. 배송지를 먼저 입력해주세요.'}
           </p>
         </div>
 

@@ -53,6 +53,7 @@ export async function registerAddress(
       data,
     );
     revalidatePath('/address');
+    revalidatePath('/orders', 'layout');
     revalidatePath('/orders/checkout');
     return response;
   } catch (error) {
@@ -75,6 +76,7 @@ export async function updateAddress(
       data,
     );
     revalidatePath('/address');
+    revalidatePath('/orders', 'layout');
     return response;
   } catch (error) {
     rethrowNextError(error);
@@ -90,6 +92,7 @@ export async function deleteAddress(addressId: number): Promise<void> {
   try {
     await api.delete(`/addresses/${addressId}`);
     revalidatePath('/address');
+    revalidatePath('/orders', 'layout');
   } catch (error) {
     rethrowNextError(error);
     console.error('배송지 삭제 실패:', error);
@@ -109,6 +112,7 @@ export async function setAsDefaultAddress(
       {},
     );
     revalidatePath('/address');
+    revalidatePath('/orders', 'layout');
     return response;
   } catch (error) {
     rethrowNextError(error);
