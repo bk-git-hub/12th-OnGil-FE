@@ -1,5 +1,6 @@
 'use client';
 
+import { useSearchParams } from 'next/navigation';
 import { CloseButton } from '@/components/ui/close-button';
 import { cn } from '@/lib/utils';
 import { SECTIONS } from './constants';
@@ -10,11 +11,21 @@ interface Props {
 }
 
 export default function StepNavigator({ activeStep, onStepChange }: Props) {
+  const searchParams = useSearchParams();
+
   const steps = [
     { id: SECTIONS.ITEMS, label: '주문정보\n확인' },
     { id: SECTIONS.SHIPPING, label: '배송지\n확인' },
     { id: SECTIONS.PAYMENT, label: '적립금/캐시\n 확인' },
   ];
+
+  const productId = searchParams.get('productId');
+  const backHref =
+    searchParams.get('cart') === 'true'
+      ? '/cart'
+      : productId
+        ? `/product/${productId}`
+        : undefined;
 
   // 현재 활성 단계 계산 (activeStep이 비어있으면 첫 번째 단계로 간주)
   const currentId = activeStep || steps[0].id;
@@ -32,7 +43,7 @@ export default function StepNavigator({ activeStep, onStepChange }: Props) {
       <header className="fixed top-0 z-50 w-full max-w-md bg-white backdrop-blur-md">
         {/* 1. 타이틀 바 */}
         <div className="mt-8 flex h-14 items-center gap-4 px-6">
-          <CloseButton />
+          <CloseButton href={backHref} />
           <h1 className="flex-1 pr-8 text-center text-3xl leading-normal font-semibold">
             주문/결제
           </h1>
