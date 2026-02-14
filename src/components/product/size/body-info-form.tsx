@@ -6,7 +6,6 @@ import {
   useForm,
   Control,
   Controller,
-  UseFormRegister,
   Path,
   FieldValues,
   FieldError,
@@ -70,7 +69,7 @@ const ICON_STYLE = cn(
 interface InputFieldProps<T extends FieldValues> {
   label: string;
   name: Path<T>;
-  register: UseFormRegister<T>;
+  control: Control<T>;
   unit: string;
   error?: FieldError;
   placeholder?: string;
@@ -80,30 +79,38 @@ interface InputFieldProps<T extends FieldValues> {
 const InputField = <T extends FieldValues>({
   label,
   name,
-  register,
+  control,
   unit,
   error,
   placeholder = '0',
 }: InputFieldProps<T>) => (
   <div className="space-y-2">
     <label className={STYLES.label}>{label}</label>
-    <div
-      className={cn(
-        STYLES.baseBox,
-        error ? STYLES.errorBorder : STYLES.normalBorder,
+    <Controller
+      control={control}
+      name={name}
+      render={({ field }) => (
+        <div
+          className={cn(
+            STYLES.baseBox,
+            error ? STYLES.errorBorder : STYLES.normalBorder,
+          )}
+        >
+          <input
+            type="number"
+            inputMode="numeric"
+            step="1"
+            placeholder={placeholder}
+            value={field.value ?? ''}
+            onChange={(event) => field.onChange(event.target.value)}
+            className="w-full bg-transparent text-right text-base outline-none placeholder:text-gray-400"
+          />
+          <span className="ml-2 text-base whitespace-nowrap text-gray-700">
+            {unit}
+          </span>
+        </div>
       )}
-    >
-      <input
-        type="number"
-        inputMode="decimal"
-        placeholder={placeholder}
-        {...register(name, { valueAsNumber: true })}
-        className="w-full bg-transparent text-right text-base outline-none placeholder:text-gray-400"
-      />
-      <span className="ml-2 text-base whitespace-nowrap text-gray-700">
-        {unit}
-      </span>
-    </div>
+    />
     {error && <p className="text-xs text-red-500">{error.message}</p>}
   </div>
 );
@@ -202,7 +209,6 @@ export function BodyInfoForm({ initialData, onSuccess }: BodyInfoFormProps) {
   };
 
   const {
-    register,
     control,
     handleSubmit,
     reset,
@@ -287,14 +293,14 @@ export function BodyInfoForm({ initialData, onSuccess }: BodyInfoFormProps) {
               label="키"
               name="height"
               unit="cm"
-              register={register}
+              control={control}
               error={errors.height}
             />
             <InputField
               label="몸무게"
               name="weight"
               unit="kg"
-              register={register}
+              control={control}
               error={errors.weight}
             />
           </div>
