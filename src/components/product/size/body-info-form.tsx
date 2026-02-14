@@ -179,7 +179,10 @@ interface BodyInfoFormProps {
 }
 
 // 체형 정보 입력/수정 폼 컴포넌트, 위에서 만든 컴포넌트를 조립.
-export function BodyInfoForm({ initialData, onSuccess }: BodyInfoFormProps) {
+export default function BodyInfoForm({
+  initialData,
+  onSuccess,
+}: BodyInfoFormProps) {
   const router = useRouter();
   const pathname = usePathname();
   const [isPending, startTransition] = useTransition();

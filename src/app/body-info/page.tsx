@@ -1,5 +1,5 @@
 import { getMyBodyInfoAction } from '@/app/actions/body-info';
-import { BodyInfoForm } from '@/components/product/size/body-info-form';
+import BodyInfoForm from '@/components/product/size/body-info-form';
 import { CloseButton } from '../../components/ui/close-button';
 
 // 내 신체 정보 수정 페이지(마이페이지용)

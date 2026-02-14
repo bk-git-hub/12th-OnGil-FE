@@ -1,7 +1,7 @@
 'use client';
 
 import { useRouter } from 'next/navigation';
-import { BodyInfoForm } from '@/components/product/size/body-info-form';
+import BodyInfoForm from '@/components/product/size/body-info-form';
 import { UserBodyInfo } from '@/types/domain/size';
 
 export function MyEditBodyInfoFormWrapper({
