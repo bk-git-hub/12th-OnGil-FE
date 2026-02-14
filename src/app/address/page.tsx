@@ -4,7 +4,11 @@ import AddressPageFooter from '@/components/address/address-page-footer';
 import { CloseButton } from '@/components/ui/close-button';
 
 interface AddressListPageProps {
-  searchParams: Promise<{ mode?: string }>;
+  searchParams: Promise<{
+    mode?: string;
+    returnTo?: string;
+    selectedAddressId?: string;
+  }>;
 }
 
 export default async function AddressListPage({
@@ -12,6 +16,19 @@ export default async function AddressListPage({
 }: AddressListPageProps) {
   const params = await searchParams;
   const isManageMode = params.mode === 'manage';
+  const isSelectMode = params.mode === 'select';
+  const selectedAddressId = params.selectedAddressId
+    ? Number(params.selectedAddressId)
+    : null;
+  const initialSelectedAddressId =
+    selectedAddressId && !Number.isNaN(selectedAddressId)
+      ? selectedAddressId
+      : null;
+  const closeHref = isManageMode
+    ? '/me/edit'
+    : isSelectMode
+      ? params.returnTo
+      : undefined;
 
   const [addresses, myAddress] = await Promise.all([
     getAddresses(),
@@ -40,7 +57,7 @@ export default async function AddressListPage({
       <header className="sticky top-0 z-10 flex items-center justify-center border-b border-gray-500 bg-white py-4">
         <h1 className="text-2xl font-bold">배송지 관리</h1>
         <div className="absolute top-1/2 left-5 -translate-y-1/2">
-          <CloseButton href={isManageMode ? '/me/edit' : undefined} />
+          <CloseButton href={closeHref} replace={isSelectMode} />
         </div>
       </header>
 
@@ -54,11 +71,16 @@ export default async function AddressListPage({
           <AddressList
             addresses={resolvedAddresses}
             showSelectButton={!isManageMode}
+            initialSelectedAddressId={initialSelectedAddressId}
           />
         )}
       </div>
 
-      <AddressPageFooter isManageMode={isManageMode} />
+      <AddressPageFooter
+        isManageMode={isManageMode}
+        isSelectMode={isSelectMode}
+        returnTo={params.returnTo}
+      />
     </main>
   );
 }

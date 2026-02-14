@@ -1,16 +1,45 @@
 'use client';
 
 import Link from 'next/link';
-import { useRouter } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
 
 interface AddressPageFooterProps {
   isManageMode: boolean;
+  isSelectMode?: boolean;
+  returnTo?: string;
 }
 
 export default function AddressPageFooter({
   isManageMode,
+  isSelectMode = false,
+  returnTo,
 }: AddressPageFooterProps) {
   const router = useRouter();
+  const searchParams = useSearchParams();
+
+  const handleCompleteSelection = () => {
+    const selectedAddressId = searchParams.get('selectedAddressId');
+
+    if (!selectedAddressId) {
+      if (!isSelectMode) {
+        router.back();
+        return;
+      }
+
+      alert('배송지를 선택해주세요.');
+      return;
+    }
+
+    if (isSelectMode && returnTo) {
+      const targetUrl = new URL(returnTo, window.location.origin);
+      targetUrl.searchParams.set('selectedAddressId', selectedAddressId);
+
+      router.replace(`${targetUrl.pathname}${targetUrl.search}`);
+      return;
+    }
+
+    router.back();
+  };
 
   return (
     <div className="fixed inset-x-0 bottom-0 bg-white p-5">
@@ -32,7 +61,7 @@ export default function AddressPageFooter({
             </Link>
             <button
               type="button"
-              onClick={() => router.back()}
+              onClick={handleCompleteSelection}
               className="bg-ongil-teal h-16 rounded-3xl text-xl font-bold text-white"
             >
               선택 완료

@@ -1,25 +1,38 @@
 'use client';
 
-import { useMemo, useState } from 'react';
+import { useState } from 'react';
+import { usePathname, useRouter, useSearchParams } from 'next/navigation';
 import { AddressItem as AddressItemType } from '@/types/domain/address';
 import AddressItem from './address-item';
 
 interface AddressListProps {
   addresses: AddressItemType[];
   showSelectButton?: boolean;
+  initialSelectedAddressId?: number | null;
 }
 
 export default function AddressList({
   addresses,
   showSelectButton = true,
+  initialSelectedAddressId,
 }: AddressListProps) {
-  const initialSelectedAddressId = useMemo(
-    () => addresses.find((addr) => addr.isDefault)?.addressId ?? null,
-    [addresses],
-  );
+  const router = useRouter();
+  const pathname = usePathname();
+  const searchParams = useSearchParams();
+
+  const fallbackSelectedAddressId =
+    addresses.find((addr) => addr.isDefault)?.addressId ?? null;
   const [selectedAddressId, setSelectedAddressId] = useState<number | null>(
-    initialSelectedAddressId,
+    initialSelectedAddressId ?? fallbackSelectedAddressId,
   );
+
+  const handleSelect = (addressId: number) => {
+    setSelectedAddressId(addressId);
+
+    const nextParams = new URLSearchParams(searchParams.toString());
+    nextParams.set('selectedAddressId', String(addressId));
+    router.replace(`${pathname}?${nextParams.toString()}`, { scroll: false });
+  };
 
   return (
     <div className="flex flex-col gap-4">
@@ -28,7 +41,7 @@ export default function AddressList({
           key={addr.addressId}
           item={addr}
           isSelected={selectedAddressId === addr.addressId}
-          onSelect={setSelectedAddressId}
+          onSelect={handleSelect}
           showSelectButton={showSelectButton}
         />
       ))}
