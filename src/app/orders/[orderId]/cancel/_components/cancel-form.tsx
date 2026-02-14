@@ -101,6 +101,10 @@ export function CancelForm({ orderDetail, defaultAddress }: CancelFormProps) {
   const [currentDefaultAddress, setCurrentDefaultAddress] =
     useState<AddressItem | null>(defaultAddress);
   const [addressLoading, setAddressLoading] = useState(false);
+  const [addressReloadTick, setAddressReloadTick] = useState(0);
+  const [addressFetchError, setAddressFetchError] = useState<string | null>(
+    null,
+  );
 
   const alertRef = useFocusTrap(!!alertMessage);
   const confirmRef = useFocusTrap(showModal);
@@ -110,7 +114,6 @@ export function CancelForm({ orderDetail, defaultAddress }: CancelFormProps) {
     setRefundLoading(true);
     getRefundInfo(orderId)
       .then((data) => {
-        console.log('환불 정보 응답:', data);
         setRefundInfo(data);
       })
       .catch((err) => {
@@ -132,6 +135,7 @@ export function CancelForm({ orderDetail, defaultAddress }: CancelFormProps) {
 
     let isMounted = true;
     setAddressLoading(true);
+    setAddressFetchError(null);
 
     getAddresses()
       .then((addresses) => {
@@ -143,6 +147,12 @@ export function CancelForm({ orderDetail, defaultAddress }: CancelFormProps) {
       .catch((error) => {
         if (!isMounted) return;
         console.error(error);
+        setCurrentDefaultAddress(null);
+        setAddressFetchError(
+          error instanceof Error
+            ? error.message
+            : '배송지 정보를 불러오지 못했습니다. 잠시 후 다시 시도해주세요.',
+        );
       })
       .finally(() => {
         if (!isMounted) return;
@@ -152,7 +162,7 @@ export function CancelForm({ orderDetail, defaultAddress }: CancelFormProps) {
     return () => {
       isMounted = false;
     };
-  }, [step]);
+  }, [step, addressReloadTick]);
 
   const handleReasonSelect = (reasonId: string) => {
     setSelectedReason(reasonId);
@@ -329,7 +339,9 @@ export function CancelForm({ orderDetail, defaultAddress }: CancelFormProps) {
         <div className="grid grid-cols-2 gap-4">
           <button
             className="rounded-xl bg-[#D9D9D9] py-4 text-2xl"
-            onClick={() => setStep('reason')}
+            onClick={() =>
+              setStep(selectedReason === 'WRONG_ADDRESS' ? 'address' : 'reason')
+            }
           >
             이전 단계
           </button>
@@ -390,19 +402,36 @@ export function CancelForm({ orderDetail, defaultAddress }: CancelFormProps) {
   }
 
   if (step === 'address') {
-    const canProceed = !!currentDefaultAddress && !addressLoading;
+    const canProceed =
+      !!currentDefaultAddress && !addressLoading && !addressFetchError;
 
     return (
       <div className="flex h-full flex-col justify-between bg-white">
         <div className="flex-1 pb-10">
           <ShippingInfoCard address={currentDefaultAddress} />
-          <p className="mt-4 px-1 text-center text-sm text-gray-600">
+          <p
+            className="mt-4 px-1 text-center text-sm text-gray-600"
+            aria-live="polite"
+          >
             {addressLoading
               ? '최신 배송지 정보를 불러오는 중입니다.'
-              : canProceed
-                ? '배송지를 수정한 뒤 주문 취소를 계속하려면 다음 단계를 눌러주세요.'
-                : '배송지 정보가 없어 다음 단계로 진행할 수 없습니다. 배송지를 먼저 입력해주세요.'}
+              : addressFetchError
+                ? addressFetchError
+                : canProceed
+                  ? '배송지를 수정한 뒤 주문 취소를 계속하려면 다음 단계를 눌러주세요.'
+                  : '배송지 정보가 없어 다음 단계로 진행할 수 없습니다. 배송지를 먼저 입력해주세요.'}
           </p>
+          {addressFetchError ? (
+            <div className="mt-3 flex justify-center">
+              <button
+                type="button"
+                onClick={() => setAddressReloadTick((prev) => prev + 1)}
+                className="text-ongil-teal text-sm underline underline-offset-4"
+              >
+                다시 불러오기
+              </button>
+            </div>
+          ) : null}
         </div>
 
         <div className="border-ongil-teal grid w-full grid-cols-2 gap-4 border-t bg-white p-6">

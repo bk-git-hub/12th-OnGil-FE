@@ -19,13 +19,17 @@ interface CancelPageProps {
 export default async function CancelReasonPage({ params }: CancelPageProps) {
   const session = await auth();
   if (!session) redirect('/login');
+
   const { orderId } = await params;
   const numericId = Number(orderId);
   if (Number.isNaN(numericId)) {
     notFound();
   }
-  const orderDetail = await getOrderDetail(numericId);
-  const addresses = await getAddresses();
+
+  const [orderDetail, addresses] = await Promise.all([
+    getOrderDetail(numericId),
+    getAddresses(),
+  ]);
   const defaultAddress = addresses.find((addr) => addr.isDefault) || null;
 
   return (
