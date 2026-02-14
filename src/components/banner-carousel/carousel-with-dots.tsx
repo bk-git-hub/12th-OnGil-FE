@@ -17,7 +17,9 @@ interface CarouselWithDotsProps {
   advertisements: Advertisement[];
 }
 
-export function CarouselWithDots({ advertisements }: CarouselWithDotsProps) {
+export default function CarouselWithDots({
+  advertisements,
+}: CarouselWithDotsProps) {
   const [api, setApi] = useState<CarouselApi>();
   const { current, count, scrollTo } = useCarouselDots(api);
 
@@ -36,7 +38,7 @@ export function CarouselWithDots({ advertisements }: CarouselWithDotsProps) {
         ]}
       >
         <CarouselContent className="m-0 max-h-125 w-full">
-          {advertisements.map((item) => (
+          {advertisements.map((item, index) => (
             <CarouselItem key={item.id} className="p-0">
               <div className="relative aspect-380/275 h-full w-full overflow-hidden">
                 <Image
@@ -44,7 +46,7 @@ export function CarouselWithDots({ advertisements }: CarouselWithDotsProps) {
                   alt={item.title}
                   fill
                   className="object-cover"
-                  priority
+                  priority={index === 0}
                 />
                 <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent" />
                 <div className="absolute bottom-0 left-0 right-0 p-6 text-white">
