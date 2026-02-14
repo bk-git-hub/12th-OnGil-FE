@@ -58,6 +58,7 @@ export default function AddressItem({ item }: AddressItemProps) {
         <button
           onClick={handleDelete}
           disabled={isDeleting}
+          aria-label={`${item.recipientName} 배송지 삭제`}
           className="text-base text-gray-500 underline underline-offset-4 hover:text-red-500"
         >
           {isDeleting ? '삭제 중...' : '삭제'}
@@ -84,6 +85,7 @@ export default function AddressItem({ item }: AddressItemProps) {
         <button
           onClick={handleSetDefault}
           disabled={item.isDefault || isSettingDefault}
+          aria-label={`${item.recipientName} 배송지를 기본 배송지로 설정`}
           className={`h-16 rounded-2xl text-xl font-semibold ${
             item.isDefault
               ? 'cursor-not-allowed bg-[#cfcfcf] text-[#666]'

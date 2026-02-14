@@ -1,5 +1,3 @@
-'use client';
-
 import Link from 'next/link';
 import { AddressItem } from '@/types/domain/address';
 
@@ -27,7 +25,7 @@ export default function ShippingInfoCard({
             <p>{address.recipientName}</p>
             <p>{address.baseAddress}</p>
             <p>{address.recipientPhone}</p>
-            <p className="wrap-break-word line-clamp-3 whitespace-pre-wrap">
+            <p className="break-words whitespace-pre-wrap">
               {address.detailAddress}
             </p>
           </div>
