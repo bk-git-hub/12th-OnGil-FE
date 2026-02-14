@@ -7,7 +7,22 @@ const dictionaries = {
 } as const;
 
 export type AppLocale = keyof typeof dictionaries;
-export type TranslationKey = 'recommendedBrand.noProducts';
+
+type Join<K, P> = K extends string
+  ? P extends string
+    ? `${K}.${P}`
+    : never
+  : never;
+
+type NestedKeyOf<T> = T extends object
+  ? {
+      [K in keyof T & string]: T[K] extends object
+        ? K | Join<K, NestedKeyOf<T[K]>>
+        : K;
+    }[keyof T & string]
+  : never;
+
+export type TranslationKey = NestedKeyOf<(typeof dictionaries)['ko']>;
 
 export function getLocaleFromDocument(): AppLocale {
   if (typeof document === 'undefined') return 'ko';
@@ -17,9 +32,12 @@ export function getLocaleFromDocument(): AppLocale {
 }
 
 export function t(locale: AppLocale, key: TranslationKey): string {
-  if (key === 'recommendedBrand.noProducts') {
-    return dictionaries[locale].recommendedBrand.noProducts;
-  }
+  const resolved = key
+    .split('.')
+    .reduce<unknown>((acc, segment) => {
+      if (!acc || typeof acc !== 'object') return undefined;
+      return (acc as Record<string, unknown>)[segment];
+    }, dictionaries[locale]);
 
-  return key;
+  return typeof resolved === 'string' ? resolved : key;
 }
