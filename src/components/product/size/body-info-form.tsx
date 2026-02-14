@@ -287,9 +287,9 @@ export default function BodyInfoForm({
     <>
       <form
         onSubmit={handleSubmit(onSubmit)}
-        className="flex h-full flex-col justify-between bg-white"
+        className="flex h-full flex-col justify-between overflow-hidden bg-white"
       >
-        <div className="scrollbar-hide flex-1 overflow-y-auto px-[55px] pb-10">
+        <div className="scrollbar-hide flex-1 overflow-y-auto overscroll-y-contain px-[55px] pb-10">
           {/* 키 / 몸무게 섹션 */}
           <div className="flex flex-col gap-[74px]">
             <InputField
