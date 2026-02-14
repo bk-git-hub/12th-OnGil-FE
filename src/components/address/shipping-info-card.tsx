@@ -5,15 +5,21 @@ interface ShippingInfoCardProps {
   address: AddressItem | null;
   title?: string;
   className?: string;
+  actionHref?: string;
+  actionLabel?: string;
 }
 
 export default function ShippingInfoCard({
   address,
   title = '배송지 정보',
   className,
+  actionHref,
+  actionLabel,
 }: ShippingInfoCardProps) {
-  const actionHref = address ? `/address/${address.addressId}` : '/address/new';
-  const actionLabel = address ? '배송지 수정하기' : '배송지 입력하기';
+  const resolvedActionHref =
+    actionHref ?? (address ? `/address/${address.addressId}` : '/address/new');
+  const resolvedActionLabel =
+    actionLabel ?? (address ? '배송지 수정하기' : '배송지 입력하기');
 
   return (
     <section className={className}>
@@ -23,10 +29,14 @@ export default function ShippingInfoCard({
         {address ? (
           <div className="mb-5 flex flex-col gap-6 text-xl leading-normal text-black">
             <p>{address.recipientName}</p>
-            <p>{address.baseAddress}</p>
+            <p className="break-words whitespace-pre-wrap">
+              {[address.baseAddress, address.detailAddress]
+                .filter(Boolean)
+                .join(' ')}
+            </p>
             <p>{address.recipientPhone}</p>
             <p className="break-words whitespace-pre-wrap">
-              {address.detailAddress}
+              {address.deliveryRequest || '요청사항 없음'}
             </p>
           </div>
         ) : (
@@ -36,10 +46,10 @@ export default function ShippingInfoCard({
         )}
 
         <Link
-          href={actionHref}
+          href={resolvedActionHref}
           className="bg-ongil-teal mx-auto flex h-14 w-[260px] items-center justify-center rounded-xl px-5 text-xl font-medium text-white"
         >
-          {actionLabel}
+          {resolvedActionLabel}
         </Link>
       </div>
     </section>
