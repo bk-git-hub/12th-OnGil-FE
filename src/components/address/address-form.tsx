@@ -1,4 +1,4 @@
-﻿'use client';
+'use client';
 
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
@@ -35,6 +35,7 @@ export default function AddressForm({ initialData }: AddressFormProps) {
   );
 
   const isEditMode = !!initialData;
+  const isDefaultAddressLocked = isEditMode && initialData?.isDefault === true;
   const initialDeliveryRequest = initialData?.deliveryRequest?.trim() || '';
 
   const [formState, setFormState] = useState<AddressRequest>({
@@ -88,6 +89,12 @@ export default function AddressForm({ initialData }: AddressFormProps) {
       return;
     }
 
+    const phoneRegex = /^01[0-9]-?\d{3,4}-?\d{4}$/;
+    if (!phoneRegex.test(formState.phone)) {
+      alert('올바른 휴대폰 번호를 입력해주세요.');
+      return;
+    }
+
     setIsSubmitting(true);
     try {
       let targetAddressId: number | null = null;
@@ -105,7 +112,7 @@ export default function AddressForm({ initialData }: AddressFormProps) {
         targetAddressId = response.shippingDetail.addressId;
       }
 
-      if (isDefaultAddress && targetAddressId) {
+      if (isDefaultAddress && targetAddressId != null) {
         await setAsDefaultAddress(targetAddressId);
       }
 
@@ -147,6 +154,7 @@ export default function AddressForm({ initialData }: AddressFormProps) {
           </Label>
           <Input
             id="phone"
+            type="tel"
             value={formState.phone}
             onChange={(e) => handleChange('phone', e.target.value)}
             placeholder="휴대폰 번호를 입력해주세요"
@@ -202,8 +210,10 @@ export default function AddressForm({ initialData }: AddressFormProps) {
           />
         </div>
 
-        <div className="items-center gap-4">
-          <span aria-hidden="true" />
+        <div className="grid grid-cols-[88px_1fr] items-center gap-4">
+          <Label htmlFor="deliveryRequest" className="text-xl font-semibold">
+            요청사항
+          </Label>
           <div className="relative">
             <Input
               id="deliveryRequest"
@@ -218,21 +228,23 @@ export default function AddressForm({ initialData }: AddressFormProps) {
           </div>
         </div>
 
-        <div className="flex items-center justify-start gap-4 pt-2">
-          <span aria-hidden="true" />
-          <label
-            htmlFor="isDefaultAddress"
-            className="flex items-center gap-3 text-xl font-medium text-[#1d1b1b]"
-          >
-            <input
-              id="isDefaultAddress"
-              type="checkbox"
-              checked={isDefaultAddress}
-              onChange={(e) => setIsDefaultAddress(e.target.checked)}
-              className="accent-ongil-teal h-6 w-6 rounded-sm border border-[#9d9494]"
-            />
-            기본 배송지로 선택하기
-          </label>
+        <div className="grid grid-cols-[88px_1fr] items-center gap-4 pt-2">
+          <div className="col-start-2">
+            <label
+              htmlFor="isDefaultAddress"
+              className="flex items-center gap-3 text-xl font-medium text-[#1d1b1b]"
+            >
+              <input
+                id="isDefaultAddress"
+                type="checkbox"
+                checked={isDefaultAddress}
+                onChange={(e) => setIsDefaultAddress(e.target.checked)}
+                disabled={isDefaultAddressLocked}
+                className="accent-ongil-teal h-6 w-6 rounded-sm border border-[#9d9494]"
+              />
+              기본 배송지로 선택하기
+            </label>
+          </div>
         </div>
       </div>
 

@@ -11,7 +11,7 @@ export default async function AddressEditPage({ params }: PageProps) {
   const { addressId } = await params;
   const id = Number(addressId);
 
-  if (isNaN(id)) notFound();
+  if (Number.isNaN(id)) notFound();
 
   const addresses = await getAddresses();
   const targetAddress = addresses.find((addr) => addr.addressId === id);
@@ -27,7 +27,6 @@ export default async function AddressEditPage({ params }: PageProps) {
         </div>
       </header>
 
-      {/* 데이터를 넘겨줌 -> 수정 모드 */}
       <AddressForm initialData={targetAddress} />
     </main>
   );
