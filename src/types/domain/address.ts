@@ -7,6 +7,7 @@ export interface AddressItem {
   detailAddress: string;
   postalCode: string;
   isDefault: boolean;
+  deliveryRequest?: string;
 }
 
 /** 배송지 등록/수정 요청 데이터 */

@@ -28,11 +28,14 @@ export default function AddressForm({ initialData }: AddressFormProps) {
   const router = useRouter();
   const openPostcode = useDaumPostcodePopup();
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isDeliveryRequestTouched, setIsDeliveryRequestTouched] =
+    useState(false);
   const [isDefaultAddress, setIsDefaultAddress] = useState(
     initialData?.isDefault ?? false,
   );
 
   const isEditMode = !!initialData;
+  const initialDeliveryRequest = initialData?.deliveryRequest?.trim() || '';
 
   const [formState, setFormState] = useState<AddressRequest>({
     recipientName: initialData?.recipientName || '',
@@ -40,7 +43,7 @@ export default function AddressForm({ initialData }: AddressFormProps) {
     postalCode: initialData?.postalCode || '',
     baseAddress: initialData?.baseAddress || '',
     detailAddress: initialData?.detailAddress || '',
-    deliveryRequest: '',
+    deliveryRequest: initialData?.deliveryRequest || '',
   });
 
   const handleChange = (field: keyof AddressRequest, val: string) => {
@@ -90,7 +93,12 @@ export default function AddressForm({ initialData }: AddressFormProps) {
       let targetAddressId: number | null = null;
 
       if (isEditMode && initialData) {
-        await updateAddress(initialData.addressId, formState);
+        const updatePayload: AddressRequest = { ...formState };
+        if (!isDeliveryRequestTouched && !initialDeliveryRequest) {
+          delete updatePayload.deliveryRequest;
+        }
+
+        await updateAddress(initialData.addressId, updatePayload);
         targetAddressId = initialData.addressId;
       } else {
         const response = await registerAddress(formState);
@@ -200,7 +208,10 @@ export default function AddressForm({ initialData }: AddressFormProps) {
             <Input
               id="deliveryRequest"
               value={formState.deliveryRequest || ''}
-              onChange={(e) => handleChange('deliveryRequest', e.target.value)}
+              onChange={(e) => {
+                setIsDeliveryRequestTouched(true);
+                handleChange('deliveryRequest', e.target.value);
+              }}
               placeholder="배송 요청사항을 입력해주세요"
               className="h-16 rounded-2xl border-[#c8bebe] pr-12 pl-4 text-xl placeholder:text-[#b1a8a8] focus-visible:ring-0"
             />
