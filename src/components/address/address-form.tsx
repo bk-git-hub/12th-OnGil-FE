@@ -36,7 +36,6 @@ export default function AddressForm({ initialData }: AddressFormProps) {
 
   const isEditMode = !!initialData;
   const isDefaultAddressLocked = isEditMode && initialData?.isDefault === true;
-  const initialDeliveryRequest = initialData?.deliveryRequest?.trim() || '';
 
   const [formState, setFormState] = useState<AddressRequest>({
     recipientName: initialData?.recipientName || '',
@@ -101,7 +100,7 @@ export default function AddressForm({ initialData }: AddressFormProps) {
 
       if (isEditMode && initialData) {
         const updatePayload: AddressRequest = { ...formState };
-        if (!isDeliveryRequestTouched && !initialDeliveryRequest) {
+        if (!isDeliveryRequestTouched) {
           delete updatePayload.deliveryRequest;
         }
 

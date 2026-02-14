@@ -1,5 +1,5 @@
 import { notFound } from 'next/navigation';
-import { getAddresses } from '@/app/actions/address';
+import { getAddresses, getMyAddress } from '@/app/actions/address';
 import AddressForm from '@/components/address/address-form';
 import { CloseXButton } from '@/components/ui/close-button';
 
@@ -13,10 +13,27 @@ export default async function AddressEditPage({ params }: PageProps) {
 
   if (Number.isNaN(id)) notFound();
 
-  const addresses = await getAddresses();
+  const [addresses, myAddress] = await Promise.all([
+    getAddresses(),
+    getMyAddress().catch(() => null),
+  ]);
+
   const targetAddress = addresses.find((addr) => addr.addressId === id);
 
   if (!targetAddress) notFound();
+
+  const resolvedAddress =
+    targetAddress.isDefault &&
+    myAddress?.hasShippingInfo &&
+    myAddress.shippingDetail.addressId === targetAddress.addressId
+      ? {
+          ...targetAddress,
+          deliveryRequest:
+            myAddress.shippingDetail.deliveryRequest ||
+            targetAddress.deliveryRequest ||
+            '',
+        }
+      : targetAddress;
 
   return (
     <main className="mx-auto min-h-screen max-w-2xl bg-white leading-normal">
@@ -27,7 +44,7 @@ export default async function AddressEditPage({ params }: PageProps) {
         </div>
       </header>
 
-      <AddressForm initialData={targetAddress} />
+      <AddressForm initialData={resolvedAddress} />
     </main>
   );
 }
