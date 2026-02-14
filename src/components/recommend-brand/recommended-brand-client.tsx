@@ -4,6 +4,7 @@ import { useState } from 'react';
 import { BrandWithProducts } from '@/types/domain/brand';
 import RecommendedBrandHeader from './recommended-brand-header';
 import RecommendedBrandGridCard from './recommended-brand-grid-card';
+import { getLocaleFromDocument, t } from '@/lib/i18n';
 
 interface RecommendedBrandClientProps {
   brands: BrandWithProducts[];
@@ -12,7 +13,10 @@ interface RecommendedBrandClientProps {
 export default function RecommendedBrandClient({
   brands,
 }: RecommendedBrandClientProps) {
+  if (brands.length === 0) return null;
+
   const [selectedIndex, setSelectedIndex] = useState<number>(0);
+  const locale = getLocaleFromDocument();
 
   const currentBrand = brands[selectedIndex];
   const currentProducts = currentBrand?.products || [];
@@ -36,7 +40,7 @@ export default function RecommendedBrandClient({
               ))}
             </ul>
           ) : (
-            <p>No products available for this brand.</p>
+            <p>{t(locale, 'recommendedBrand.noProducts')}</p>
           )}
         </div>
       </div>

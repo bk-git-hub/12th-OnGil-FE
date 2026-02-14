@@ -8,9 +8,7 @@ export interface Brand {
   logoImageUrl?: string;
 }
 
-export interface BrandWithProducts {
-  id: number;
-  name: string;
+export interface BrandWithProducts extends Omit<Brand, 'description' | 'logoImageUrl'> {
   logoImageUrl: string;
   products: Product[];
 }
