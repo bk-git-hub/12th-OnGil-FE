@@ -47,12 +47,16 @@ export default async function OrderDetailPage({
     Number.isInteger(selectedAddressId) &&
     selectedAddressId > 0
   ) {
+    let addressChanged = false;
     try {
       await changeOrderShippingAddress(numericId, selectedAddressId);
-      redirect(`/orders/${numericId}`);
+      addressChanged = true;
     } catch (error) {
       console.error('주문 배송지 변경 실패:', error);
       redirect(`/orders/${numericId}?addressUpdateError=1`);
+    }
+    if (addressChanged) {
+      redirect(`/orders/${numericId}`);
     }
   }
 
