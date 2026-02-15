@@ -22,12 +22,15 @@ export default function ProductHeader({
   categoryID,
   backHref,
 }: ProductHeaderProps) {
-  const backLink =
-    backHref || (categoryID ? `/category/${categoryID}` : '/category');
+  const fallback = categoryID ? `/category/${categoryID}` : '/category';
 
   return (
     <header className="sticky top-0 z-50 flex h-[90px] w-full items-center justify-between bg-white px-[18px]">
-      <CloseButton href={backLink} replace={true} />
+      {backHref ? (
+        <CloseButton href={backHref} replace={true} />
+      ) : (
+        <CloseButton fallbackHref={fallback} />
+      )}
       <span className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 text-3xl font-semibold">
         상품 정보
       </span>

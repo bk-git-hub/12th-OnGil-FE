@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect, useCallback, useTransition } from 'react';
-import { useRouter } from 'next/navigation';
+import { useRouter, usePathname, useSearchParams } from 'next/navigation';
 import { ProductOption } from '@/types/domain/product';
 import { addToCart } from '@/app/actions/cart';
 import { useCartStore } from '@/store/cart';
@@ -31,6 +31,8 @@ export default function useProductOption({
   onOpenChange: externalOnOpenChange,
 }: UseProductOptionProps) {
   const router = useRouter();
+  const pathname = usePathname();
+  const searchParams = useSearchParams();
   const { fetchCount } = useCartStore();
   const [isPending, startTransition] = useTransition();
 
@@ -163,6 +165,11 @@ export default function useProductOption({
             productId: String(productId),
             selections: JSON.stringify(selections),
           });
+          const currentSearch = searchParams.toString();
+          const currentPath = currentSearch
+            ? `${pathname}?${currentSearch}`
+            : pathname;
+          params.set('from', currentPath);
 
           setIsOpen(false);
           setSelectedItems([]);
