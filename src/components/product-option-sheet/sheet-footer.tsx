@@ -19,45 +19,43 @@ export default function SheetFooter({
   onAction,
 }: SheetFooterProps) {
   return (
-    <div className="border-t bg-white p-5 pb-8 shadow-[0_-4px_10px_rgba(0,0,0,0.03)]">
+    <div className="border-t bg-white p-3 shadow-[0_-4px_10px_rgba(0,0,0,0.03)]">
       {!hasItems ? (
-        <div className="animate-in fade-in slide-in-from-bottom-2 rounded-xl border border-teal-100 bg-teal-50/50 p-4 text-center">
-          <div className="text-ongil-teal mb-1 flex items-center justify-center gap-1.5">
-            <Sparkles size={16} />
-            <span className="text-sm font-semibold">AI 사이즈 분석</span>
-          </div>
-          <p className="text-sm text-gray-600">
-            회원님에게 추천하는 사이즈는{' '}
-            <span className="text-ongil-teal mx-1 text-xl font-bold">
+        <div className="animate-in fade-in slide-in-from-bottom-2 border-ongil-teal bg-ongil-mint/50 rounded-xl border p-4">
+          <p className="text-center text-xl leading-tight">
+            회원님에게 추천하는 사이즈는
+            <span className="text-ongil-teal m-1 text-2xl font-bold">
               {recommendSize}
-            </span>{' '}
+            </span>
             입니다.
           </p>
         </div>
       ) : (
         <div className="animate-in fade-in slide-in-from-bottom-2">
-          <div className="mb-4 flex items-center justify-between">
-            <span className="text-sm font-medium text-gray-500">
+          <div className="mb-2 flex items-center justify-between p-2 text-xl leading-normal">
+            <span className="font-medium text-gray-500">
               총 수량 {totalQuantity}개
             </span>
             <div className="flex items-center gap-2">
-              <span className="text-sm font-bold text-gray-700">총 금액</span>
-              <span className="text-ongil-teal text-xl font-bold">
+              <span className="text-xl font-semibold text-gray-700">
+                총 금액
+              </span>
+              <span className="text-ongil-teal text-xl font-semibold">
                 {new Intl.NumberFormat('ko-KR').format(totalPrice)}원
               </span>
             </div>
           </div>
           <div className="flex gap-3">
             <Button
-              variant="outline"
-              className="border-ongil-teal text-ongil-teal h-14 flex-1 rounded-xl text-lg font-bold hover:bg-teal-50"
+              variant="secondary"
+              className="h-14 flex-1 rounded-xl bg-gray-100 text-lg font-bold text-gray-700 hover:bg-gray-200"
               onClick={() => onAction('cart')}
               disabled={isPending}
             >
               {isPending ? '담는 중...' : '장바구니'}
             </Button>
             <Button
-              className="h-14 flex-1 rounded-xl bg-black text-lg font-bold text-white hover:bg-gray-800"
+              className="bg-ongil-teal h-14 flex-1 rounded-xl text-lg font-bold text-white hover:bg-teal-600"
               onClick={() => onAction('buy')}
               disabled={isPending}
             >

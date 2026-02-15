@@ -30,7 +30,7 @@ export default function OptionSelectors({
         <div className="space-y-2">
           <span className="text-sm font-medium text-gray-600">색상</span>
           <Select value={currentColor} onValueChange={onColorChange}>
-            <SelectTrigger className="h-12 w-full border-gray-200 text-base focus:ring-black">
+            <SelectTrigger className="h-14 w-full rounded-xl border-gray-300 bg-white px-4 text-base font-medium focus:ring-0">
               <SelectValue placeholder="색상을 선택해주세요" />
             </SelectTrigger>
             <SelectContent>
@@ -64,7 +64,7 @@ export default function OptionSelectors({
               onValueChange={onSizeChange}
               disabled={!currentColor}
             >
-              <SelectTrigger className="h-12 w-full border-gray-200 text-base focus:ring-black">
+              <SelectTrigger className="h-14 w-full rounded-xl border-gray-300 bg-white px-4 text-base font-medium focus:ring-0">
                 <SelectValue placeholder="사이즈를 선택해주세요" />
               </SelectTrigger>
               <SelectContent>

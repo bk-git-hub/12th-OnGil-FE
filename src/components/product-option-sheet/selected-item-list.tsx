@@ -20,19 +20,19 @@ export default function SelectedItemList({
       {items.map((item) => (
         <div
           key={item.id}
-          className="animate-in slide-in-from-top-2 fade-in relative rounded-xl border border-gray-100 bg-gray-50 p-4 pr-10 duration-300"
+          className="animate-in slide-in-from-top-2 fade-in relative rounded-xl border border-gray-200 bg-white p-4 pr-10 duration-300"
         >
-          <div className="mb-2 text-sm text-gray-700">
+          <div className="mb-3 text-base text-gray-800">
             <span className="font-medium text-black">{item.color}</span> /{' '}
             {item.size}
           </div>
           <div className="flex items-center justify-between">
-            <div className="flex items-center gap-0 rounded-lg border bg-white shadow-sm">
+            <div className="flex items-center gap-0 rounded-xl border border-gray-200 bg-white">
               <Button
                 variant="ghost"
                 size="icon"
                 onClick={() => onUpdateQuantity(item.id, -1)}
-                className="h-8 w-8 text-gray-400 hover:text-black"
+                className="h-9 w-9 text-gray-500 hover:bg-gray-50 hover:text-black"
               >
                 <Minus size={14} />
               </Button>
@@ -43,12 +43,12 @@ export default function SelectedItemList({
                 variant="ghost"
                 size="icon"
                 onClick={() => onUpdateQuantity(item.id, 1)}
-                className="h-8 w-8 text-gray-400 hover:text-black"
+                className="h-9 w-9 text-gray-500 hover:bg-gray-50 hover:text-black"
               >
                 <Plus size={14} />
               </Button>
             </div>
-            <span className="font-bold">
+            <span className="text-base font-bold text-gray-900">
               {new Intl.NumberFormat('ko-KR').format(
                 item.price * item.quantity,
               )}
@@ -57,7 +57,7 @@ export default function SelectedItemList({
           </div>
           <button
             onClick={() => onRemove(item.id)}
-            className="absolute top-3 right-3 text-gray-400 transition-colors hover:text-red-500"
+            className="absolute top-3 right-3 text-gray-400 transition-colors hover:text-gray-700"
           >
             <X size={18} />
           </button>
