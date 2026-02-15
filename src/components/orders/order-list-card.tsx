@@ -10,21 +10,26 @@ import { OrderStatus } from '@/types/enums';
 
 const STATUS_LABEL: Record<OrderStatus, string> = {
   [OrderStatus.ORDER_RECEIVED]: '주문 완료',
+  [OrderStatus.ORDER_CONFIRMED]: '주문 확정',
   [OrderStatus.CANCELED]: '주문 취소',
 };
 
 interface OrderListCardProps {
   order: OrderSummary;
+  hideActions?: boolean;
 }
 
-export default function OrderListCard({ order }: OrderListCardProps) {
+export default function OrderListCard({
+  order,
+  hideActions = false,
+}: OrderListCardProps) {
   const router = useRouter();
   const repItem = order.items[0];
   const [showAlert, setShowAlert] = useState(false);
-  const isCanceled = order.orderStatus === OrderStatus.CANCELED;
+  const canCancel = order.orderStatus === OrderStatus.ORDER_RECEIVED;
 
   const handleCancelClick = () => {
-    if (isCanceled) {
+    if (!canCancel) {
       setShowAlert(true);
     } else {
       router.push(`/orders/${order.orderId}/cancel`);
@@ -54,8 +59,10 @@ export default function OrderListCard({ order }: OrderListCardProps) {
             alt={repItem?.productName || '상품 이미지'}
             width={110}
             height={110}
+            className="h-40 w-30 shrink-0 object-contain"
           />
           <div className="flex flex-col gap-6 text-xl leading-[18px] font-medium">
+            <span>{repItem?.brandName}</span>
             <span>{repItem?.productName}</span>
             <span>
               {repItem?.selectedColor} / {repItem?.selectedSize}
@@ -67,36 +74,42 @@ export default function OrderListCard({ order }: OrderListCardProps) {
           </div>
         </div>
 
-        {/* 문의하기 링크 */}
-        <div className="my-8 flex justify-end">
-          <button className="flex items-center leading-[18px] font-medium text-[#999999] transition-colors">
-            상품 문의하기 &gt;
-          </button>
-        </div>
+        {hideActions ? null : (
+          <>
+            {/* 문의하기 링크 */}
+            <div className="my-8 flex justify-end">
+              <button className="flex items-center leading-[18px] font-medium text-[#999999] transition-colors">
+                상품 문의하기 &gt;
+              </button>
+            </div>
 
-        {/* 하단 버튼 그룹 */}
-        <div className="grid h-[46px] grid-cols-2 gap-[14px] text-xl leading-normal font-medium -tracking-[0.6px]">
-          <Button
-            variant="outline"
-            className="h-full rounded-md bg-[#C1C1C1] text-xl"
-            onClick={handleCancelClick}
-          >
-            <span>상품 취소하기</span>
-          </Button>
-          <Button
-            className="bg-ongil-teal h-full rounded-md text-xl text-white"
-            onClick={() => router.push(`/orders/${order.orderId}`)}
-          >
-            <span>주문 상세 보기</span>
-          </Button>
-        </div>
+            {/* 하단 버튼 그룹 */}
+            <div className="grid h-[46px] grid-cols-2 gap-[14px] text-xl leading-normal font-medium -tracking-[0.6px]">
+              <Button
+                variant="outline"
+                className="h-full rounded-md bg-[#C1C1C1] text-xl"
+                onClick={handleCancelClick}
+              >
+                <span>상품 취소하기</span>
+              </Button>
+              <Button
+                className="bg-ongil-teal h-full rounded-md text-xl text-white"
+                onClick={() => router.push(`/orders/${order.orderId}`)}
+              >
+                <span>주문 상세 보기</span>
+              </Button>
+            </div>
+          </>
+        )}
       </CardContent>
 
       {showAlert && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
           <div className="mx-5 w-full max-w-md rounded-2xl bg-white p-6">
             <p className="mb-6 text-center text-xl font-bold">
-              이미 취소된 주문입니다.
+              {order.orderStatus === OrderStatus.CANCELED
+                ? '이미 취소된 주문입니다.'
+                : '주문 확정 상태에서는 취소할 수 없습니다.'}
             </p>
             <button
               className="bg-ongil-teal w-full rounded-xl py-3 text-lg text-white"

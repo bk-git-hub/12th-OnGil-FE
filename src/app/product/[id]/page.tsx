@@ -7,10 +7,15 @@ import { getMyWishlist } from '@/app/actions/wishlist';
 
 interface PageProps {
   params: Promise<{ id: string }>;
+  searchParams: Promise<{ from?: string | string[] }>;
 }
 
-export default async function ProductPage({ params }: PageProps) {
+export default async function ProductPage({ params, searchParams }: PageProps) {
   const { id } = await params;
+  const resolvedSearchParams = await searchParams;
+  const backHref = Array.isArray(resolvedSearchParams.from)
+    ? resolvedSearchParams.from[0]
+    : resolvedSearchParams.from;
   const productId = Number(id);
 
   // 1. 상품 상세 + 부가 데이터 병렬 조회
@@ -48,6 +53,7 @@ export default async function ProductPage({ params }: PageProps) {
       similarProducts={similarProducts}
       userInfo={userInfo}
       analysisData={analysisData}
+      backHref={backHref}
       isLiked={isLiked}
       wishlistId={wishlistId}
     />

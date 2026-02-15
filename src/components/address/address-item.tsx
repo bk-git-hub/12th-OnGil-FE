@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import Link from 'next/link';
-import { useRouter } from 'next/navigation';
+import { usePathname, useRouter, useSearchParams } from 'next/navigation';
 import { deleteAddress } from '@/app/actions/address';
 import { AddressItem as AddressItemType } from '@/types/domain/address';
 
@@ -20,7 +20,21 @@ export default function AddressItem({
   showSelectButton = true,
 }: AddressItemProps) {
   const router = useRouter();
+  const pathname = usePathname();
+  const searchParams = useSearchParams();
   const [isDeleting, setIsDeleting] = useState(false);
+  const mode = searchParams.get('mode');
+  const returnTo = searchParams.get('returnTo');
+  const currentQuery = searchParams.toString();
+  const editReturnTo =
+    mode === 'select' && returnTo?.startsWith('/')
+      ? returnTo
+      : currentQuery
+        ? `${pathname}?${currentQuery}`
+        : undefined;
+  const editHref = editReturnTo
+    ? `/address/${item.addressId}?returnTo=${encodeURIComponent(editReturnTo)}`
+    : `/address/${item.addressId}`;
 
   const handleDelete = async () => {
     if (!confirm('정말 이 배송지를 삭제하시겠습니까?')) return;
@@ -79,7 +93,7 @@ export default function AddressItem({
         }`}
       >
         <Link
-          href={`/address/${item.addressId}`}
+          href={editHref}
           className="bg-ongil-teal flex h-16 items-center justify-center rounded-2xl text-xl font-semibold text-white"
         >
           수정

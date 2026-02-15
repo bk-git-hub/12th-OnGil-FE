@@ -135,7 +135,6 @@ export async function changeOrderShippingAddress(
       `/orders/${orderId}/delivery-address`,
       { addressId },
     );
-    revalidatePath(`/orders/${orderId}`);
   } catch (error) {
     rethrowNextError(error);
     console.error('주문 배송지 변경 실패:', error);

@@ -5,11 +5,23 @@ import { CloseXButton } from '@/components/ui/close-button';
 
 interface PageProps {
   params: Promise<{ addressId: string }>;
+  searchParams: Promise<{ returnTo?: string }>;
 }
 
-export default async function AddressEditPage({ params }: PageProps) {
+export default async function AddressEditPage({
+  params,
+  searchParams,
+}: PageProps) {
   const { addressId } = await params;
+  const { returnTo } = await searchParams;
   const id = Number(addressId);
+  const isOrderCancelReturn =
+    returnTo?.startsWith('/orders/') && returnTo.includes('/cancel');
+  const closeHref = isOrderCancelReturn
+    ? '/orders'
+    : returnTo?.startsWith('/')
+      ? returnTo
+      : '/address';
 
   if (Number.isNaN(id)) notFound();
 
@@ -40,7 +52,7 @@ export default async function AddressEditPage({ params }: PageProps) {
       <header className="relative flex items-center justify-center border-b py-4">
         <h1 className="text-lg font-bold">배송지 수정</h1>
         <div className="absolute right-5">
-          <CloseXButton />
+          <CloseXButton href={closeHref} replace={true} />
         </div>
       </header>
 

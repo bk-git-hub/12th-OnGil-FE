@@ -52,6 +52,7 @@ interface ProductDetailViewProps {
   similarProducts: Product[];
   userInfo: UserBodyInfo | null;
   analysisData: SizeAnalysisResult | null;
+  backHref?: string;
   isLiked?: boolean;
   wishlistId?: number;
 }
@@ -61,6 +62,7 @@ export default function ProductDetailView({
   similarProducts,
   userInfo,
   analysisData,
+  backHref,
   isLiked = false,
   wishlistId,
 }: ProductDetailViewProps) {
@@ -109,7 +111,7 @@ export default function ProductDetailView({
   return (
     <div className="relative min-h-screen bg-white pb-32">
       <ProductInteractionProvider key={product.id}>
-        <ProductHeader categoryID={product.categoryId} />
+        <ProductHeader categoryID={product.categoryId} backHref={backHref} />
 
         {/* 상단: 이미지 슬라이더 & 기본 정보 */}
         <ProductImageSlider
