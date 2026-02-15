@@ -15,9 +15,13 @@ const STATUS_LABEL: Record<OrderStatus, string> = {
 
 interface OrderListCardProps {
   order: OrderSummary;
+  hideActions?: boolean;
 }
 
-export default function OrderListCard({ order }: OrderListCardProps) {
+export default function OrderListCard({
+  order,
+  hideActions = false,
+}: OrderListCardProps) {
   const router = useRouter();
   const repItem = order.items[0];
   const [showAlert, setShowAlert] = useState(false);
@@ -67,29 +71,33 @@ export default function OrderListCard({ order }: OrderListCardProps) {
           </div>
         </div>
 
-        {/* 문의하기 링크 */}
-        <div className="my-8 flex justify-end">
-          <button className="flex items-center leading-[18px] font-medium text-[#999999] transition-colors">
-            상품 문의하기 &gt;
-          </button>
-        </div>
+        {hideActions ? null : (
+          <>
+            {/* 문의하기 링크 */}
+            <div className="my-8 flex justify-end">
+              <button className="flex items-center leading-[18px] font-medium text-[#999999] transition-colors">
+                상품 문의하기 &gt;
+              </button>
+            </div>
 
-        {/* 하단 버튼 그룹 */}
-        <div className="grid h-[46px] grid-cols-2 gap-[14px] text-xl leading-normal font-medium -tracking-[0.6px]">
-          <Button
-            variant="outline"
-            className="h-full rounded-md bg-[#C1C1C1] text-xl"
-            onClick={handleCancelClick}
-          >
-            <span>상품 취소하기</span>
-          </Button>
-          <Button
-            className="bg-ongil-teal h-full rounded-md text-xl text-white"
-            onClick={() => router.push(`/orders/${order.orderId}`)}
-          >
-            <span>주문 상세 보기</span>
-          </Button>
-        </div>
+            {/* 하단 버튼 그룹 */}
+            <div className="grid h-[46px] grid-cols-2 gap-[14px] text-xl leading-normal font-medium -tracking-[0.6px]">
+              <Button
+                variant="outline"
+                className="h-full rounded-md bg-[#C1C1C1] text-xl"
+                onClick={handleCancelClick}
+              >
+                <span>상품 취소하기</span>
+              </Button>
+              <Button
+                className="bg-ongil-teal h-full rounded-md text-xl text-white"
+                onClick={() => router.push(`/orders/${order.orderId}`)}
+              >
+                <span>주문 상세 보기</span>
+              </Button>
+            </div>
+          </>
+        )}
       </CardContent>
 
       {showAlert && (

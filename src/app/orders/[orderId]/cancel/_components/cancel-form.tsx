@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect, useRef } from 'react';
-import { useRouter } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
 import { cancelOrder, getRefundInfo } from '@/app/actions/order';
 import { getAddresses } from '@/app/actions/address';
 import {
@@ -79,10 +79,27 @@ function useFocusTrap(active: boolean) {
 
 export function CancelForm({ orderDetail, defaultAddress }: CancelFormProps) {
   const router = useRouter();
+  const searchParams = useSearchParams();
   const orderId = orderDetail.id;
+  const selectedAddressIdParam = searchParams.get('selectedAddressId');
+  const selectedAddressId = selectedAddressIdParam
+    ? Number(selectedAddressIdParam)
+    : null;
+  const hasSelectedAddressId =
+    selectedAddressId !== null && !Number.isNaN(selectedAddressId);
+  const returnToOrderDetail = `/orders/${orderId}`;
+  const encodedReturnTo = encodeURIComponent(returnToOrderDetail);
+  const addressListHref = `/address?mode=select&returnTo=${encodedReturnTo}`;
+  const orderDetailHref = hasSelectedAddressId
+    ? `/orders/${orderId}?selectedAddressId=${selectedAddressId}`
+    : `/orders/${orderId}`;
 
-  const [step, setStep] = useState<Step>('reason');
-  const [selectedReason, setSelectedReason] = useState<string | null>(null);
+  const [step, setStep] = useState<Step>(
+    searchParams.get('step') === 'address' ? 'address' : 'reason',
+  );
+  const [selectedReason, setSelectedReason] = useState<string | null>(
+    searchParams.get('step') === 'address' ? 'WRONG_ADDRESS' : null,
+  );
   const [detail, setDetail] = useState('');
   const [submitting, setSubmitting] = useState(false);
   const [addToCart, setAddToCart] = useState(false);
@@ -140,8 +157,12 @@ export function CancelForm({ orderDetail, defaultAddress }: CancelFormProps) {
     getAddresses()
       .then((addresses) => {
         if (!isMounted) return;
+        const selectedAddress = hasSelectedAddressId
+          ? addresses.find((addr) => addr.addressId === selectedAddressId) ||
+            null
+          : null;
         const latestDefaultAddress =
-          addresses.find((addr) => addr.isDefault) || null;
+          selectedAddress || addresses.find((addr) => addr.isDefault) || null;
         setCurrentDefaultAddress(latestDefaultAddress);
       })
       .catch((error) => {
@@ -162,7 +183,7 @@ export function CancelForm({ orderDetail, defaultAddress }: CancelFormProps) {
     return () => {
       isMounted = false;
     };
-  }, [step, addressReloadTick]);
+  }, [step, addressReloadTick, hasSelectedAddressId, selectedAddressId]);
 
   const handleReasonSelect = (reasonId: string) => {
     setSelectedReason(reasonId);
@@ -258,7 +279,7 @@ export function CancelForm({ orderDetail, defaultAddress }: CancelFormProps) {
       <>
         <p className="mb-8 text-center text-xl">주문이 취소되었습니다.</p>
 
-        <OrderListCard order={orderSummary} />
+        <OrderListCard order={orderSummary} hideActions />
 
         <button
           className="bg-ongil-teal sticky bottom-20 mt-8 w-full rounded-xl py-4 text-2xl text-white"
@@ -408,7 +429,10 @@ export function CancelForm({ orderDetail, defaultAddress }: CancelFormProps) {
     return (
       <div className="flex h-full flex-col justify-between bg-white">
         <div className="flex-1 pb-10">
-          <ShippingInfoCard address={currentDefaultAddress} />
+          <ShippingInfoCard
+            address={currentDefaultAddress}
+            actionHref={addressListHref}
+          />
           <p
             className="mt-4 px-1 text-center text-sm text-gray-600"
             aria-live="polite"
@@ -445,10 +469,10 @@ export function CancelForm({ orderDetail, defaultAddress }: CancelFormProps) {
             className={`h-14 w-full rounded-xl text-lg font-bold text-white ${
               canProceed ? 'bg-ongil-teal' : 'cursor-not-allowed bg-gray-300'
             }`}
-            onClick={() => setStep('confirm')}
+            onClick={() => router.push(orderDetailHref)}
             disabled={!canProceed}
           >
-            다음 단계
+            주문 상세로
           </button>
         </div>
       </div>

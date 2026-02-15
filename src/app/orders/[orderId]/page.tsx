@@ -4,7 +4,8 @@ import Link from 'next/link';
 import { getOrderDetail } from '@/app/actions/order';
 import { CloseXButton } from '@/components/ui/close-button';
 import DeleteOrderButton from '@/components/orders/delete-order-button';
-import { notFound } from 'next/navigation';
+import { notFound, redirect } from 'next/navigation';
+import { changeOrderShippingAddress } from '@/app/actions/address';
 
 export const metadata: Metadata = {
   title: '주문 상세 | OnGil',
@@ -13,14 +14,32 @@ export const metadata: Metadata = {
 
 interface OrderPageProps {
   params: Promise<{ orderId: string }>;
+  searchParams: Promise<{ selectedAddressId?: string | string[] }>;
 }
 
-export default async function OrderDetailPage({ params }: OrderPageProps) {
+export default async function OrderDetailPage({
+  params,
+  searchParams,
+}: OrderPageProps) {
   const { orderId } = await params;
+  const query = await searchParams;
   const numericId = Number(orderId);
   if (Number.isNaN(numericId)) {
     notFound();
   }
+
+  const selectedAddressIdParam = Array.isArray(query.selectedAddressId)
+    ? query.selectedAddressId[0]
+    : query.selectedAddressId;
+  const selectedAddressId = selectedAddressIdParam
+    ? Number(selectedAddressIdParam)
+    : null;
+
+  if (selectedAddressId && !Number.isNaN(selectedAddressId)) {
+    await changeOrderShippingAddress(numericId, selectedAddressId);
+    redirect(`/orders/${numericId}`);
+  }
+
   const order = await getOrderDetail(numericId);
 
   const formatDate = (dateString: string) => {
@@ -48,7 +67,7 @@ export default async function OrderDetailPage({ params }: OrderPageProps) {
       <header className="flex items-center justify-center py-8">
         <h1 className="text-3xl font-semibold">주문 상세</h1>
         <div className="absolute right-5">
-          <CloseXButton />
+          <CloseXButton href="/orders" />
         </div>
       </header>
 
