@@ -28,6 +28,10 @@ const nextConfig: NextConfig = {
         protocol: 'https',
         hostname: 'image.msscdn.net', // 무신사 상품 이미지 호스팅
       },
+      {
+        protocol: 'https',
+        hostname: 'image.queenit.kr', // 카테고리 이미지 호스팅
+      },
     ],
   },
 
