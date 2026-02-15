@@ -43,7 +43,7 @@ export default function StepNavigator({ activeStep, onStepChange }: Props) {
       <header className="fixed top-0 z-50 w-full max-w-md bg-white backdrop-blur-md">
         {/* 1. 타이틀 바 */}
         <div className="mt-8 flex h-14 items-center gap-4 px-6">
-          <CloseButton href={backHref} />
+          <CloseButton href={backHref} replace={true} />
           <h1 className="flex-1 pr-8 text-center text-3xl leading-normal font-semibold">
             주문/결제
           </h1>

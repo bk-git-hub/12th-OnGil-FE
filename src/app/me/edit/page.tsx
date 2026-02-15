@@ -26,7 +26,7 @@ export default async function MyEditPage() {
       <header className="sticky top-0 z-10 flex items-center justify-center border-b border-[#d9d9d9] bg-white py-4">
         <h1 className="text-3xl font-semibold">내 정보 관리</h1>
         <div className="absolute top-1/2 left-5 -translate-y-1/2">
-          <CloseButton href="/me" />
+          <CloseButton href="/me" replace={true} />
         </div>
       </header>
 

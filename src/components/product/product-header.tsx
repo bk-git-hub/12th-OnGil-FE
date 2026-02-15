@@ -7,6 +7,7 @@ import { CartCountBadge } from '@/components/cart/cart-count-badge';
 
 interface ProductHeaderProps {
   categoryID: string | number | undefined;
+  backHref?: string;
   initialCartCount?: number;
 }
 
@@ -17,12 +18,15 @@ interface ProductHeaderProps {
  * @param {number} props.initialCartCount - 초기 장바구니 담긴 개수 (SSR)
  * @returns {JSX.Element} 상품 헤더 컴포넌트
  */
-export default function ProductHeader({ categoryID }: ProductHeaderProps) {
-  const backLink = categoryID ? `/products/${categoryID}` : '/products/top-all';
+export default function ProductHeader({
+  categoryID,
+  backHref,
+}: ProductHeaderProps) {
+  const backLink = backHref || (categoryID ? `/category` : '/category');
 
   return (
     <header className="sticky top-0 z-50 flex h-[90px] w-full items-center justify-between bg-white px-[18px]">
-      <CloseButton />
+      <CloseButton href={backLink} replace={true} />
       <span className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 text-3xl font-semibold">
         상품 정보
       </span>

@@ -4,11 +4,16 @@ import { Product } from '@/types/domain/product';
 // 카드 UI 컴포넌트, 클릭 시 상세 페이지로 이동함.
 interface ProductCardProps {
   product: Product;
+  detailFrom?: string;
 }
 
-export default function ProductCard({ product }: ProductCardProps) {
+export default function ProductCard({ product, detailFrom }: ProductCardProps) {
+  const href = detailFrom
+    ? `/product/${product.id}?from=${encodeURIComponent(detailFrom)}`
+    : `/product/${product.id}`;
+
   return (
-    <Link href={`/product/${product.id}`} className="block">
+    <Link href={href} className="block">
       <div className="font-pretendard flex w-41 flex-col gap-1">
         <img
           src={product.thumbnailImageUrl}
