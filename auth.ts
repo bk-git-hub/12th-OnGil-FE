@@ -6,6 +6,61 @@ import { TokenRefreshReqDto, TokenRefreshResDto } from '@/types/domain/auth';
 import { ApiResponse } from '@/types/common';
 
 const TOKEN_REFRESH_BUFFER = 60 * 1000;
+const REDACTED = '[REDACTED]';
+const SENSITIVE_TOKEN_KEYS = new Set([
+  'accessToken',
+  'refreshToken',
+  'access_token',
+  'refresh_token',
+  'id_token',
+  'token',
+  'email',
+  'password',
+  'username',
+]);
+
+function maskSensitiveUrl(url: string): string {
+  try {
+    const parsedUrl = new URL(url);
+    if (parsedUrl.searchParams.has('code')) {
+      parsedUrl.searchParams.set('code', REDACTED);
+    }
+    return parsedUrl.toString();
+  } catch {
+    return url.replace(/([?&]code=)[^&]*/i, `$1${REDACTED}`);
+  }
+}
+
+function maskTokenField(value: unknown): string {
+  if (typeof value !== 'string') return REDACTED;
+  if (value.length <= 10) return REDACTED;
+  return `${value.slice(0, 4)}...${value.slice(-4)}`;
+}
+
+function sanitizeLogData(value: unknown, seen = new WeakSet<object>): unknown {
+  if (Array.isArray(value)) {
+    return value.map((entry) => sanitizeLogData(entry, seen));
+  }
+
+  if (value && typeof value === 'object') {
+    if (seen.has(value as object)) {
+      return '[Circular]';
+    }
+    seen.add(value as object);
+
+    return Object.entries(value as Record<string, unknown>).reduce(
+      (acc, [key, entryValue]) => {
+        acc[key] = SENSITIVE_TOKEN_KEYS.has(key)
+          ? maskTokenField(entryValue)
+          : sanitizeLogData(entryValue, seen);
+        return acc;
+      },
+      {} as Record<string, unknown>,
+    );
+  }
+
+  return value;
+}
 
 async function refreshAccessToken(token: JWT): Promise<JWT | null> {
   try {
@@ -58,21 +113,35 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
         if (!parsed.success) return null;
         const { provider, code } = parsed.data;
 
-        const backendUrl = `${process.env.BACKEND_API_URL}/auth/oauth/${provider}?code=${code}`;
-        console.log(backendUrl);
+        const backendUrl = `${process.env.BACKEND_API_URL}/auth/oauth/${provider}?code=${encodeURIComponent(code)}`;
+        const method = provider === 'google' ? 'GET' : 'POST';
+        console.log(
+          `[${provider}] OAuth Request:`,
+          method,
+          maskSensitiveUrl(backendUrl),
+        );
+
         try {
+          // Google uses GET, Kakao uses POST
           const res = await fetch(backendUrl, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
+            method,
+            ...(method === 'POST' && {
+              headers: { 'Content-Type': 'application/json' },
+            }),
           });
+
+          console.log(`[${provider}] Response status:`, res.status);
 
           if (!res.ok) {
             const error = await res.json();
-            console.log(error);
+            console.error(
+              `[${provider}] Backend error:`,
+              sanitizeLogData(error),
+            );
             throw new Error('Backend verification failed');
           }
           const { data } = await res.json();
-          console.log(data);
+          console.log(`[${provider}] Success data:`, sanitizeLogData(data));
 
           return {
             userId: data.userId,
@@ -115,7 +184,7 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
 
           if (!res.ok) throw new Error('Invalid credentials');
           const { data } = await res.json();
-          console.log(data);
+          console.log('Credentials login success:', sanitizeLogData(data));
 
           return {
             userId: data.userId,
@@ -146,6 +215,11 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
           profileUrl: user.profileUrl,
           accessTokenExpires: Date.now() + expiresIn * 1000,
         };
+      }
+
+      // Only attempt refresh if we have a refresh token (user is logged in)
+      if (!token.refreshToken) {
+        return token;
       }
 
       if (Date.now() < (token.accessTokenExpires ?? 0) - TOKEN_REFRESH_BUFFER) {
