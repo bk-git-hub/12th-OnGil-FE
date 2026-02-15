@@ -15,6 +15,11 @@ export default function ReviewStatusTabs({
   activeTab,
   onTabChange,
 }: ReviewStatusTabsProps) {
+  const safeWritableCount =
+    Number.isFinite(writableCount) && writableCount >= 0 ? writableCount : 0;
+  const safeWrittenCount =
+    Number.isFinite(writtenCount) && writtenCount >= 0 ? writtenCount : 0;
+
   return (
     <div className="overflow-hidden rounded-xl border border-[#d1d1d1] bg-[#efefef]">
       <div className="grid grid-cols-2">
@@ -29,7 +34,7 @@ export default function ReviewStatusTabs({
           onClick={() => onTabChange('writable')}
         >
           쓸 수 있는 후기
-          <br />({writableCount}개)
+          <br />({safeWritableCount}개)
         </button>
         <button
           type="button"
@@ -42,7 +47,7 @@ export default function ReviewStatusTabs({
           onClick={() => onTabChange('written')}
         >
           내가 쓴 후기
-          <br />({writtenCount}개)
+          <br />({safeWrittenCount}개)
         </button>
       </div>
     </div>
