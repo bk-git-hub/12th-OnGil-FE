@@ -1,4 +1,5 @@
 import { getAddresses, getMyAddress } from '@/app/actions/address';
+import { Suspense } from 'react';
 import AddressList from '@/components/address/address-list';
 import AddressPageFooter from '@/components/address/address-page-footer';
 import { CloseButton } from '@/components/ui/close-button';
@@ -68,11 +69,19 @@ export default async function AddressListPage({
             <p className="mt-1 text-xl">새로운 배송지를 추가해 주세요.</p>
           </div>
         ) : (
-          <AddressList
-            addresses={resolvedAddresses}
-            showSelectButton={!isManageMode}
-            initialSelectedAddressId={initialSelectedAddressId}
-          />
+          <Suspense
+            fallback={
+              <div className="flex h-60 items-center justify-center rounded-3xl border border-[#bdbdbd] bg-white text-gray-500">
+                배송지 목록을 불러오는 중입니다.
+              </div>
+            }
+          >
+            <AddressList
+              addresses={resolvedAddresses}
+              showSelectButton={!isManageMode}
+              initialSelectedAddressId={initialSelectedAddressId}
+            />
+          </Suspense>
         )}
       </div>
 

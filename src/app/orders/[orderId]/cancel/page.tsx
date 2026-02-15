@@ -1,4 +1,5 @@
 import { Metadata } from 'next';
+import { Suspense } from 'react';
 import { getOrderDetail } from '@/app/actions/order';
 import { getAddresses } from '@/app/actions/address';
 import { notFound } from 'next/navigation';
@@ -42,7 +43,15 @@ export default async function CancelReasonPage({ params }: CancelPageProps) {
         </div>
       </header>
 
-      <CancelForm orderDetail={orderDetail} defaultAddress={defaultAddress} />
+      <Suspense
+        fallback={
+          <div className="flex min-h-[50vh] items-center justify-center text-gray-500">
+            불러오는 중...
+          </div>
+        }
+      >
+        <CancelForm orderDetail={orderDetail} defaultAddress={defaultAddress} />
+      </Suspense>
     </div>
   );
 }
