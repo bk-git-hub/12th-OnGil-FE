@@ -58,7 +58,7 @@ export default async function AddressListPage({
       <header className="sticky top-0 z-10 flex items-center justify-center border-b border-gray-500 bg-white py-4">
         <h1 className="text-2xl font-bold">배송지 관리</h1>
         <div className="absolute top-1/2 left-5 -translate-y-1/2">
-          <CloseButton href={closeHref} replace={isSelectMode} />
+          <CloseButton href={closeHref} replace={!!closeHref} />
         </div>
       </header>
 

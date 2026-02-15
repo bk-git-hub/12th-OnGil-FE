@@ -87,7 +87,7 @@ export default async function OrderDetailPage({
       <header className="flex items-center justify-center py-8">
         <h1 className="text-3xl font-semibold">주문 상세</h1>
         <div className="absolute right-5">
-          <CloseXButton href="/orders" />
+          <CloseXButton href="/orders" replace={true} />
         </div>
       </header>
       {showAddressUpdateError ? (

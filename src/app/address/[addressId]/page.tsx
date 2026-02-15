@@ -46,7 +46,7 @@ export default async function AddressEditPage({
       <header className="relative flex items-center justify-center border-b py-4">
         <h1 className="text-lg font-bold">배송지 수정</h1>
         <div className="absolute right-5">
-          <CloseXButton href={closeHref} />
+          <CloseXButton href={closeHref} replace={true} />
         </div>
       </header>
 
