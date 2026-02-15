@@ -82,6 +82,7 @@ export function CancelForm({ orderDetail, defaultAddress }: CancelFormProps) {
   const searchParams = useSearchParams();
   const orderId = orderDetail.id;
   const selectedAddressIdParam = searchParams.get('selectedAddressId');
+  const urlStep = searchParams.get('step');
   const selectedAddressId = selectedAddressIdParam
     ? Number(selectedAddressIdParam)
     : null;
@@ -97,10 +98,10 @@ export function CancelForm({ orderDetail, defaultAddress }: CancelFormProps) {
     : `/orders/${orderId}`;
 
   const [step, setStep] = useState<Step>(
-    searchParams.get('step') === 'address' ? 'address' : 'reason',
+    urlStep === 'address' ? 'address' : 'reason',
   );
   const [selectedReason, setSelectedReason] = useState<string | null>(
-    searchParams.get('step') === 'address' ? 'WRONG_ADDRESS' : null,
+    urlStep === 'address' ? 'WRONG_ADDRESS' : null,
   );
   const [detail, setDetail] = useState('');
   const [submitting, setSubmitting] = useState(false);
@@ -127,6 +128,17 @@ export function CancelForm({ orderDetail, defaultAddress }: CancelFormProps) {
 
   const alertRef = useFocusTrap(!!alertMessage);
   const confirmRef = useFocusTrap(showModal);
+
+  useEffect(() => {
+    if (urlStep === 'address') {
+      setStep('address');
+      setSelectedReason('WRONG_ADDRESS');
+      return;
+    }
+
+    setStep('reason');
+    setSelectedReason(null);
+  }, [urlStep]);
 
   useEffect(() => {
     if (step !== 'confirm') return;

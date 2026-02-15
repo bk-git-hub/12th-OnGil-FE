@@ -23,9 +23,17 @@ export default function AddressItem({
   const pathname = usePathname();
   const searchParams = useSearchParams();
   const [isDeleting, setIsDeleting] = useState(false);
+  const mode = searchParams.get('mode');
+  const returnTo = searchParams.get('returnTo');
   const currentQuery = searchParams.toString();
-  const editHref = currentQuery
-    ? `/address/${item.addressId}?returnTo=${encodeURIComponent(`${pathname}?${currentQuery}`)}`
+  const editReturnTo =
+    mode === 'select' && returnTo?.startsWith('/')
+      ? returnTo
+      : currentQuery
+        ? `${pathname}?${currentQuery}`
+        : undefined;
+  const editHref = editReturnTo
+    ? `/address/${item.addressId}?returnTo=${encodeURIComponent(editReturnTo)}`
     : `/address/${item.addressId}`;
 
   const handleDelete = async () => {

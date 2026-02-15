@@ -15,7 +15,13 @@ export default async function AddressEditPage({
   const { addressId } = await params;
   const { returnTo } = await searchParams;
   const id = Number(addressId);
-  const closeHref = returnTo?.startsWith('/') ? returnTo : '/address';
+  const isOrderCancelReturn =
+    returnTo?.startsWith('/orders/') && returnTo.includes('/cancel');
+  const closeHref = isOrderCancelReturn
+    ? '/orders'
+    : returnTo?.startsWith('/')
+      ? returnTo
+      : '/address';
 
   if (Number.isNaN(id)) notFound();
 

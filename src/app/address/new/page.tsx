@@ -9,7 +9,13 @@ export default async function NewAddressPage({
   searchParams,
 }: NewAddressPageProps) {
   const { returnTo } = await searchParams;
-  const closeHref = returnTo?.startsWith('/') ? returnTo : '/address';
+  const isOrderCancelReturn =
+    returnTo?.startsWith('/orders/') && returnTo.includes('/cancel');
+  const closeHref = isOrderCancelReturn
+    ? '/orders'
+    : returnTo?.startsWith('/')
+      ? returnTo
+      : '/address';
 
   return (
     <main className="mx-auto min-h-screen max-w-2xl bg-white leading-normal">

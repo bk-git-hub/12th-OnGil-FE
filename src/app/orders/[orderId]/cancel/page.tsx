@@ -39,7 +39,7 @@ export default async function CancelReasonPage({ params }: CancelPageProps) {
       <header className="relative flex items-center justify-center py-8">
         <h1 className="text-3xl font-semibold">주문 취소</h1>
         <div className="absolute right-5">
-          <CloseXButton fallbackHref="/orders" />
+          <CloseXButton href="/orders" replace={true} />
         </div>
       </header>
 
