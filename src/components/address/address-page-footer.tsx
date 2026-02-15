@@ -16,6 +16,11 @@ export default function AddressPageFooter({
 }: AddressPageFooterProps) {
   const router = useRouter();
   const searchParams = useSearchParams();
+  const nextAddressParams = new URLSearchParams(searchParams.toString());
+  nextAddressParams.delete('selectedAddressId');
+  const newAddressHref = nextAddressParams.toString()
+    ? `/address/new?${nextAddressParams.toString()}`
+    : '/address/new';
 
   const handleCompleteSelection = () => {
     const selectedAddressId = searchParams.get('selectedAddressId');
@@ -46,7 +51,7 @@ export default function AddressPageFooter({
       <div className="mx-auto w-full max-w-2xl">
         {isManageMode ? (
           <Link
-            href="/address/new"
+            href={newAddressHref}
             className="bg-ongil-teal mx-auto flex h-16 items-center justify-center rounded-3xl text-xl font-bold text-white transition-opacity hover:opacity-90"
           >
             배송지 추가
@@ -54,7 +59,7 @@ export default function AddressPageFooter({
         ) : (
           <div className="grid grid-cols-2 gap-4">
             <Link
-              href="/address/new"
+              href={newAddressHref}
               className="flex h-16 items-center justify-center rounded-3xl border border-[#bdbdbd] bg-white text-xl font-bold text-[#111]"
             >
               배송지 추가

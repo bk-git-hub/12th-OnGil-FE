@@ -4,7 +4,8 @@ import Link from 'next/link';
 import { getOrderDetail } from '@/app/actions/order';
 import { CloseXButton } from '@/components/ui/close-button';
 import DeleteOrderButton from '@/components/orders/delete-order-button';
-import { notFound } from 'next/navigation';
+import { notFound, redirect } from 'next/navigation';
+import { changeOrderShippingAddress } from '@/app/actions/address';
 
 export const metadata: Metadata = {
   title: '주문 상세 | OnGil',
@@ -13,14 +14,52 @@ export const metadata: Metadata = {
 
 interface OrderPageProps {
   params: Promise<{ orderId: string }>;
+  searchParams: Promise<{
+    selectedAddressId?: string | string[];
+    addressUpdateError?: string | string[];
+  }>;
 }
 
-export default async function OrderDetailPage({ params }: OrderPageProps) {
+export default async function OrderDetailPage({
+  params,
+  searchParams,
+}: OrderPageProps) {
   const { orderId } = await params;
+  const query = await searchParams;
   const numericId = Number(orderId);
   if (Number.isNaN(numericId)) {
     notFound();
   }
+
+  const selectedAddressIdParam = Array.isArray(query.selectedAddressId)
+    ? query.selectedAddressId[0]
+    : query.selectedAddressId;
+  const selectedAddressId = selectedAddressIdParam
+    ? Number(selectedAddressIdParam)
+    : null;
+  const addressUpdateErrorParam = Array.isArray(query.addressUpdateError)
+    ? query.addressUpdateError[0]
+    : query.addressUpdateError;
+  const showAddressUpdateError = addressUpdateErrorParam === '1';
+
+  if (
+    selectedAddressId &&
+    Number.isInteger(selectedAddressId) &&
+    selectedAddressId > 0
+  ) {
+    let addressChanged = false;
+    try {
+      await changeOrderShippingAddress(numericId, selectedAddressId);
+      addressChanged = true;
+    } catch (error) {
+      console.error('주문 배송지 변경 실패:', error);
+      redirect(`/orders/${numericId}?addressUpdateError=1`);
+    }
+    if (addressChanged) {
+      redirect(`/orders/${numericId}`);
+    }
+  }
+
   const order = await getOrderDetail(numericId);
 
   const formatDate = (dateString: string) => {
@@ -48,9 +87,14 @@ export default async function OrderDetailPage({ params }: OrderPageProps) {
       <header className="flex items-center justify-center py-8">
         <h1 className="text-3xl font-semibold">주문 상세</h1>
         <div className="absolute right-5">
-          <CloseXButton />
+          <CloseXButton href="/orders" replace={true} />
         </div>
       </header>
+      {showAddressUpdateError ? (
+        <div className="mb-4 rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
+          배송지 변경에 실패했습니다. 잠시 후 다시 시도해주세요.
+        </div>
+      ) : null}
 
       {/* 주문 번호 및 날짜 */}
       <section className="mb-8">

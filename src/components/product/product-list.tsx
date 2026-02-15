@@ -7,9 +7,14 @@ interface ProductListProps {
   products: Product[];
   title?: string;
   totalElements?: number;
+  productDetailFrom?: string;
 }
 
-export function ProductList({ products, totalElements }: ProductListProps) {
+export function ProductList({
+  products,
+  totalElements,
+  productDetailFrom,
+}: ProductListProps) {
   const count = totalElements ?? products.length;
 
   return (
@@ -28,7 +33,11 @@ export function ProductList({ products, totalElements }: ProductListProps) {
         ) : (
           <div className="grid grid-cols-2 gap-x-4 gap-y-8 sm:grid-cols-3 lg:grid-cols-4">
             {products.map((product) => (
-              <ProductCard key={product.id} product={product} />
+              <ProductCard
+                key={product.id}
+                product={product}
+                detailFrom={productDetailFrom}
+              />
             ))}
           </div>
         )}

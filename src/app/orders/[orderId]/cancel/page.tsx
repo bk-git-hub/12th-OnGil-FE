@@ -1,4 +1,5 @@
 import { Metadata } from 'next';
+import { Suspense } from 'react';
 import { getOrderDetail } from '@/app/actions/order';
 import { getAddresses } from '@/app/actions/address';
 import { notFound } from 'next/navigation';
@@ -38,11 +39,19 @@ export default async function CancelReasonPage({ params }: CancelPageProps) {
       <header className="relative flex items-center justify-center py-8">
         <h1 className="text-3xl font-semibold">주문 취소</h1>
         <div className="absolute right-5">
-          <CloseXButton />
+          <CloseXButton href="/orders" replace={true} />
         </div>
       </header>
 
-      <CancelForm orderDetail={orderDetail} defaultAddress={defaultAddress} />
+      <Suspense
+        fallback={
+          <div className="flex min-h-[50vh] items-center justify-center text-gray-500">
+            불러오는 중...
+          </div>
+        }
+      >
+        <CancelForm orderDetail={orderDetail} defaultAddress={defaultAddress} />
+      </Suspense>
     </div>
   );
 }

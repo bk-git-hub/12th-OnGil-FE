@@ -12,7 +12,7 @@ export default async function ProductListContainer({
   params,
   searchParams,
 }: ProductListContainerProps) {
-  const { id: subCategoryId } = await params;
+  const { parentId, id: subCategoryId } = await params;
   const { sortType = ProductSortType.POPULAR, page = '0' } = await searchParams;
 
   // 쿼리 파라미터 검증
@@ -50,6 +50,7 @@ export default async function ProductListContainer({
     <ProductList
       products={result.products.content}
       totalElements={totalElements}
+      productDetailFrom={`/category/${parentId}/${subCategoryId}`}
     />
   );
 }

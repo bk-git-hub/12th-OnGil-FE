@@ -24,6 +24,27 @@ const nextConfig: NextConfig = {
         protocol: 'http',
         hostname: 'img1.kakaocdn.net', // 카카오 프로필 이미지 호스팅
       },
+      {
+        protocol: 'https',
+        hostname: 'lh3.googleusercontent.com',
+      },
+
+      {
+        protocol: 'https',
+        hostname: 'image.msscdn.net',
+      },
+      {
+        protocol: 'https',
+        hostname: 'image.hmall.com',
+      },
+      {
+        protocol: 'https',
+        hostname: 'image.queenit.kr',
+      },
+      {
+        protocol: 'https',
+        hostname: 'img.a-bly.com',
+      },
     ],
   },
 

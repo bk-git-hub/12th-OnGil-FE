@@ -25,6 +25,7 @@ export enum CategoryType {
 // Order
 export enum OrderStatus {
   ORDER_RECEIVED = 'ORDER_RECEIVED',
+  ORDER_CONFIRMED = 'CONFIRMED',
   CANCELED = 'CANCELED',
 }
 
