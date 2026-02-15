@@ -59,8 +59,10 @@ export default function OrderListCard({
             alt={repItem?.productName || '상품 이미지'}
             width={110}
             height={110}
+            className="h-40 w-30 shrink-0 object-contain"
           />
           <div className="flex flex-col gap-6 text-xl leading-[18px] font-medium">
+            <span>{repItem?.brandName}</span>
             <span>{repItem?.productName}</span>
             <span>
               {repItem?.selectedColor} / {repItem?.selectedSize}
