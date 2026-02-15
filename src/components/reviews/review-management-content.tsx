@@ -8,6 +8,7 @@ import {
 } from '@/types/domain/review';
 import PendingReviewList from './pending-review-list';
 import ReviewStatusTabs, { ReviewTab } from './review-status-tabs';
+import WrittenReviewList from './written-review-list';
 
 interface ReviewManagementContentProps {
   pendingReviews: WritableReviewItem[];
@@ -44,17 +45,7 @@ export default function ReviewManagementContent({
           작성한 리뷰가 없습니다.
         </p>
       ) : (
-        <ul className="mt-5 space-y-3">
-          {writtenReviews.map((review) => (
-            <li
-              key={review.id}
-              className="rounded-xl border border-[#d9d9d9] bg-white p-4"
-            >
-              <p className="text-sm text-[#767676]">{review.brandName}</p>
-              <p className="mt-1 text-lg font-semibold text-black">{review.name}</p>
-            </li>
-          ))}
-        </ul>
+        <WrittenReviewList writtenReviews={writtenReviews} />
       )}
     </section>
   );
