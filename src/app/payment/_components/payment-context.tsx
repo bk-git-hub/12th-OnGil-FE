@@ -3,6 +3,7 @@
 import { createContext, useContext, useState, type ReactNode } from 'react';
 import { useRouter } from 'next/navigation';
 import type { UserInfoResDto } from '@/types/domain/user';
+import type { AddressItem } from '@/types/domain/address';
 import {
   createOrderFromCart,
   createOrderFromProduct,
@@ -45,6 +46,7 @@ interface ProviderProps {
   user: UserInfoResDto;
   items: PaymentDisplayItem[];
   orderType: 'cart' | 'direct';
+  defaultAddress: AddressItem | null;
   children: ReactNode;
 }
 
@@ -56,6 +58,7 @@ export function PaymentProvider({
   user,
   items,
   orderType,
+  defaultAddress,
   children,
 }: ProviderProps) {
   const router = useRouter();
@@ -63,12 +66,12 @@ export function PaymentProvider({
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const [shippingInfo, setShippingInfo] = useState<ShippingFormState>({
-    recipient: user.name,
-    recipientPhone: user.phone || '',
-    deliveryAddress: '',
-    detailAddress: '',
-    postalCode: '',
-    deliveryMessage: '',
+    recipient: defaultAddress?.recipientName || user.name,
+    recipientPhone: defaultAddress?.recipientPhone || user.phone || '',
+    deliveryAddress: defaultAddress?.baseAddress || '',
+    detailAddress: defaultAddress?.detailAddress || '',
+    postalCode: defaultAddress?.postalCode || '',
+    deliveryMessage: defaultAddress?.deliveryRequest || '',
   });
 
   const [usedPoints, setUsedPoints] = useState(0);
@@ -162,10 +165,8 @@ export function ConnectedStepNavigator() {
  * Context와 연결된 배송지 정보 섹션
  */
 export function ConnectedShippingSection() {
-  const { shippingInfo, setShippingInfo } = usePayment();
-  return (
-    <ShippingInfoSection value={shippingInfo} onChange={setShippingInfo} />
-  );
+  const { shippingInfo } = usePayment();
+  return <ShippingInfoSection value={shippingInfo} />;
 }
 
 /**

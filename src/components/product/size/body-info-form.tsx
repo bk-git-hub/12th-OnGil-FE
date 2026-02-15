@@ -6,7 +6,6 @@ import {
   useForm,
   Control,
   Controller,
-  UseFormRegister,
   Path,
   FieldValues,
   FieldError,
@@ -70,7 +69,7 @@ const ICON_STYLE = cn(
 interface InputFieldProps<T extends FieldValues> {
   label: string;
   name: Path<T>;
-  register: UseFormRegister<T>;
+  control: Control<T>;
   unit: string;
   error?: FieldError;
   placeholder?: string;
@@ -80,30 +79,38 @@ interface InputFieldProps<T extends FieldValues> {
 const InputField = <T extends FieldValues>({
   label,
   name,
-  register,
+  control,
   unit,
   error,
   placeholder = '0',
 }: InputFieldProps<T>) => (
   <div className="space-y-2">
     <label className={STYLES.label}>{label}</label>
-    <div
-      className={cn(
-        STYLES.baseBox,
-        error ? STYLES.errorBorder : STYLES.normalBorder,
+    <Controller
+      control={control}
+      name={name}
+      render={({ field }) => (
+        <div
+          className={cn(
+            STYLES.baseBox,
+            error ? STYLES.errorBorder : STYLES.normalBorder,
+          )}
+        >
+          <input
+            type="number"
+            inputMode="numeric"
+            step="1"
+            placeholder={placeholder}
+            value={field.value ?? ''}
+            onChange={(event) => field.onChange(event.target.value)}
+            className="w-full bg-transparent text-right text-base outline-none placeholder:text-gray-400"
+          />
+          <span className="ml-2 text-base whitespace-nowrap text-gray-700">
+            {unit}
+          </span>
+        </div>
       )}
-    >
-      <input
-        type="number"
-        inputMode="decimal"
-        placeholder={placeholder}
-        {...register(name, { valueAsNumber: true })}
-        className="w-full bg-transparent text-right text-base outline-none placeholder:text-gray-400"
-      />
-      <span className="ml-2 text-base whitespace-nowrap text-gray-700">
-        {unit}
-      </span>
-    </div>
+    />
     {error && <p className="text-xs text-red-500">{error.message}</p>}
   </div>
 );
@@ -172,7 +179,10 @@ interface BodyInfoFormProps {
 }
 
 // 체형 정보 입력/수정 폼 컴포넌트, 위에서 만든 컴포넌트를 조립.
-export function BodyInfoForm({ initialData, onSuccess }: BodyInfoFormProps) {
+export default function BodyInfoForm({
+  initialData,
+  onSuccess,
+}: BodyInfoFormProps) {
   const router = useRouter();
   const pathname = usePathname();
   const [isPending, startTransition] = useTransition();
@@ -202,7 +212,6 @@ export function BodyInfoForm({ initialData, onSuccess }: BodyInfoFormProps) {
   };
 
   const {
-    register,
     control,
     handleSubmit,
     reset,
@@ -278,23 +287,23 @@ export function BodyInfoForm({ initialData, onSuccess }: BodyInfoFormProps) {
     <>
       <form
         onSubmit={handleSubmit(onSubmit)}
-        className="flex h-full flex-col justify-between bg-white"
+        className="flex h-full flex-col justify-between overflow-hidden bg-white"
       >
-        <div className="scrollbar-hide flex-1 overflow-y-auto px-[55px] pb-10">
+        <div className="scrollbar-hide flex-1 overflow-y-auto overscroll-y-contain px-[55px] pb-10">
           {/* 키 / 몸무게 섹션 */}
           <div className="flex flex-col gap-[74px]">
             <InputField
               label="키"
               name="height"
               unit="cm"
-              register={register}
+              control={control}
               error={errors.height}
             />
             <InputField
               label="몸무게"
               name="weight"
               unit="kg"
-              register={register}
+              control={control}
               error={errors.weight}
             />
           </div>

@@ -5,6 +5,7 @@ import {
   fetchCartOrderItems,
   fetchDirectOrderItems,
 } from '@/app/actions/order';
+import { getAddresses, getMyAddress } from '@/app/actions/address';
 import { getUserInfo } from '@/app/actions/user';
 import OrderItemsSection from './_components/order-items';
 import { SECTIONS } from './_components/constants';
@@ -32,11 +33,37 @@ export default async function PaymentPage({ searchParams }: PageProps) {
 
   const params = await searchParams;
   const isCartOrder = params.cart === 'true';
+  const selectedAddressIdParam = Array.isArray(params.selectedAddressId)
+    ? params.selectedAddressId[0]
+    : params.selectedAddressId;
+  const selectedAddressId = selectedAddressIdParam
+    ? Number(selectedAddressIdParam)
+    : null;
 
-  const [user, items] = await Promise.all([
+  const [user, items, addresses, myAddress] = await Promise.all([
     getUserInfo(),
     isCartOrder ? fetchCartOrderItems(params) : fetchDirectOrderItems(params),
+    getAddresses().catch(() => []),
+    getMyAddress().catch(() => null),
   ]);
+
+  const selectedAddress =
+    selectedAddressId && !Number.isNaN(selectedAddressId)
+      ? addresses.find((item) => item.addressId === selectedAddressId) || null
+      : null;
+  const defaultAddress =
+    selectedAddress || addresses.find((item) => item.isDefault) || null;
+  const resolvedDefaultAddress =
+    defaultAddress &&
+    myAddress?.hasShippingInfo &&
+    myAddress.shippingDetail.addressId === defaultAddress.addressId
+      ? {
+          ...defaultAddress,
+          deliveryRequest:
+            myAddress.shippingDetail.deliveryRequest ||
+            defaultAddress.deliveryRequest,
+        }
+      : defaultAddress;
 
   return (
     <main className="min-h-screen">
@@ -44,6 +71,7 @@ export default async function PaymentPage({ searchParams }: PageProps) {
         user={user}
         items={items}
         orderType={isCartOrder ? 'cart' : 'direct'}
+        defaultAddress={resolvedDefaultAddress}
       >
         <ConnectedStepNavigator />
 

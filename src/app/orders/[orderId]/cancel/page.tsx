@@ -1,5 +1,6 @@
 import { Metadata } from 'next';
 import { getOrderDetail } from '@/app/actions/order';
+import { getAddresses } from '@/app/actions/address';
 import { notFound } from 'next/navigation';
 import { CloseXButton } from '@/components/ui/close-button';
 import { CancelForm } from './_components/cancel-form';
@@ -18,12 +19,19 @@ interface CancelPageProps {
 export default async function CancelReasonPage({ params }: CancelPageProps) {
   const session = await auth();
   if (!session) redirect('/login');
+
   const { orderId } = await params;
   const numericId = Number(orderId);
   if (Number.isNaN(numericId)) {
     notFound();
   }
+
   const orderDetail = await getOrderDetail(numericId);
+  const addresses = await getAddresses().catch((error) => {
+    console.error('배송지 목록 조회 실패:', error);
+    return [];
+  });
+  const defaultAddress = addresses.find((addr) => addr.isDefault) || null;
 
   return (
     <div className="mx-auto min-h-screen max-w-2xl bg-white px-5 pb-20 leading-normal">
@@ -34,7 +42,7 @@ export default async function CancelReasonPage({ params }: CancelPageProps) {
         </div>
       </header>
 
-      <CancelForm orderDetail={orderDetail} />
+      <CancelForm orderDetail={orderDetail} defaultAddress={defaultAddress} />
     </div>
   );
 }
