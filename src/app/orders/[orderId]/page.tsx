@@ -14,7 +14,10 @@ export const metadata: Metadata = {
 
 interface OrderPageProps {
   params: Promise<{ orderId: string }>;
-  searchParams: Promise<{ selectedAddressId?: string | string[] }>;
+  searchParams: Promise<{
+    selectedAddressId?: string | string[];
+    addressUpdateError?: string | string[];
+  }>;
 }
 
 export default async function OrderDetailPage({
@@ -34,10 +37,23 @@ export default async function OrderDetailPage({
   const selectedAddressId = selectedAddressIdParam
     ? Number(selectedAddressIdParam)
     : null;
+  const addressUpdateErrorParam = Array.isArray(query.addressUpdateError)
+    ? query.addressUpdateError[0]
+    : query.addressUpdateError;
+  const showAddressUpdateError = addressUpdateErrorParam === '1';
 
-  if (selectedAddressId && !Number.isNaN(selectedAddressId)) {
-    await changeOrderShippingAddress(numericId, selectedAddressId);
-    redirect(`/orders/${numericId}`);
+  if (
+    selectedAddressId &&
+    Number.isInteger(selectedAddressId) &&
+    selectedAddressId > 0
+  ) {
+    try {
+      await changeOrderShippingAddress(numericId, selectedAddressId);
+      redirect(`/orders/${numericId}`);
+    } catch (error) {
+      console.error('주문 배송지 변경 실패:', error);
+      redirect(`/orders/${numericId}?addressUpdateError=1`);
+    }
   }
 
   const order = await getOrderDetail(numericId);
@@ -70,6 +86,11 @@ export default async function OrderDetailPage({
           <CloseXButton href="/orders" />
         </div>
       </header>
+      {showAddressUpdateError ? (
+        <div className="mb-4 rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
+          배송지 변경에 실패했습니다. 잠시 후 다시 시도해주세요.
+        </div>
+      ) : null}
 
       {/* 주문 번호 및 날짜 */}
       <section className="mb-8">
