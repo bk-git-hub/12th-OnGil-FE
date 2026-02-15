@@ -115,6 +115,7 @@ export type ReviewDetailResponse = ApiResponse<ReviewDetail>;
 
 export interface ProductWithReviewStats {
   id: number;
+  reviewId?: number; // 내가 쓴 리뷰 조회 응답에서 내려오는 실제 리뷰 ID(옵션)
   name: string;
   price: number;
   discountRate: number;

@@ -12,6 +12,8 @@ export default function WrittenReviewCard({ review }: WrittenReviewCardProps) {
     typeof review.reviewRating === 'number' ? review.reviewRating : 0;
   const safeReviewCount =
     typeof review.reviewCount === 'number' ? review.reviewCount : 0;
+  const resolvedReviewId =
+    typeof review.reviewId === 'number' ? review.reviewId : review.id;
 
   return (
     <li className="rounded-[16px] border border-black/50 bg-white p-5">
@@ -35,12 +37,20 @@ export default function WrittenReviewCard({ review }: WrittenReviewCardProps) {
         </div>
       </div>
 
-      <Link
-        href={`/product/${review.id}`}
-        className="mt-4 block w-full rounded-lg bg-[#005b5e] py-2 text-center text-base font-semibold text-white"
-      >
-        상품 보기
-      </Link>
+      <div className="mt-4 grid grid-cols-2 gap-2">
+        <Link
+          href={`/product/${review.id}`}
+          className="block w-full rounded-lg border border-[#005b5e] py-2 text-center text-base font-semibold text-[#005b5e]"
+        >
+          상품 보기
+        </Link>
+        <Link
+          href={`/reviews/detail/${resolvedReviewId}?productId=${review.id}`}
+          className="block w-full rounded-lg bg-[#005b5e] py-2 text-center text-base font-semibold text-white"
+        >
+          리뷰 JSON
+        </Link>
+      </div>
     </li>
   );
 }
