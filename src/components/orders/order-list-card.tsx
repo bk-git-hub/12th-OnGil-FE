@@ -10,6 +10,7 @@ import { OrderStatus } from '@/types/enums';
 
 const STATUS_LABEL: Record<OrderStatus, string> = {
   [OrderStatus.ORDER_RECEIVED]: '주문 완료',
+  [OrderStatus.ORDER_CONFIRMED]: '주문 확정',
   [OrderStatus.CANCELED]: '주문 취소',
 };
 
@@ -25,10 +26,10 @@ export default function OrderListCard({
   const router = useRouter();
   const repItem = order.items[0];
   const [showAlert, setShowAlert] = useState(false);
-  const isCanceled = order.orderStatus === OrderStatus.CANCELED;
+  const canCancel = order.orderStatus === OrderStatus.ORDER_RECEIVED;
 
   const handleCancelClick = () => {
-    if (isCanceled) {
+    if (!canCancel) {
       setShowAlert(true);
     } else {
       router.push(`/orders/${order.orderId}/cancel`);
@@ -104,7 +105,9 @@ export default function OrderListCard({
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
           <div className="mx-5 w-full max-w-md rounded-2xl bg-white p-6">
             <p className="mb-6 text-center text-xl font-bold">
-              이미 취소된 주문입니다.
+              {order.orderStatus === OrderStatus.CANCELED
+                ? '이미 취소된 주문입니다.'
+                : '주문 확정 상태에서는 취소할 수 없습니다.'}
             </p>
             <button
               className="bg-ongil-teal w-full rounded-xl py-3 text-lg text-white"
