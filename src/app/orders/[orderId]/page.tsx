@@ -81,6 +81,14 @@ export default async function OrderDetailPage({
     0,
   );
   const discountAmount = itemsTotal - order.totalAmount;
+  const deliveryAddress = order.deliveryAddress ?? '';
+  const bracketIndex = deliveryAddress.indexOf('(');
+  const deliveryAddressMain =
+    bracketIndex >= 0
+      ? deliveryAddress.slice(0, bracketIndex).trim()
+      : deliveryAddress;
+  const deliveryAddressSub =
+    bracketIndex >= 0 ? deliveryAddress.slice(bracketIndex).trim() : '';
 
   return (
     <main className="mx-auto min-h-screen max-w-2xl bg-white px-5 pb-20 leading-normal">
@@ -111,21 +119,22 @@ export default async function OrderDetailPage({
         {order.orderItems.map((item, index) => (
           <div
             key={index}
-            className="flex gap-4 rounded-xl border-2 border-gray-300 p-4"
+            className="flex items-start gap-4 rounded-xl border-2 border-gray-300 p-4"
           >
-            <Link href={`/product/${item.productId}`}>
+            <Link href={`/product/${item.productId}`} className="shrink-0">
               <Image
                 src={item.imageUrl}
                 alt={item.productName}
                 width={80}
                 height={80}
+                className="h-full w-24 rounded-md object-cover"
               />
             </Link>
-            <div className="flex flex-col gap-2">
+            <div className="flex min-w-0 flex-1 flex-col gap-2">
               <span className="text-lg font-medium">{item.brandName}</span>
               <Link
                 href={`/product/${item.productId}`}
-                className="text-lg hover:underline"
+                className="line-clamp-2 text-lg hover:underline"
               >
                 {item.productName}
               </Link>
@@ -153,7 +162,10 @@ export default async function OrderDetailPage({
         </div>
         <div className="flex py-2">
           <span className="w-28 text-gray-500">배송지</span>
-          <span>{order.deliveryAddress}</span>
+          <div className="space-y-1 [overflow-wrap:anywhere] whitespace-normal">
+            <p>{deliveryAddressMain}</p>
+            {deliveryAddressSub ? <p>{deliveryAddressSub}</p> : null}
+          </div>
         </div>
         {order.deliveryMessage && (
           <div className="flex py-2">
