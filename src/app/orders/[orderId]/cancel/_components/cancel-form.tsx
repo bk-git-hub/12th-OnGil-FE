@@ -89,8 +89,8 @@ export function CancelForm({ orderDetail, defaultAddress }: CancelFormProps) {
     selectedAddressId !== null &&
     Number.isInteger(selectedAddressId) &&
     selectedAddressId > 0;
-  const returnToOrderDetail = `/orders/${orderId}`;
-  const encodedReturnTo = encodeURIComponent(returnToOrderDetail);
+  const returnToCancelAddressStep = `/orders/${orderId}/cancel?step=address`;
+  const encodedReturnTo = encodeURIComponent(returnToCancelAddressStep);
   const addressListHref = `/address?mode=select&returnTo=${encodedReturnTo}`;
   const orderDetailHref = hasSelectedAddressId
     ? `/orders/${orderId}?selectedAddressId=${selectedAddressId}`
