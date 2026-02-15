@@ -1,3 +1,5 @@
+import { Suspense } from 'react';
+
 import PendingReviewContainer from '@/components/reviews/pending-review-container';
 import { CloseButton } from '@/components/ui/close-button';
 
@@ -11,7 +13,17 @@ export default function ReviewsPage() {
         </div>
       </header>
 
-      <PendingReviewContainer />
+      <Suspense
+        fallback={
+          <section className="px-5 py-8">
+            <p className="text-center text-xl text-[#9a9a9a]">
+              작성 가능한 리뷰를 불러오는 중...
+            </p>
+          </section>
+        }
+      >
+        <PendingReviewContainer />
+      </Suspense>
     </main>
   );
 }
