@@ -1,6 +1,6 @@
 import Image from 'next/image';
-import Link from 'next/link';
 
+import { initPendingReviewAction } from '@/app/actions/review';
 import { WritableReviewItem } from '@/types/domain/review';
 
 interface PendingReviewCardProps {
@@ -45,12 +45,16 @@ export default function PendingReviewCard({ review }: PendingReviewCardProps) {
         </div>
       </div>
 
-      <Link
-        href={`/review/write/${review.orderItemId}`}
-        className="mt-4 block rounded-lg bg-[#005b5e] py-2 text-center text-lg font-semibold text-white"
-      >
-        리뷰 쓰기
-      </Link>
+      <form action={initPendingReviewAction} className="mt-4">
+        <input type="hidden" name="orderItemId" value={review.orderItemId} />
+        <input type="hidden" name="productId" value={review.product.productId} />
+        <button
+          type="submit"
+          className="block w-full rounded-lg bg-[#005b5e] py-2 text-center text-lg font-semibold text-white"
+        >
+          리뷰 쓰기
+        </button>
+      </form>
     </li>
   );
 }
