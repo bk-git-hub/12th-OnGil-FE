@@ -9,6 +9,18 @@ interface ShippingInfoCardProps {
   actionLabel?: string;
 }
 
+function splitAddressByParen(address: string) {
+  const index = address.indexOf('(');
+  if (index < 0) {
+    return { main: address, sub: '' };
+  }
+
+  return {
+    main: address.slice(0, index).trim(),
+    sub: address.slice(index).trim(),
+  };
+}
+
 export default function ShippingInfoCard({
   address,
   title = '배송지 정보',
@@ -20,22 +32,30 @@ export default function ShippingInfoCard({
     actionHref ?? (address ? `/address/${address.addressId}` : '/address/new');
   const resolvedActionLabel =
     actionLabel ?? (address ? '배송지 수정하기' : '배송지 입력하기');
+  const baseAddress = address?.baseAddress?.trim() || '';
+  const detailAddress = address?.detailAddress?.trim() || '';
+  const fullAddress = [baseAddress, detailAddress].filter(Boolean).join(' ');
+  const { main: mainBaseAddress, sub: subBaseAddress } =
+    splitAddressByParen(baseAddress);
 
   return (
     <section className={className}>
-      <h2 className="mb-3 text-2xl">{title}</h2>
+      <h2 className="my-8 text-2xl">{title}</h2>
 
       <div className="rounded-xl border border-[#cfcfcf] bg-white p-4">
         {address ? (
           <div className="mb-5 flex flex-col gap-6 text-xl leading-normal text-black">
             <p>{address.recipientName}</p>
-            <p className="break-words whitespace-pre-wrap">
-              {[address.baseAddress, address.detailAddress]
-                .filter(Boolean)
-                .join(' ')}
-            </p>
+            <div
+              title={fullAddress}
+              className="space-y-1 leading-relaxed [overflow-wrap:anywhere] whitespace-normal"
+            >
+              <p>{mainBaseAddress}</p>
+              {subBaseAddress ? <p>{subBaseAddress}</p> : null}
+              {detailAddress ? <p>{detailAddress}</p> : null}
+            </div>
             <p>{address.recipientPhone}</p>
-            <p className="break-words whitespace-pre-wrap">
+            <p className="[overflow-wrap:anywhere] whitespace-pre-wrap">
               {address.deliveryRequest || '요청사항 없음'}
             </p>
           </div>
