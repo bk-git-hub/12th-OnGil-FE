@@ -22,7 +22,8 @@ export default function ProductHeader({
   categoryID,
   backHref,
 }: ProductHeaderProps) {
-  const backLink = backHref || (categoryID ? `/category` : '/category');
+  const backLink =
+    backHref || (categoryID ? `/category/${categoryID}` : '/category');
 
   return (
     <header className="sticky top-0 z-50 flex h-[90px] w-full items-center justify-between bg-white px-[18px]">
