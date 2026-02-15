@@ -32,6 +32,10 @@ const nextConfig: NextConfig = {
         protocol: 'https',
         hostname: 'image.queenit.kr', // 카테고리 이미지 호스팅
       },
+      {
+        protocol: 'https',
+        hostname: 'img.a-bly.com', // 카테고리 이미지 호스팅
+      },
     ],
   },
 
