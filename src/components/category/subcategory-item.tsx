@@ -31,11 +31,11 @@ export default function SubCategoryItem({
           alt={label}
           fill
           className="object-cover transition-transform duration-300 hover:scale-110"
-          sizes="(max-width: 768px) 33vw, 20vw"
+          sizes="(max-width: 768px) 50vw, 25vw"
           loading="lazy"
         />
       </div>
-      <span className="text-center text-xs font-medium break-keep text-gray-700">
+      <span className="text-center text-xl font-medium break-keep text-gray-700">
         {label}
       </span>
     </Link>
