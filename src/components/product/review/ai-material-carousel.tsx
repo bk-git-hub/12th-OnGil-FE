@@ -80,11 +80,11 @@ export default function AiMaterialCarousel({
             >
               <Card
                 className={cn(
-                  'border-ongil-teal h-full w-full max-w-[300px] gap-2 rounded-none border text-xl leading-5 font-medium -tracking-[0.08px] not-italic shadow-[1px_4px_4px_0px_rgba(0,0,0,0.25)]',
+                  'border-ongil-teal h-full w-full max-w-[330px] gap-2 rounded-none border not-italic shadow-[1px_4px_4px_0px_rgba(0,0,0,0.25)]',
                 )}
               >
                 <CardHeader className="pb-2">
-                  <CardTitle className="flex items-center gap-[10px] font-normal">
+                  <CardTitle className="flex items-center gap-[10px] text-2xl font-normal">
                     <Image
                       src={section.image}
                       alt={section.title}
@@ -94,16 +94,16 @@ export default function AiMaterialCarousel({
                     {section.title}
                   </CardTitle>
                 </CardHeader>
-                <CardContent>
-                  <ul className="space-y-2">
+                <CardContent className="px-4">
+                  <ul className="space-y-3">
                     {section.content
                       ?.slice(0, 4)
                       .map((text: string, idx: number) => (
                         <li
                           key={idx}
-                          className="flex items-start gap-4 text-sm"
+                          className="text-xl leading-8 font-normal break-keep"
                         >
-                          <span className="leading-relaxed">{text}</span>
+                          {text}
                         </li>
                       ))}
                   </ul>
