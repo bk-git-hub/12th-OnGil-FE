@@ -1,8 +1,12 @@
 'use server';
 
 import { redirect } from 'next/navigation';
+import { auth } from '/auth';
 
 import { api } from '@/lib/api-client';
+import type { ApiResponse } from '@/types/common';
+
+const BASE_URL = process.env.BACKEND_API_URL;
 
 interface InitReviewResponseData {
   reviewId: number;
@@ -49,6 +53,10 @@ interface ActionResult<T = undefined> {
   success: boolean;
   message?: string;
   data?: T;
+}
+
+interface ErrorResponse {
+  message?: string;
 }
 
 export async function initPendingReviewAction(formData: FormData) {
@@ -140,6 +148,65 @@ export async function generateMaterialAiReviewAction(
   } catch (error) {
     console.error('리뷰 소재 AI 생성 실패:', error);
     return { success: false, message: '소재 AI 생성에 실패했습니다.' };
+  }
+}
+
+export async function uploadReviewImagesAction(
+  formData: FormData,
+): Promise<ActionResult<string[]>> {
+  try {
+    if (!BASE_URL) {
+      return { success: false, message: 'BACKEND_API_URL이 설정되지 않았습니다.' };
+    }
+
+    const images = formData
+      .getAll('images')
+      .filter((item): item is File => item instanceof File && item.size > 0);
+
+    if (images.length === 0) {
+      return { success: false, message: '업로드할 이미지가 없습니다.' };
+    }
+    if (images.length > 5) {
+      return { success: false, message: '이미지는 최대 5장까지 업로드할 수 있습니다.' };
+    }
+
+    const session = await auth();
+    const accessToken = session?.accessToken as string | undefined;
+
+    const payload = new FormData();
+    images.forEach((file) => payload.append('images', file));
+
+    const response = await fetch(`${BASE_URL}/reviews/images`, {
+      method: 'POST',
+      headers: accessToken ? { Authorization: `Bearer ${accessToken}` } : {},
+      body: payload,
+      cache: 'no-store',
+    });
+
+    let responseData: unknown = null;
+    const contentType = response.headers.get('content-type');
+    if (contentType && contentType.includes('application/json')) {
+      responseData = await response.json();
+    } else {
+      responseData = await response.text();
+    }
+
+    if (!response.ok) {
+      const errorData =
+        typeof responseData === 'object' && responseData !== null
+          ? (responseData as ErrorResponse)
+          : { message: String(responseData) };
+      return {
+        success: false,
+        message: errorData.message || '리뷰 이미지 업로드에 실패했습니다.',
+      };
+    }
+
+    const uploadedUrls = (responseData as ApiResponse<string[]>).data ?? [];
+    return { success: true, data: uploadedUrls };
+  } catch (error) {
+    console.error('리뷰 이미지 업로드 실패:', error);
+    return { success: false, message: '리뷰 이미지 업로드에 실패했습니다.' };
   }
 }
 
