@@ -15,8 +15,6 @@ type FlowStep = 1 | 2 | 3;
 
 interface ReviewWriteFlowProps {
   reviewId: number;
-  orderItemId?: number;
-  productId?: number;
 }
 
 function parseCommaSeparated(value: string) {
@@ -33,11 +31,7 @@ function parseLineSeparated(value: string) {
     .filter(Boolean);
 }
 
-export default function ReviewWriteFlow({
-  reviewId,
-  orderItemId,
-  productId,
-}: ReviewWriteFlowProps) {
+export default function ReviewWriteFlow({ reviewId }: ReviewWriteFlowProps) {
   const router = useRouter();
   const [step, setStep] = useState<FlowStep>(1);
   const [isPending, startTransition] = useTransition();
@@ -153,9 +147,6 @@ export default function ReviewWriteFlow({
   return (
     <section className="space-y-4 px-5 py-6">
       <p className="text-lg font-semibold text-black">리뷰 ID: {reviewId}</p>
-      <p className="text-sm text-[#666666]">
-        orderItemId: {orderItemId ?? '-'} / productId: {productId ?? '-'}
-      </p>
       <p className="text-sm text-[#666666]">현재 단계: STEP {step}</p>
 
       {errorMessage ? <p className="text-sm text-red-600">{errorMessage}</p> : null}

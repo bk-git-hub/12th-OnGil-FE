@@ -46,10 +46,8 @@ interface ActionResult<T = undefined> {
 
 export async function initPendingReviewAction(formData: FormData) {
   const rawOrderItemId = formData.get('orderItemId');
-  const rawProductId = formData.get('productId');
   const orderItemId =
     typeof rawOrderItemId === 'string' ? Number(rawOrderItemId) : NaN;
-  const productId = typeof rawProductId === 'string' ? Number(rawProductId) : NaN;
 
   if (!Number.isFinite(orderItemId)) {
     return;
@@ -60,13 +58,7 @@ export async function initPendingReviewAction(formData: FormData) {
     {},
     { params: { orderItemId } },
   );
-  const searchParams = new URLSearchParams();
-  searchParams.set('orderItemId', String(orderItemId));
-  if (Number.isFinite(productId)) {
-    searchParams.set('productId', String(productId));
-  }
-
-  redirect(`/review/write/${data.reviewId}?${searchParams.toString()}`);
+  redirect(`/review/write/${data.reviewId}`);
 }
 
 export async function patchReviewStep1Action(

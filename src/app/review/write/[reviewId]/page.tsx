@@ -12,13 +12,9 @@ export const metadata: Metadata = {
 
 interface ReviewWritePageProps {
   params: Promise<{ reviewId: string }>;
-  searchParams: Promise<{ orderItemId?: string; productId?: string }>;
 }
 
-export default async function ReviewWritePage({
-  params,
-  searchParams,
-}: ReviewWritePageProps) {
+export default async function ReviewWritePage({ params }: ReviewWritePageProps) {
   const session = await auth();
 
   if (!session) {
@@ -26,10 +22,7 @@ export default async function ReviewWritePage({
   }
 
   const { reviewId } = await params;
-  const query = await searchParams;
   const numericReviewId = Number(reviewId);
-  const orderItemId = query.orderItemId ? Number(query.orderItemId) : undefined;
-  const productId = query.productId ? Number(query.productId) : undefined;
 
   if (!Number.isFinite(numericReviewId)) {
     notFound();
@@ -44,11 +37,7 @@ export default async function ReviewWritePage({
         </div>
       </header>
 
-      <ReviewWriteFlow
-        reviewId={numericReviewId}
-        orderItemId={Number.isFinite(orderItemId) ? orderItemId : undefined}
-        productId={Number.isFinite(productId) ? productId : undefined}
-      />
+      <ReviewWriteFlow reviewId={numericReviewId} />
     </main>
   );
 }

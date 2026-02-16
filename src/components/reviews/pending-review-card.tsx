@@ -47,7 +47,6 @@ export default function PendingReviewCard({ review }: PendingReviewCardProps) {
 
       <form action={initPendingReviewAction} className="mt-4">
         <input type="hidden" name="orderItemId" value={review.orderItemId} />
-        <input type="hidden" name="productId" value={review.product.productId} />
         <button
           type="submit"
           className="block w-full rounded-lg bg-[#005b5e] py-2 text-center text-lg font-semibold text-white"
