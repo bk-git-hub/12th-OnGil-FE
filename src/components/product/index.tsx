@@ -36,15 +36,6 @@ export {
 } from './product-interaction-context';
 
 // ----------------------------------------------------------------------
-// 6. 데이터 비즈니스 로직
-// ----------------------------------------------------------------------
-export {
-  getProductsByCategoryId,
-  getProductById,
-  getCategoryTitle,
-} from './product-service';
-
-// ----------------------------------------------------------------------
 // 7. 사이즈 관련 컴포넌트
 // ----------------------------------------------------------------------
 export { ProductSizeContent } from './size/product-size-content';
