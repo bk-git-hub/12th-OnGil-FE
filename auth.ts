@@ -162,16 +162,16 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
       id: 'credentials-login',
       name: 'Email & Password',
       credentials: {
-        email: { label: 'Email', type: 'email' },
+        loginId: { label: 'Login ID', type: 'text' },
         password: { label: 'Password', type: 'password' },
       },
       async authorize(credentials) {
         const parsed = z
-          .object({ email: z.string().min(1), password: z.string().min(1) })
+          .object({ loginId: z.string().min(1), password: z.string().min(1) })
           .safeParse(credentials);
 
         if (!parsed.success) return null;
-        const { email, password } = parsed.data;
+        const { loginId, password } = parsed.data;
 
         const backendUrl = `${process.env.BACKEND_API_URL}/auth/login`;
 
@@ -179,7 +179,7 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
           const res = await fetch(backendUrl, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ email, password }),
+            body: JSON.stringify({ loginId, password }),
           });
 
           if (!res.ok) throw new Error('Invalid credentials');
