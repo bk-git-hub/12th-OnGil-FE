@@ -67,6 +67,8 @@ function createEmptyStats(oneMonthReviewCount: number): ReviewStatsData {
   };
 }
 
+const REVIEW_FILTER_STICKY_TOP = 188;
+
 /**
  * 상품 리뷰 섹션 컴포넌트, 리뷰 탭, 필터, 정렬, 리뷰 리스트 포함
  * 리뷰 관련 모든 UI와 상태 관리를 담당
@@ -181,7 +183,10 @@ export default function ProductReviewContent({
             />
 
             {/* Sticky 필터/정렬 바 */}
-            <div className="sticky top-[188px] z-20 flex flex-col gap-3 bg-white px-4 py-3 transition-all">
+            <div
+              className="sticky z-20 flex flex-col gap-3 bg-white px-4 py-3 transition-all"
+              style={{ top: REVIEW_FILTER_STICKY_TOP }}
+            >
               {/* 내 사이즈 보기 스위치 */}
               <div className="flex justify-end space-x-2">
                 <div className="flex items-center space-x-2">

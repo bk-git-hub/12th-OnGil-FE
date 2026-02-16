@@ -183,6 +183,7 @@ export default function ReviewSummarySection({
         reviewType={reviewType}
         recommendedSize={recommendedSize}
         stats={stats}
+        initialMonthSummaries={monthQuestionSummaries ?? undefined}
         availableOptions={availableOptions}
       />
     </div>

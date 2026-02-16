@@ -30,6 +30,7 @@ interface ReviewSummaryModalProps {
   reviewType: 'INITIAL' | 'ONE_MONTH';
   recommendedSize?: string;
   stats?: ReviewStatsData | null;
+  initialMonthSummaries?: ReviewCategorySummary[];
   availableOptions?: {
     sizes: string[];
     colors: string[];
@@ -43,6 +44,7 @@ export default function ReviewSummaryModal({
   reviewType,
   recommendedSize,
   stats,
+  initialMonthSummaries,
   availableOptions = { sizes: [], colors: [] },
 }: ReviewSummaryModalProps) {
   const [api, setApi] = useState<CarouselApi>();
@@ -169,6 +171,14 @@ export default function ReviewSummaryModal({
   useEffect(() => {
     if (!isOpen || reviewType !== 'ONE_MONTH' || !stats) return;
 
+    if (initialMonthSummaries && initialMonthSummaries.length >= 2) {
+      const [initialSizeSummary, initialColorSummary] = initialMonthSummaries;
+      setBaseMonthSizeStat(initialSizeSummary);
+      setBaseMonthColorStat(initialColorSummary);
+      setIsColorLoading(false);
+      return;
+    }
+
     let isMounted = true;
     setIsColorLoading(true);
 
@@ -210,6 +220,7 @@ export default function ReviewSummaryModal({
     stats,
     sizeCategory,
     colorCategory,
+    initialMonthSummaries,
   ]);
 
   useEffect(() => {

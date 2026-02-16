@@ -120,6 +120,11 @@ export default function ReviewItem({
   const materialFeatures = normalizeToList(
     review.initialSecondAnswers?.materialFeatures,
   );
+  const reviewTextByKey = {
+    sizeReview: review.sizeReview?.[0],
+    materialReview: review.materialReview?.[0],
+    textReview: review.textReview,
+  } as const;
 
   return (
     <div className="border-b py-6 last:border-none">
@@ -201,10 +206,7 @@ export default function ReviewItem({
       <div className="mb-4 flex flex-col gap-4">
         {REVIEW_CONTENT_CONFIG.filter((item) => item.key !== 'textReview').map(
           ({ label, key }) => {
-            const text =
-              key === 'sizeReview'
-                ? review.sizeReview?.[0]
-                : review.materialReview?.[0];
+            const text = reviewTextByKey[key];
 
             return (
               <div key={key} className="flex flex-col gap-4 text-xl">
