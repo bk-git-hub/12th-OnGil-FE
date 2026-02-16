@@ -1,8 +1,8 @@
+import Image from 'next/image';
 import Link from 'next/link';
 import { Product } from '@/types/domain/product';
 import { WishlistButton } from '../product/wishlist-button';
 
-// For demonstration, let's assume the Product type can include isLiked
 interface RecommendedProduct extends Product {
   isLiked?: boolean;
 }
@@ -28,7 +28,7 @@ export default function RecommendedProductCard({
           <span className="text-ongil-teal text-xl font-bold">
             {productInfo.finalPrice.toLocaleString('ko-KR')}
           </span>
-          {productInfo.price && (
+          {productInfo.price > 0 && (
             <span className="font-normal text-black/50 line-through">
               {productInfo.price.toLocaleString('ko-KR')}
             </span>
@@ -57,7 +57,7 @@ export default function RecommendedProductCard({
     <Link href={href} className="block">
       <div className="font-pretendard flex flex-col rounded-[10px] border border-[#d9d9d9] pt-6 shadow-md">
         <div className="relative self-center">
-          <img
+          <Image
             src={productInfo.thumbnailImageUrl}
             alt={`${productInfo.name} 이미지`}
             width={236}

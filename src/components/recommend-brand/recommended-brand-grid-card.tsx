@@ -1,3 +1,4 @@
+import Image from 'next/image';
 import Link from 'next/link';
 import { Product } from '@/types/domain/product';
 
@@ -11,7 +12,7 @@ export default function RecommendedBrandGridCard({
   return (
     <Link href={href} className="block">
       <div className="font-pretendard flex w-41 flex-col gap-1">
-        <img
+        <Image
           src={product.thumbnailImageUrl}
           alt={product.name}
           width={164}
