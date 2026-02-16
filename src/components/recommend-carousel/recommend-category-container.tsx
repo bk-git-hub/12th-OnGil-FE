@@ -1,5 +1,5 @@
 import { api } from '@/lib/api-client';
-import { Category } from '@/types/domain/category';
+import { Category, SubCategory } from '@/types/domain/category';
 import { RecommendCarousel } from './recommend-carousel';
 import { RecommendCarouselItem } from './recommend-carousel-item';
 import { RecommendedCategoryCard } from './recommended-category-card';
@@ -10,9 +10,20 @@ export default async function RecommendCategoryContainer() {
   if (!session) {
     return null;
   }
-  const categories = await api.get<Category[]>('/categories/recommended-sub');
+  const [categories, allCategories] = await Promise.all([
+    api.get<SubCategory[]>('/categories/recommended-sub'),
+    api.get<Category[]>('/categories'),
+  ]);
 
-  console.log(categories);
+  const parentCategoryLookup = allCategories.reduce<Record<number, number>>(
+    (lookup, parent) => {
+      parent.subCategories.forEach((sub) => {
+        lookup[sub.categoryId] = parent.categoryId;
+      });
+      return lookup;
+    },
+    {},
+  );
 
   return (
     <div className="w-full overflow-hidden">
@@ -20,7 +31,12 @@ export default async function RecommendCategoryContainer() {
       <RecommendCarousel heading="추천 카테고리">
         {categories.map((category) => (
           <RecommendCarouselItem key={category.categoryId}>
-            <RecommendedCategoryCard category={category} />
+            <RecommendedCategoryCard
+              category={category}
+              parentCategoryId={
+                parentCategoryLookup[category.categoryId] ?? null
+              }
+            />
           </RecommendCarouselItem>
         ))}
       </RecommendCarousel>
