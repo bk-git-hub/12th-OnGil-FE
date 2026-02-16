@@ -6,56 +6,11 @@ const nextConfig: NextConfig = {
     remotePatterns: [
       {
         protocol: 'https',
-        hostname: 'images.unsplash.com', // 실제 이미지 호스팅 사이트
-      },
-      {
-        protocol: 'https',
-        hostname: 'placehold.co', // 더미 이미지 호스팅 사이트
-      },
-      {
-        protocol: 'https',
-        hostname: 'example.com', // TODO: 실제 API 이미지 호스트로 교체 필요
-      },
-      {
-        protocol: 'https',
-        hostname: 'ongil-bucket.s3.ap-northeast-2.amazonaws.com', // 광고 이미지 S3 버킷
+        hostname: '**',
       },
       {
         protocol: 'http',
-        hostname: 'img1.kakaocdn.net', // 카카오 프로필 이미지 호스팅
-      },
-      {
-        protocol: 'https',
-        hostname: 'lh3.googleusercontent.com',
-      },
-
-      {
-        protocol: 'https',
-        hostname: 'image.msscdn.net',
-      },
-      {
-        protocol: 'https',
-        hostname: 'image.hmall.com',
-      },
-      {
-        protocol: 'https',
-        hostname: 'image.queenit.kr',
-      },
-      {
-        protocol: 'https',
-        hostname: 'img.a-bly.com',
-      },
-      {
-        protocol: 'https',
-        hostname: 'd2aqktunwdrlxe.cloudfront.net',
-      },
-      {
-        protocol: 'https',
-        hostname: 'tweecokr.cdn.smart-img.com',
-      },
-      {
-        protocol: 'https',
-        hostname: 'nervpjh.openhost.cafe24.com',
+        hostname: '**',
       },
     ],
   },
