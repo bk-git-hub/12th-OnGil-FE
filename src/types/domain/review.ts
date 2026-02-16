@@ -46,9 +46,10 @@ export interface PageResponse<T> {
 export interface ReviewerInfo {
   height: number;
   weight: number;
-  usualTopSize: string;
-  usualBottomSize: string;
-  usualShoeSize: string;
+  usualTopSize?: string;
+  usualBottomSize?: string;
+  usualShoeSize?: string;
+  usualSize?: string;
 }
 
 export interface ReviewPurchaseOption {
@@ -63,17 +64,55 @@ export interface ReviewProductSimple {
   thumbnailImageUrl: string;
 }
 
+export const CLOTHING_CATEGORY_OPTIONS = [
+  'OUTER',
+  'TOP',
+  'SKIRT',
+  'PANTS',
+  'DRESS',
+] as const;
+export type ClothingCategory =
+  | (typeof CLOTHING_CATEGORY_OPTIONS)[number]
+  | string;
+
+export const SIZE_ANSWER_OPTIONS = [
+  'TIGHT_IMMEDIATELY',
+  'TIGHT_WHEN_MOVING',
+  'LOOSE',
+  'TOO_BIG_NEED_ALTERATION',
+  'COMFORTABLE',
+] as const;
+export type SizeAnswer = (typeof SIZE_ANSWER_OPTIONS)[number] | string;
+
+export const MATERIAL_ANSWER_OPTIONS = [
+  'VERY_GOOD',
+  'GOOD',
+  'NORMAL',
+  'BAD',
+  'VERY_BAD',
+] as const;
+export type MaterialAnswer = (typeof MATERIAL_ANSWER_OPTIONS)[number] | string;
+
+export const COLOR_ANSWER_OPTIONS = [
+  'BRIGHTER_THAN_SCREEN',
+  'SAME_AS_SCREEN',
+  'DARKER_THAN_SCREEN',
+] as const;
+export type ColorAnswer = (typeof COLOR_ANSWER_OPTIONS)[number] | string;
+
 // 1차 설문 (필수)
 export interface InitialFirstAnswers {
   sizeAnswer: string;
+  sizeSecondaryType?: string | null;
   colorAnswer: string;
   materialAnswer: string;
+  materialSecondaryType?: string | null;
 }
 
 // 2차 설문 (선택)
 export interface InitialSecondAnswers {
-  fitIssueParts: string | null;
-  materialFeatures: string | null;
+  fitIssueParts: string[] | string | null;
+  materialFeatures: string[] | string | null;
 }
 
 // 한달 사용 답변
@@ -92,6 +131,8 @@ export interface ReviewDetail {
 
   aiGeneratedReview: string | null;
   textReview: string;
+  sizeReview?: string[];
+  materialReview?: string[];
   reviewImageUrls: string[];
 
   reviewer: ReviewerInfo;
@@ -108,6 +149,25 @@ export interface ReviewDetail {
 
 // 5. 리뷰 상세 조회
 export type ReviewDetailResponse = ApiResponse<ReviewDetail>;
+
+export interface ProductReviewListItem {
+  reviewId: number;
+  reviewType: string;
+  rating: number;
+  helpfulCount: number;
+  isHelpful: boolean;
+  textReview: string;
+  sizeReview?: string[];
+  materialReview?: string[];
+  reviewImageUrls: string[];
+  reviewer?: ReviewerInfo;
+  purchaseOption?: ReviewPurchaseOption;
+  initialFirstAnswers?: InitialFirstAnswers;
+  initialSecondAnswers?: InitialSecondAnswers;
+  answers?: InitialFirstAnswers;
+  oneMonthAnswers?: OneMonthAnswers;
+  createdAt: string;
+}
 
 // ----------------------------------------------------------------------
 // 3. 상품 정보
@@ -160,7 +220,8 @@ export type WritableReviewsResponse = ApiResponse<WritableReviewItem[]>;
 // ----------------------------------------------------------------------
 
 export interface ReviewStatDetail {
-  label: string;
+  label?: string;
+  answer?: string;
   count: number;
   percentage?: number;
 }
