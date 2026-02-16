@@ -51,6 +51,7 @@ interface ProductDetailViewProps {
   similarProducts: Product[];
   userInfo: UserBodyInfo | null;
   analysisData: SizeAnalysisResult | null;
+  productReviewSummary?: ReviewStatsData;
   backHref?: string;
   isLiked?: boolean;
   wishlistId?: number;
@@ -61,11 +62,22 @@ export default function ProductDetailView({
   similarProducts,
   userInfo,
   analysisData,
+  productReviewSummary,
   backHref,
   isLiked = false,
   wishlistId,
 }: ProductDetailViewProps) {
   const [activeTab, setActiveTab] = useState('desc');
+  const availableSizes = [
+    ...new Set((product.options ?? []).map((option) => option.size)),
+  ];
+  const availableColors = [
+    ...new Set((product.options ?? []).map((option) => option.color)),
+  ];
+  const recommendedSize =
+    analysisData?.recommendedSizes.find((size) =>
+      availableSizes.includes(size),
+    ) ?? undefined;
 
   // 리뷰 섹션에 전달할 상품 정보 구성
   const reviewProductInfo = {
@@ -74,38 +86,40 @@ export default function ProductDetailView({
     materialDescription: product.materialDescription,
     materialName: product.materialOriginal,
     availableOptions: {
-      sizes: ['XS', 'S', 'M', 'L', 'XL'],
-      colors: ['Black', 'White', 'Navy', 'Gray', 'Beige'],
+      sizes: availableSizes,
+      colors: availableColors,
     },
+    recommendedSize,
   };
 
   // 리뷰 통계 데이터 (없을 경우 기본값 설정)
-  const reviewStats = product.reviewSummary || {
-    averageRating: 0,
-    initialReviewCount: 0,
-    oneMonthReviewCount: 0,
-    sizeSummary: {
-      category: '사이즈',
-      totalCount: 0,
-      topAnswer: null,
-      topAnswerCount: 0,
-      answerStats: [],
-    },
-    colorSummary: {
-      category: '색감',
-      totalCount: 0,
-      topAnswer: null,
-      topAnswerCount: 0,
-      answerStats: [],
-    },
-    materialSummary: {
-      category: '소재',
-      totalCount: 0,
-      topAnswer: null,
-      topAnswerCount: 0,
-      answerStats: [],
-    },
-  };
+  const reviewStats = productReviewSummary ||
+    product.reviewSummary || {
+      averageRating: 0,
+      initialReviewCount: 0,
+      oneMonthReviewCount: 0,
+      sizeSummary: {
+        category: '사이즈',
+        totalCount: 0,
+        topAnswer: null,
+        topAnswerCount: 0,
+        answerStats: [],
+      },
+      colorSummary: {
+        category: '색감',
+        totalCount: 0,
+        topAnswer: null,
+        topAnswerCount: 0,
+        answerStats: [],
+      },
+      materialSummary: {
+        category: '소재',
+        totalCount: 0,
+        topAnswer: null,
+        topAnswerCount: 0,
+        answerStats: [],
+      },
+    };
 
   return (
     <div className="relative min-h-screen bg-white pb-32">
@@ -124,7 +138,9 @@ export default function ProductDetailView({
             <ProductTab
               activateTab={activeTab}
               onTabChange={setActiveTab}
-              reviewCount={product.reviewCount ?? 0}
+              reviewCount={
+                reviewStats.initialReviewCount + reviewStats.oneMonthReviewCount
+              }
             />
           }
         >

@@ -1,6 +1,7 @@
 import { notFound } from 'next/navigation';
 import { getProductDetail, getSimilarProducts } from '@/app/actions/product';
 import { getMyBodyInfoAction } from '@/app/actions/body-info';
+import { getProductReviewsSummaryAction } from '@/app/actions/review';
 import { fetchSizeAnalysis } from '@/mocks/size';
 import ProductDetailView from '@/components/product/product-detail-view';
 import { getMyWishlist } from '@/app/actions/wishlist';
@@ -26,15 +27,30 @@ export default async function ProductPage({ params, searchParams }: PageProps) {
     notFound();
   }
 
-  const [bodyInfoResult, wishlist, similarProducts] = await Promise.all([
-    getMyBodyInfoAction(),
-    getMyWishlist(),
-    getSimilarProducts(productId),
-  ]);
+  const [bodyInfoResult, wishlist, similarProducts, reviewSummaryResult] =
+    await Promise.allSettled([
+      getMyBodyInfoAction(),
+      getMyWishlist(),
+      getSimilarProducts(productId),
+      getProductReviewsSummaryAction(productId),
+    ]);
+
+  const resolvedBodyInfo =
+    bodyInfoResult.status === 'fulfilled'
+      ? bodyInfoResult.value
+      : { success: false };
+  const resolvedWishlist =
+    wishlist.status === 'fulfilled' ? wishlist.value : [];
+  const resolvedSimilarProducts =
+    similarProducts.status === 'fulfilled' ? similarProducts.value : [];
+  const reviewSummary =
+    reviewSummaryResult.status === 'fulfilled'
+      ? reviewSummaryResult.value
+      : undefined;
 
   const userInfo =
-    bodyInfoResult.success && bodyInfoResult.data?.hasBodyInfo
-      ? bodyInfoResult.data
+    resolvedBodyInfo.success && resolvedBodyInfo.data?.hasBodyInfo
+      ? resolvedBodyInfo.data
       : null;
 
   const analysisData = userInfo
@@ -42,7 +58,9 @@ export default async function ProductPage({ params, searchParams }: PageProps) {
     : null;
 
   // 2. 찜 목록에서 현재 상품이 있는지 확인
-  const wishlistItem = wishlist.find((item) => item.productId === productId);
+  const wishlistItem = resolvedWishlist.find(
+    (item) => item.productId === productId,
+  );
   const isLiked = !!wishlistItem;
   const wishlistId = wishlistItem?.wishlistId;
 
@@ -50,12 +68,13 @@ export default async function ProductPage({ params, searchParams }: PageProps) {
   return (
     <ProductDetailView
       product={product}
-      similarProducts={similarProducts}
+      similarProducts={resolvedSimilarProducts}
       userInfo={userInfo}
       analysisData={analysisData}
       backHref={backHref}
       isLiked={isLiked}
       wishlistId={wishlistId}
+      productReviewSummary={reviewSummary}
     />
   );
 }
