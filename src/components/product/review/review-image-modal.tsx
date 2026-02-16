@@ -38,14 +38,17 @@ export default function ReviewImageModal({
   initialSlide,
 }: ReviewImageModalProps) {
   const [api, setApi] = useState<CarouselApi>();
-  const [current, setCurrent] = useState(0);
-  const [count, setCount] = useState(0);
+  const [current, setCurrent] = useState(initialSlide + 1);
+  const count = imageUrls.length;
 
   useEffect(() => {
     if (!api) return;
-    setCount(api.scrollSnapList().length);
-    setCurrent(api.selectedScrollSnap() + 1);
-    api.on('select', () => setCurrent(api.selectedScrollSnap() + 1));
+    const onSelect = () => setCurrent(api.selectedScrollSnap() + 1);
+    api.on('select', onSelect);
+
+    return () => {
+      api.off('select', onSelect);
+    };
   }, [api]);
 
   return (

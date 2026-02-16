@@ -31,6 +31,7 @@ interface SortOptionItemProps {
 function SortOptionItem({ label, isSelected, onSelect }: SortOptionItemProps) {
   return (
     <button
+      type="button"
       onClick={onSelect}
       className={cn(
         'flex w-full items-center justify-between py-4 text-left text-2xl leading-[20px]',
