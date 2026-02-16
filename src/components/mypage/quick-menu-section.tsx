@@ -2,7 +2,7 @@ import Link from 'next/link';
 
 const menuItems = [
   {
-    icon: 'icons/cart.svg',
+    icon: 'icons/shop.svg',
     label: '장바구니',
     href: '/cart',
   },
