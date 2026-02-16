@@ -4,7 +4,7 @@ import { useState, useCallback, useEffect } from 'react';
 import Image from 'next/image';
 import { ChevronDown, ChevronUp } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { ReviewSummaryModal } from './review-summary-modal';
+import ReviewSummaryModal from './review-summary-modal';
 import { EVALUATION_MAP, MONTH_REVIEW_QUESTIONS } from './review-constants';
 import { fetchAllProductReviews } from './review-fetch-utils';
 import { buildCategorySummaryFromReviews } from './review-summary-utils';
@@ -151,7 +151,7 @@ export default function ReviewSummarySection({
             stat={stat}
             title={
               isMonthReview
-                ? MONTH_REVIEW_QUESTIONS[index].title
+                ? MONTH_REVIEW_QUESTIONS[index]?.title ?? stat.category
                 : stat.category
             }
             subtitle={isMonthReview ? stat.category : undefined}

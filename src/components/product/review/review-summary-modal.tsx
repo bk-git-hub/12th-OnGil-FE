@@ -36,7 +36,7 @@ interface ReviewSummaryModalProps {
   };
 }
 
-export function ReviewSummaryModal({
+export default function ReviewSummaryModal({
   isOpen,
   onClose,
   productId,
@@ -191,12 +191,6 @@ export function ReviewSummaryModal({
 
         setBaseMonthSizeStat(derivedOverall);
         setBaseMonthColorStat(derivedChanges);
-        if (selectedSize === 'all') {
-          setSizeStat(derivedOverall);
-        }
-        if (selectedColor === 'all') {
-          setColorStat(derivedChanges);
-        }
       })
       .catch((error) => {
         console.error('월간 기본 통계 조회 실패:', error);
@@ -213,12 +207,22 @@ export function ReviewSummaryModal({
     isOpen,
     reviewType,
     productId,
-    selectedSize,
-    selectedColor,
     stats,
     sizeCategory,
     colorCategory,
   ]);
+
+  useEffect(() => {
+    if (reviewType !== 'ONE_MONTH') return;
+    if (selectedSize !== 'all') return;
+    setSizeStat(baseMonthSizeStat);
+  }, [reviewType, selectedSize, baseMonthSizeStat]);
+
+  useEffect(() => {
+    if (reviewType !== 'ONE_MONTH') return;
+    if (selectedColor !== 'all') return;
+    setColorStat(baseMonthColorStat);
+  }, [reviewType, selectedColor, baseMonthColorStat]);
 
   const fetchSizeStat = useCallback(
     async (value: string) => {
@@ -235,13 +239,6 @@ export function ReviewSummaryModal({
         return;
       }
 
-      console.log('[reviews:summary:size] request', {
-        productId,
-        reviewType,
-        size: nextSize,
-        color: nextColor,
-        summaryKey: sizeSummaryKey,
-      });
       setIsSizeLoading(true);
       try {
         const reviews = await fetchAllProductReviews(productId, {
@@ -258,13 +255,6 @@ export function ReviewSummaryModal({
             sizeSummaryKey,
           ),
         );
-        console.log('[reviews:summary:size] success', {
-          productId,
-          reviewType,
-          size: nextSize,
-          color: nextColor,
-          count: reviews.length,
-        });
       } catch (error) {
         console.error('사이즈 통계 필터 조회 실패:', error);
       } finally {
@@ -296,13 +286,6 @@ export function ReviewSummaryModal({
         return;
       }
 
-      console.log('[reviews:summary:color] request', {
-        productId,
-        reviewType,
-        size: nextSize,
-        color: nextColor,
-        summaryKey: colorSummaryKey,
-      });
       setIsColorLoading(true);
       try {
         const reviews = await fetchAllProductReviews(productId, {
@@ -319,13 +302,6 @@ export function ReviewSummaryModal({
             colorSummaryKey,
           ),
         );
-        console.log('[reviews:summary:color] success', {
-          productId,
-          reviewType,
-          size: nextSize,
-          color: nextColor,
-          count: reviews.length,
-        });
       } catch (error) {
         console.error('색감 통계 필터 조회 실패:', error);
       } finally {
@@ -408,10 +384,10 @@ export function ReviewSummaryModal({
                     <AnalysisContent
                       category={card.category}
                       title={
-                        questionTitles ? questionTitles[index] : card.category
+                        questionTitles?.[index] ?? card.category
                       }
                       subtitle={
-                        questionSubtitles ? questionSubtitles[index] : undefined
+                        questionSubtitles?.[index]
                       }
                       stat={card}
                       maxItems={isColorCard ? 3 : 5}

@@ -42,7 +42,7 @@ export function buildCategorySummaryFromReviews(
     category,
     totalCount: total,
     topAnswer: answerStats[0]?.answer ?? null,
-    topAnswerCount: answerStats[0]?.count ?? 0,
+    topAnswerCount: answerStats[0]?.count ?? null,
     answerStats,
   };
 }
