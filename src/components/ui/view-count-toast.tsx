@@ -27,7 +27,7 @@ export function ViewCountToast() {
           alt="fire"
           width={25}
           height={34}
-          className="mr-3 ml-3"
+          className="mr-3 ml-3 h-auto w-auto"
         />
         <span className="text-2xl font-normal text-black">
           현재 <span className="font-bold">12명</span>이 보고있어요
