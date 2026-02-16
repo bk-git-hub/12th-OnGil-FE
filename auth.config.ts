@@ -11,10 +11,13 @@ export const authConfig = {
       //auth 객체에 user가 있으면 로그인 된 상태
       const isLoggedIn = !!auth?.user;
 
-      //nextUrl의 경로가 특정경로로 시작하는지 확인
-      const isOnDashboard = nextUrl.pathname.startsWith('/dashboard');
+      const protectedPaths = ['/dashboard', '/me', '/reviews'];
+      const isProtectedRoute = protectedPaths.some(
+        (path) =>
+          nextUrl.pathname === path || nextUrl.pathname.startsWith(`${path}/`),
+      );
 
-      if (isOnDashboard) {
+      if (isProtectedRoute) {
         if (isLoggedIn) return true;
         return false;
       }
