@@ -18,38 +18,42 @@ export function ReviewTabs({
   monthCount,
 }: ReviewTabsProps) {
   return (
-    <div className="sticky top-16 z-20 bg-white px-4 pt-4">
+    <div className="bg-white px-4 pt-4">
       <div className="flex items-center border-y border-black px-4 py-4">
-        <div className="px-5">
+        <div className="flex-1">
           <button
             onClick={() => onTabChange('general')}
             className={cn(
-              'px-2 py-1 text-[15px] transition-colors',
+              'w-full px-2 py-1 text-[15px] transition-colors',
               activeTab === 'general'
                 ? 'font-bold text-[#1DAEFF]'
                 : 'text-gray-400 hover:text-gray-600',
             )}
           >
-            <div className="text-2xl leading-[1.5] flex flex-col items-center font-medium not-italic">
-              <span>전체 리뷰</span>
-              <span>({generalCount}개)</span>
+            <div className="flex flex-col items-center text-2xl leading-[1.5] font-medium not-italic">
+              <span className="break-keep whitespace-nowrap">전체 리뷰</span>
+              <span className="break-keep whitespace-nowrap">
+                ({generalCount}개)
+              </span>
             </div>
           </button>
         </div>
 
-        <div className="px-5">
+        <div className="flex-1">
           <button
             onClick={() => onTabChange('month')}
             className={cn(
-              'px-2 py-1 text-[15px] transition-colors',
+              'w-full px-2 py-1 text-[15px] transition-colors',
               activeTab === 'month'
                 ? 'font-bold text-[#1DAEFF]'
                 : 'text-gray-400 hover:text-gray-600',
             )}
           >
-            <div className="text-2xl leading-[1.5] flex flex-col items-center font-medium not-italic">
-              <span>한달 후 리뷰</span>
-              <span>({monthCount}개)</span>
+            <div className="flex flex-col items-center text-2xl leading-[1.5] font-medium not-italic">
+              <span className="break-keep whitespace-nowrap">한달 후 리뷰</span>
+              <span className="break-keep whitespace-nowrap">
+                ({monthCount}개)
+              </span>
             </div>
           </button>
         </div>
