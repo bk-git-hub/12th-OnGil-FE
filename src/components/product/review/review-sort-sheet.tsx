@@ -1,7 +1,12 @@
 'use client';
 
 import { useState } from 'react';
-import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
+import {
+  Sheet,
+  SheetContent,
+  SheetTitle,
+  SheetTrigger,
+} from '@/components/ui/sheet';
 import { cn } from '@/lib/utils';
 import { ChevronDown, Check } from 'lucide-react';
 import { SortOptionType } from '@/types/domain/review';
@@ -59,7 +64,7 @@ export default function ReviewSortSheet({
 
   // 현재 선택된 라벨 찾기
   const currentLabel = SORT_OPTIONS.find((o) => o.value === currentSort)?.label;
-  const displayLabel = currentSort === 'best' ? '상품 정렬' : currentLabel;
+  const displayLabel = currentLabel ?? '베스트 후기 순';
 
   const handleSelect = (value: SortOptionType) => {
     onSortChange(value);
@@ -81,6 +86,7 @@ export default function ReviewSortSheet({
       </SheetTrigger>
 
       <SheetContent side="bottom" className="h-[486px] p-8">
+        <SheetTitle className="sr-only">리뷰 정렬 옵션</SheetTitle>
         <div className="flex flex-col gap-4">
           {SORT_OPTIONS.map((option) => (
             <SortOptionItem

@@ -1,8 +1,13 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { Button } from '@/components/ui/button';
-import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
+import {
+  Sheet,
+  SheetContent,
+  SheetTitle,
+  SheetTrigger,
+} from '@/components/ui/sheet';
 import { cn } from '@/lib/utils';
 import { FilterState } from '@/types/domain/review';
 import { ChevronDown } from 'lucide-react';
@@ -26,7 +31,7 @@ function FilterGroup({
   return (
     <div className="flex flex-col gap-[21px]">
       <h4 className="text-xl font-bold">{title}</h4>
-      <div className="flex flex-wrap gap-4">
+      <div className="grid grid-cols-3 gap-4">
         {items.map((item) => {
           const isSelected = selectedItems.includes(item);
           return (
@@ -35,7 +40,7 @@ function FilterGroup({
               key={item}
               onClick={() => onToggle(item)}
               className={cn(
-                'border-ongil-teal h-[61px] w-[107px] rounded-xl border px-4 py-2 text-2xl transition-colors',
+                'border-ongil-teal h-auto min-h-[78px] w-full rounded-[20px] border p-2 text-center text-2xl leading-tight font-medium break-words whitespace-normal transition-colors',
                 isSelected ? 'bg-ongil-mint' : 'bg-white',
               )}
             >
@@ -74,11 +79,12 @@ export default function ReviewOptionSheet({
   const [isOpen, setIsOpen] = useState(false);
   const [tempFilters, setTempFilters] = useState<FilterState>(filters);
 
-  useEffect(() => {
-    if (isOpen) {
+  const handleOpenChange = (open: boolean) => {
+    if (open) {
       setTempFilters(filters);
     }
-  }, [isOpen, filters]);
+    setIsOpen(open);
+  };
 
   const toggleSelection = (key: 'sizes' | 'colors', value: string) => {
     setTempFilters((prev) => {
@@ -109,7 +115,7 @@ export default function ReviewOptionSheet({
     activeCount > 0 ? selectedOptions.join(', ') : '상품 옵션'; // 기본 라벨
 
   return (
-    <Sheet open={isOpen} onOpenChange={setIsOpen}>
+    <Sheet open={isOpen} onOpenChange={handleOpenChange}>
       <SheetTrigger asChild>
         <Button
           variant="ghost"
@@ -126,6 +132,7 @@ export default function ReviewOptionSheet({
       </SheetTrigger>
 
       <SheetContent side="bottom" className="h-[627px] px-4 py-6">
+        <SheetTitle className="sr-only">리뷰 옵션 필터</SheetTitle>
         <div className="flex h-full flex-col px-5">
           <div className="flex flex-col gap-[57px]">
             {/* 1. 색상 선택 그룹 */}

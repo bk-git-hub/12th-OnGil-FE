@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react';
 import Image from 'next/image';
 import { X } from 'lucide-react';
-import { Dialog, DialogContent } from '@/components/ui/dialog';
+import { Dialog, DialogContent, DialogTitle } from '@/components/ui/dialog';
 import {
   Carousel,
   CarouselContent,
@@ -54,6 +54,9 @@ export default function ReviewImageModal({
         className="flex h-screen w-screen max-w-none flex-col rounded-none border-none bg-black/80 p-0"
         aria-label="이미지 전체 화면 보기"
       >
+        <DialogTitle className="sr-only">
+          리뷰 이미지 전체 화면 보기
+        </DialogTitle>
         <div className="pointer-events-none absolute top-0 left-0 z-[100] flex w-full items-start justify-between p-4">
           <div className="absolute top-6 left-1/2 -translate-x-1/2 rounded-full bg-black/50 px-3 py-1 text-sm text-white backdrop-blur-md">
             {current} / {count}
