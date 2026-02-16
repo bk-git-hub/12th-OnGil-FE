@@ -7,7 +7,12 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
-import { ReviewCategorySummary } from '@/types/domain/review';
+import {
+  COLOR_ANSWER_OPTIONS,
+  MATERIAL_ANSWER_OPTIONS,
+  ReviewCategorySummary,
+  SIZE_ANSWER_OPTIONS,
+} from '@/types/domain/review';
 import { EVALUATION_MAP } from './review-constants';
 
 interface AnalysisContentProps {
@@ -26,6 +31,19 @@ interface AnalysisContentProps {
 function getStatLabel(item: { label?: string; answer?: string }) {
   const raw = item.label ?? item.answer ?? '정보 없음';
   return EVALUATION_MAP[raw] ?? raw;
+}
+
+function getDefaultAnswers(category: string) {
+  if (category === '사이즈') {
+    return [...SIZE_ANSWER_OPTIONS];
+  }
+  if (category === '색감') {
+    return [...COLOR_ANSWER_OPTIONS];
+  }
+  if (category === '소재') {
+    return [...MATERIAL_ANSWER_OPTIONS];
+  }
+  return [];
 }
 
 function getEmptyMessage(
@@ -56,12 +74,17 @@ export default function AnalysisContent({
   const sorted = [...(stat.answerStats ?? [])].sort(
     (a, b) => b.count - a.count,
   );
-  const limitedDetails = [...sorted.slice(0, maxItems)];
-  while (limitedDetails.length < maxItems) {
-    limitedDetails.push({ answer: '정보 없음', count: 0, percentage: 0 });
-  }
+  const defaultAnswers = getDefaultAnswers(category);
+  const existingLabels = new Set(sorted.map((item) => getStatLabel(item)));
+  const enumFallbackDetails = defaultAnswers
+    .filter((answer) => !existingLabels.has(getStatLabel({ answer })))
+    .map((answer) => ({ answer, count: 0, percentage: 0 }));
+  const limitedDetails = [...sorted, ...enumFallbackDetails].slice(0, maxItems);
 
-  const totalCount = limitedDetails.reduce((sum, item) => sum + item.count, 0);
+  const totalCount = (stat.answerStats ?? []).reduce(
+    (sum, item) => sum + item.count,
+    0,
+  );
   const isFiltered = selectedOption !== 'all';
   const isEmpty = totalCount === 0;
 
