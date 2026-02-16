@@ -9,7 +9,7 @@ import {
 } from '@/types/domain/review';
 
 import AiMaterialCarousel from './ai-material-carousel';
-import { ReviewTabs, ReviewTabType } from './review-tabs';
+import ReviewTabs, { ReviewTabType } from './review-tabs';
 import ReviewSummarySection from './review-summary';
 import ReviewList from './review-list';
 import ReviewOptionSheet from './review-option-sheet';
@@ -93,7 +93,7 @@ export default function ProductReviewContent({
   const [filters, setFilters] = useState<FilterState>({
     sizes: [],
     colors: [],
-    mySize: true,
+    mySize: false,
   });
   const [sortOption, setSortOption] = useState<SortOptionType>('best');
 

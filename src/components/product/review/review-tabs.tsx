@@ -11,7 +11,7 @@ interface ReviewTabsProps {
   monthCount: number;
 }
 
-export function ReviewTabs({
+export default function ReviewTabs({
   activeTab,
   onTabChange,
   generalCount,
@@ -24,7 +24,7 @@ export function ReviewTabs({
           <button
             onClick={() => onTabChange('general')}
             className={cn(
-              'w-full px-2 py-1 text-[15px] transition-colors',
+              'w-full px-2 py-1 transition-colors',
               activeTab === 'general'
                 ? 'font-bold text-[#1DAEFF]'
                 : 'text-gray-400 hover:text-gray-600',
@@ -43,7 +43,7 @@ export function ReviewTabs({
           <button
             onClick={() => onTabChange('month')}
             className={cn(
-              'w-full px-2 py-1 text-[15px] transition-colors',
+              'w-full px-2 py-1 transition-colors',
               activeTab === 'month'
                 ? 'font-bold text-[#1DAEFF]'
                 : 'text-gray-400 hover:text-gray-600',
