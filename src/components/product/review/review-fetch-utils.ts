@@ -5,6 +5,11 @@ import {
 import type { ProductReviewListItem } from '@/types/domain/review';
 
 const inFlightRequests = new Map<string, Promise<ProductReviewListItem[]>>();
+const responseCache = new Map<
+  string,
+  { expiresAt: number; data: ProductReviewListItem[] }
+>();
+const CACHE_TTL_MS = 30 * 1000;
 
 function normalizeValues(value?: string | string[]) {
   if (!value) return [];
@@ -44,13 +49,6 @@ function applyClientOptionFilter(
     return sizeMatched && colorMatched;
   });
 
-  console.log('[reviews:list] client-filter', {
-    size: query.size,
-    color: query.color,
-    before: reviews.length,
-    after: filtered.length,
-  });
-
   return filtered;
 }
 
@@ -59,6 +57,11 @@ export async function fetchAllProductReviews(
   query: ProductReviewsQuery,
 ): Promise<ProductReviewListItem[]> {
   const queryKey = JSON.stringify({ productId, ...query });
+  const cached = responseCache.get(queryKey);
+  if (cached && cached.expiresAt > Date.now()) {
+    return cached.data;
+  }
+
   const inFlight = inFlightRequests.get(queryKey);
   if (inFlight) {
     return inFlight;
@@ -100,7 +103,12 @@ export async function fetchAllProductReviews(
   inFlightRequests.set(queryKey, request);
 
   try {
-    return await request;
+    const result = await request;
+    responseCache.set(queryKey, {
+      expiresAt: Date.now() + CACHE_TTL_MS,
+      data: result,
+    });
+    return result;
   } finally {
     inFlightRequests.delete(queryKey);
   }

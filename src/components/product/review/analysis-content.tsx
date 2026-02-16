@@ -36,9 +36,7 @@ function getEmptyMessage(
     return '유사 체형의 후기가 아직 없어요.';
   }
   if (variant === 'color') {
-    return selectedOption === 'all'
-      ? '이 색상을 선택한 분의 후기가 없어요'
-      : `"${selectedOption}" 색상을 선택한 분의 후기가 없어요`;
+    return `"${selectedOption}" 색상을 선택한 분의 후기가 없어요`;
   }
   return '아직 이 옵션을 고른 분들의 후기가 없어요';
 }
