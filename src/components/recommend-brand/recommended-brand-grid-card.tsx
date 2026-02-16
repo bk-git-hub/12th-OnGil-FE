@@ -23,10 +23,10 @@ export default function RecommendedBrandGridCard({
           {product.name}
         </span>
         <div className="flex w-full gap-2 text-xl font-bold">
-          {product.discountRate !== undefined && (
+          {product.discountRate > 0 && (
             <span className="text-ongil-teal">{product.discountRate}%</span>
           )}
-          <span>{product.finalPrice.toLocaleString()}</span>
+          <span>{product.finalPrice.toLocaleString('ko-KR')}</span>
         </div>
       </div>
     </Link>

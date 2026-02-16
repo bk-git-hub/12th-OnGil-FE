@@ -7,7 +7,7 @@ interface RecommendedProduct extends Product {
   isLiked?: boolean;
 }
 
-export function RecommendedProductCard({
+export default function RecommendedProductCard({
   productInfo,
 }: {
   productInfo: RecommendedProduct;
@@ -15,6 +15,9 @@ export function RecommendedProductCard({
   const href = `/product/${productInfo.id}?from=${encodeURIComponent('/')}`;
   const hasDiscount = productInfo.discountRate && productInfo.discountRate > 0;
   const isAuction = productInfo.productType === 'SPECIAL_SALE';
+  const rating = Number.isFinite(productInfo.reviewRating)
+    ? productInfo.reviewRating.toFixed(1)
+    : '-';
 
   let priceDisplay;
   if (hasDiscount) {
@@ -78,7 +81,7 @@ export function RecommendedProductCard({
           {priceDisplay}
           <div className="font-poppins flex gap-1 text-sm font-semibold text-gray-500">
             <img src={'/icons/star.svg'} width={20} height={20} alt="후기" />
-            <span>4.5</span>
+            <span>{rating}</span>
             <span>({productInfo.reviewCount})</span>
           </div>
         </div>

@@ -2,7 +2,7 @@ import { api } from '@/lib/api-client';
 import { Category, SubCategory } from '@/types/domain/category';
 import { RecommendCarousel } from './recommend-carousel';
 import { RecommendCarouselItem } from './recommend-carousel-item';
-import { RecommendedCategoryCard } from './recommended-category-card';
+import RecommendedCategoryCard from './recommended-category-card';
 import { auth } from '/auth';
 
 export default async function RecommendCategoryContainer() {
@@ -10,10 +10,18 @@ export default async function RecommendCategoryContainer() {
   if (!session) {
     return null;
   }
-  const [categories, allCategories] = await Promise.all([
+  const [recommendedSubResult, allCategoriesResult] = await Promise.allSettled([
     api.get<SubCategory[]>('/categories/recommended-sub'),
     api.get<Category[]>('/categories'),
   ]);
+
+  if (recommendedSubResult.status !== 'fulfilled') {
+    return null;
+  }
+
+  const categories = recommendedSubResult.value;
+  const allCategories =
+    allCategoriesResult.status === 'fulfilled' ? allCategoriesResult.value : [];
 
   const parentCategoryLookup = allCategories.reduce<Record<number, number>>(
     (lookup, parent) => {

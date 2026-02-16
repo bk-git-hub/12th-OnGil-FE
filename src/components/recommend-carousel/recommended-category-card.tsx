@@ -6,7 +6,7 @@ interface CategoryCarouselCardProps {
   parentCategoryId: number | null;
 }
 
-export function RecommendedCategoryCard({
+export default function RecommendedCategoryCard({
   category,
   parentCategoryId,
 }: CategoryCarouselCardProps) {
@@ -15,7 +15,7 @@ export function RecommendedCategoryCard({
     : '/category';
 
   let categorySquare;
-  if (category.iconUrl !== null) {
+  if (category.iconUrl) {
     categorySquare = (
       <img
         src={category.iconUrl}
