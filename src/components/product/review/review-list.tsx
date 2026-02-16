@@ -1,108 +1,140 @@
 'use client';
 
-import { generateMockReviews } from '@/mocks/review-data';
+import { useEffect, useState } from 'react';
+import { getProductReviewsAction } from '@/app/actions/review';
 import { ReviewItem } from './review-item';
 import { ReviewTabType } from './review-tabs';
 import {
   FilterState,
   SortOptionType,
-  CurrentUserType,
-  ReviewDetail,
+  ProductReviewListItem,
 } from '@/types/domain/review';
 import { Button } from '@/components/ui/button';
 
-// 리뷰 리스트 컴포넌트, 필터링 및 정렬 기능 포함
-
 interface ReviewListProps {
+  productId: number;
   activeTab: ReviewTabType;
-  totalCount: number;
   filters: FilterState;
   sortOption: SortOptionType;
-  currentUser: CurrentUserType;
-}
-// 리뷰 정렬 함수
-
-function sortReviews(reviews: ReviewDetail[], option: SortOptionType) {
-  return [...reviews].sort((a, b) => {
-    switch (option) {
-      case 'newest':
-        return b.createdAt.localeCompare(a.createdAt);
-      case 'highRating':
-        if (b.rating !== a.rating) return b.rating - a.rating;
-        return b.createdAt.localeCompare(a.createdAt);
-      case 'lowRating':
-        if (a.rating !== b.rating) return a.rating - b.rating;
-        return b.createdAt.localeCompare(a.createdAt);
-      case 'best':
-      default:
-        return b.helpfulCount - a.helpfulCount;
-    }
-  });
 }
 
-// 메인 컴포넌트
-/**
- * 리뷰 목록 컴포넌트, 필터링 및 정렬 기능 포함
- * @param {ReviewListProps} props - 컴포넌트 props
- * @param {ReviewTabType} props.activeTab - 활성화된 리뷰 탭
- * @param {number} props.totalCount - 총 리뷰 개수
- * @param {FilterState} props.filters - 필터 상태
- * @param {SortOptionType} props.sortOption - 정렬 옵션
- * @param {CurrentUserType} props.currentUser - 현재 사용자 정보
- * @returns {JSX.Element} 리뷰 목록 컴포넌트
- */
+function resolvePageNumber(response: {
+  number?: number;
+  pageable?: { pageNumber?: number };
+}) {
+  if (typeof response.number === 'number' && Number.isFinite(response.number)) {
+    return response.number;
+  }
+  if (
+    typeof response.pageable?.pageNumber === 'number' &&
+    Number.isFinite(response.pageable.pageNumber)
+  ) {
+    return response.pageable.pageNumber;
+  }
+  return 0;
+}
+
+function resolveHasMore(response: {
+  last?: boolean;
+  totalPages?: number;
+  number?: number;
+  pageable?: { pageNumber?: number };
+}) {
+  if (typeof response.last === 'boolean') {
+    return !response.last;
+  }
+  const currentPage = resolvePageNumber(response);
+  const totalPages = response.totalPages ?? 0;
+  return totalPages > currentPage + 1;
+}
+
+function toApiSort(sortOption: SortOptionType) {
+  switch (sortOption) {
+    case 'newest':
+      return 'RECENT';
+    case 'highRating':
+      return 'RATING_HIGH';
+    case 'lowRating':
+      return 'RATING_LOW';
+    case 'best':
+    default:
+      return 'BEST';
+  }
+}
+
+function buildEmptyMessage(filters: FilterState) {
+  if (filters.mySize) {
+    return '유사 체형 구매 정보가 충분하지 않아요';
+  }
+
+  const selectedOptions = [...filters.colors, ...filters.sizes];
+  if (selectedOptions.length > 0) {
+    return `아직 "${selectedOptions.join('/')}" 옵션을 고른 분들의 후기가 없어요`;
+  }
+
+  return '조건에 맞는 리뷰가 없습니다.';
+}
+
 export default function ReviewList({
+  productId,
   activeTab,
-  totalCount,
   filters,
   sortOption,
-  currentUser,
 }: ReviewListProps) {
-  // 1. Mock 데이터 생성
-  const rawReviews = generateMockReviews(totalCount);
+  const [reviews, setReviews] = useState<ProductReviewListItem[]>([]);
+  const [page, setPage] = useState(0);
+  const [hasMore, setHasMore] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
 
-  // 2. 필터링 로직
-  const filteredReviews = rawReviews.filter((review) => {
-    // 2-1. 탭 필터 (일반 vs 한달사용)
-    const targetType = activeTab === 'month' ? 'MONTH' : 'NORMAL';
-    if (review.reviewType !== targetType) return false;
+  const activeReviewType = activeTab === 'month' ? 'ONE_MONTH' : 'INITIAL';
+  const selectedSizes = filters.sizes.length > 0 ? filters.sizes : undefined;
+  const selectedColors = filters.colors.length > 0 ? filters.colors : undefined;
 
-    // 2-2. 내 사이즈 필터
-    if (filters.mySize) {
-      const heightDiff = Math.abs(review.reviewer.height - currentUser.height);
-      const weightDiff = Math.abs(review.reviewer.weight - currentUser.weight);
-      if (heightDiff > 5 || weightDiff > 5) return false;
-    }
+  useEffect(() => {
+    const fetchFirstPage = async () => {
+      setIsLoading(true);
+      try {
+        const response = await getProductReviewsAction(productId, {
+          reviewType: activeReviewType,
+          size: selectedSizes,
+          color: selectedColors,
+          sort: toApiSort(sortOption),
+          mySizeOnly: filters.mySize,
+          page: 0,
+          pageSize: 10,
+        });
 
-    // 2-3. 옵션(사이즈) 필터
-    if (
-      filters.sizes.length > 0 &&
-      !filters.sizes.includes(review.purchaseOption.selectedSize)
-    ) {
-      return false;
-    }
+        setReviews(response.content);
+        setPage(resolvePageNumber(response));
+        setHasMore(resolveHasMore(response));
+      } catch (error) {
+        console.error('리뷰 목록 조회 실패:', error);
+        setReviews([]);
+        setHasMore(false);
+      } finally {
+        setIsLoading(false);
+      }
+    };
 
-    // 2-4. 옵션(색상) 필터
-    if (
-      filters.colors.length > 0 &&
-      !filters.colors.includes(review.purchaseOption.selectedColor)
-    ) {
-      return false;
-    }
+    fetchFirstPage();
+  }, [
+    productId,
+    activeReviewType,
+    selectedSizes,
+    selectedColors,
+    sortOption,
+    filters.mySize,
+  ]);
 
-    return true;
-  });
+  const hasActiveFilters =
+    filters.mySize || filters.sizes.length > 0 || filters.colors.length > 0;
 
-  // 3. 정렬 적용
-  const processedReviews = sortReviews(filteredReviews, sortOption);
-
-  if (processedReviews.length === 0) {
-    const hasActiveFilters =
-      filters.mySize || filters.sizes.length > 0 || filters.colors.length > 0;
+  if (!isLoading && reviews.length === 0) {
+    const emptyMessage = buildEmptyMessage(filters);
 
     return (
       <div className="flex min-h-[300px] flex-col items-center justify-center py-20 text-center">
-        <p className="text-gray-500">조건에 맞는 리뷰가 없습니다.</p>
+        <p className="text-gray-500">{emptyMessage}</p>
         {hasActiveFilters && (
           <p className="mt-2 text-sm text-gray-400">
             필터 조건을 변경해 보세요.
@@ -112,21 +144,71 @@ export default function ReviewList({
     );
   }
 
+  const handleLoadMore = () => {
+    if (isLoading || !hasMore) return;
+    const nextPage = Number.isFinite(page) ? page + 1 : 1;
+
+    const fetchNextPage = async () => {
+      setIsLoading(true);
+      try {
+        const response = await getProductReviewsAction(productId, {
+          reviewType: activeReviewType,
+          size: selectedSizes,
+          color: selectedColors,
+          sort: toApiSort(sortOption),
+          mySizeOnly: filters.mySize,
+          page: nextPage,
+          pageSize: 10,
+        });
+
+        setReviews((prev) => [...prev, ...response.content]);
+        setPage(resolvePageNumber(response));
+        setHasMore(resolveHasMore(response));
+      } catch (error) {
+        console.error('리뷰 목록 추가 조회 실패:', {
+          error,
+          query: {
+            productId,
+            reviewType: activeReviewType,
+            size: selectedSizes,
+            color: selectedColors,
+            sort: toApiSort(sortOption),
+            mySizeOnly: filters.mySize,
+            page: nextPage,
+            pageSize: 10,
+          },
+        });
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    fetchNextPage();
+  };
+
   return (
     <div className="px-4">
-      {processedReviews.map((review) => (
+      {reviews.map((review) => (
         <ReviewItem key={review.reviewId} review={review} />
       ))}
 
-      <div className="mt-4 pb-8 text-center">
-        <Button
-          variant="outline"
-          className="h-12 w-full rounded-xl border-gray-200 text-gray-600 hover:bg-gray-50 hover:text-black"
-          onClick={() => alert('더 많은 리뷰를 불러옵니다.')}
-        >
-          리뷰 더보기
-        </Button>
-      </div>
+      {isLoading && (
+        <div className="py-6 text-center text-sm text-gray-500">
+          리뷰를 불러오는 중...
+        </div>
+      )}
+
+      {hasMore && !isLoading && (
+        <div className="mt-4 pb-8 text-center">
+          <Button
+            variant="outline"
+            className="h-12 w-full rounded-xl border-gray-200 text-gray-600 hover:bg-gray-50 hover:text-black"
+            onClick={handleLoadMore}
+          >
+            리뷰 더보기
+          </Button>
+        </div>
+      )}
     </div>
   );
 }
