@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import { getProductReviewsAction } from '@/app/actions/review';
-import { ReviewItem } from './review-item';
+import ReviewItem from './review-item';
 import { ReviewTabType } from './review-tabs';
 import {
   FilterState,
@@ -91,6 +91,8 @@ export default function ReviewList({
   const selectedColors = filters.colors.length > 0 ? filters.colors : undefined;
 
   useEffect(() => {
+    let isStale = false;
+
     const fetchFirstPage = async () => {
       setIsLoading(true);
       try {
@@ -104,19 +106,26 @@ export default function ReviewList({
           pageSize: 10,
         });
 
+        if (isStale) return;
         setReviews(response.content);
         setPage(resolvePageNumber(response));
         setHasMore(resolveHasMore(response));
       } catch (error) {
+        if (isStale) return;
         console.error('리뷰 목록 조회 실패:', error);
         setReviews([]);
         setHasMore(false);
       } finally {
+        if (isStale) return;
         setIsLoading(false);
       }
     };
 
     fetchFirstPage();
+
+    return () => {
+      isStale = true;
+    };
   }, [
     productId,
     activeReviewType,
@@ -144,14 +153,30 @@ export default function ReviewList({
     );
   }
 
-  const handleLoadMore = () => {
+  const handleLoadMore = async () => {
     if (isLoading || !hasMore) return;
     const nextPage = Number.isFinite(page) ? page + 1 : 1;
 
-    const fetchNextPage = async () => {
-      setIsLoading(true);
-      try {
-        const response = await getProductReviewsAction(productId, {
+    setIsLoading(true);
+    try {
+      const response = await getProductReviewsAction(productId, {
+        reviewType: activeReviewType,
+        size: selectedSizes,
+        color: selectedColors,
+        sort: toApiSort(sortOption),
+        mySizeOnly: filters.mySize,
+        page: nextPage,
+        pageSize: 10,
+      });
+
+      setReviews((prev) => [...prev, ...response.content]);
+      setPage(resolvePageNumber(response));
+      setHasMore(resolveHasMore(response));
+    } catch (error) {
+      console.error('리뷰 목록 추가 조회 실패:', {
+        error,
+        query: {
+          productId,
           reviewType: activeReviewType,
           size: selectedSizes,
           color: selectedColors,
@@ -159,31 +184,11 @@ export default function ReviewList({
           mySizeOnly: filters.mySize,
           page: nextPage,
           pageSize: 10,
-        });
-
-        setReviews((prev) => [...prev, ...response.content]);
-        setPage(resolvePageNumber(response));
-        setHasMore(resolveHasMore(response));
-      } catch (error) {
-        console.error('리뷰 목록 추가 조회 실패:', {
-          error,
-          query: {
-            productId,
-            reviewType: activeReviewType,
-            size: selectedSizes,
-            color: selectedColors,
-            sort: toApiSort(sortOption),
-            mySizeOnly: filters.mySize,
-            page: nextPage,
-            pageSize: 10,
-          },
-        });
-      } finally {
-        setIsLoading(false);
-      }
-    };
-
-    fetchNextPage();
+        },
+      });
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   return (

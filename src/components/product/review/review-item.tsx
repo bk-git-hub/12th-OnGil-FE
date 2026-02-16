@@ -36,7 +36,10 @@ function normalizeToList(value?: string[] | string | null): string[] {
   return Array.isArray(value) ? value.filter(Boolean) : [value].filter(Boolean);
 }
 
-export function ReviewItem({ review, isAccessory = false }: ReviewItemProps) {
+export default function ReviewItem({
+  review,
+  isAccessory = false,
+}: ReviewItemProps) {
   const [confirmedState, setConfirmedState] = useState<HelpfulState>({
     isHelpful: review.isHelpful,
     helpfulCount: Math.max(review.helpfulCount, 0),
@@ -173,7 +176,7 @@ export function ReviewItem({ review, isAccessory = false }: ReviewItemProps) {
                   onClick={() => handleImageClick(index)}
                   role="button"
                   tabIndex={0}
-                  aria-label={`리뷰 이미지 ${index + 1}  확대보기`}
+                  aria-label={`리뷰 이미지 ${index + 1} 확대보기`}
                   onKeyDown={(e) => {
                     if (e.key === 'Enter' || e.key === ' ') {
                       e.preventDefault();
