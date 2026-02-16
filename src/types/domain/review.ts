@@ -71,9 +71,7 @@ export const CLOTHING_CATEGORY_OPTIONS = [
   'PANTS',
   'DRESS',
 ] as const;
-export type ClothingCategory =
-  | (typeof CLOTHING_CATEGORY_OPTIONS)[number]
-  | string;
+export type ClothingCategory = (typeof CLOTHING_CATEGORY_OPTIONS)[number];
 
 export const SIZE_ANSWER_OPTIONS = [
   'TIGHT_IMMEDIATELY',
@@ -82,7 +80,7 @@ export const SIZE_ANSWER_OPTIONS = [
   'TOO_BIG_NEED_ALTERATION',
   'COMFORTABLE',
 ] as const;
-export type SizeAnswer = (typeof SIZE_ANSWER_OPTIONS)[number] | string;
+export type SizeAnswer = (typeof SIZE_ANSWER_OPTIONS)[number];
 
 export const MATERIAL_ANSWER_OPTIONS = [
   'VERY_GOOD',
@@ -91,14 +89,14 @@ export const MATERIAL_ANSWER_OPTIONS = [
   'BAD',
   'VERY_BAD',
 ] as const;
-export type MaterialAnswer = (typeof MATERIAL_ANSWER_OPTIONS)[number] | string;
+export type MaterialAnswer = (typeof MATERIAL_ANSWER_OPTIONS)[number];
 
 export const COLOR_ANSWER_OPTIONS = [
   'BRIGHTER_THAN_SCREEN',
   'SAME_AS_SCREEN',
   'DARKER_THAN_SCREEN',
 ] as const;
-export type ColorAnswer = (typeof COLOR_ANSWER_OPTIONS)[number] | string;
+export type ColorAnswer = (typeof COLOR_ANSWER_OPTIONS)[number];
 
 // 1차 설문 (필수)
 export interface InitialFirstAnswers {
@@ -196,7 +194,7 @@ export type MyReviewListResponse = ApiResponse<
 
 // 6. 상품별 리뷰 목록 조회
 export type ProductReviewListResponse = ApiResponse<
-  PageResponse<ProductWithReviewStats>
+  PageResponse<ProductReviewListItem>
 >;
 
 // ----------------------------------------------------------------------

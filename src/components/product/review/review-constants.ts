@@ -1,40 +1,21 @@
-export const CLOTHING_CATEGORY_OPTIONS = [
-  'OUTER',
-  'TOP',
-  'SKIRT',
-  'PANTS',
-  'DRESS',
-] as const;
+import type {
+  SizeAnswer,
+  MaterialAnswer,
+} from '@/types/domain/review';
 
-export type ClothingCategory = (typeof CLOTHING_CATEGORY_OPTIONS)[number];
+export {
+  CLOTHING_CATEGORY_OPTIONS,
+  SIZE_ANSWER_OPTIONS,
+  MATERIAL_ANSWER_OPTIONS,
+  COLOR_ANSWER_OPTIONS,
+} from '@/types/domain/review';
 
-export const SIZE_ANSWER_OPTIONS = [
-  'TIGHT_IMMEDIATELY',
-  'TIGHT_WHEN_MOVING',
-  'LOOSE',
-  'TOO_BIG_NEED_ALTERATION',
-  'COMFORTABLE',
-] as const;
-
-export type SizeAnswer = (typeof SIZE_ANSWER_OPTIONS)[number];
-
-export const MATERIAL_ANSWER_OPTIONS = [
-  'VERY_GOOD',
-  'GOOD',
-  'NORMAL',
-  'BAD',
-  'VERY_BAD',
-] as const;
-
-export type MaterialAnswer = (typeof MATERIAL_ANSWER_OPTIONS)[number];
-
-export const COLOR_ANSWER_OPTIONS = [
-  'BRIGHTER_THAN_SCREEN',
-  'SAME_AS_SCREEN',
-  'DARKER_THAN_SCREEN',
-] as const;
-
-export type ColorAnswer = (typeof COLOR_ANSWER_OPTIONS)[number];
+export type {
+  ClothingCategory,
+  SizeAnswer,
+  MaterialAnswer,
+  ColorAnswer,
+} from '@/types/domain/review';
 
 export const EVALUATION_MAP: Record<string, string> = {
   TIGHT_IMMEDIATELY: '숨막히게 답답',
