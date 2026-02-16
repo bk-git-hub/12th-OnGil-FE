@@ -26,6 +26,12 @@ interface ReviewWriteFlowProps {
   initialRating?: number | null;
 }
 
+interface UploadReviewImagesApiResponse {
+  status: string;
+  timestamp: string;
+  data: string[];
+}
+
 const categoryNameMap: Record<string, string> = {
   OUTER: '아우터',
   TOP: '상의',
@@ -66,13 +72,8 @@ const materialFeatureTypeOptions = [
 ];
 
 const STEP2_AUTOSAVE_DEBOUNCE_MS = 500;
-
-function parseCommaSeparated(value: string) {
-  return value
-    .split(',')
-    .map((item) => item.trim())
-    .filter(Boolean);
-}
+const MAX_REVIEW_IMAGE_COUNT = 5;
+const MAX_REVIEW_IMAGE_TOTAL_BYTES = 50 * 1024 * 1024;
 
 export default function ReviewWriteFlow({
   reviewId,
@@ -86,6 +87,7 @@ export default function ReviewWriteFlow({
   const [errorMessage, setErrorMessage] = useState('');
   const [successMessage, setSuccessMessage] = useState('');
   const [step2AutoSaveStatus, setStep2AutoSaveStatus] = useState('');
+  const [isImageUploading, setIsImageUploading] = useState(false);
 
   const [rating, setRating] = useState(
     typeof initialRating === 'number' && initialRating > 0 ? initialRating : 5,
@@ -114,7 +116,7 @@ export default function ReviewWriteFlow({
   const lastSavedFeatureTypesKeyRef = useRef('');
 
   const [textReview, setTextReview] = useState('');
-  const [reviewImageUrlsInput, setReviewImageUrlsInput] = useState('');
+  const [reviewImageUrls, setReviewImageUrls] = useState<string[]>([]);
   const [sizeReviewItems, setSizeReviewItems] = useState<string[]>([]);
   const [materialReviewItems, setMaterialReviewItems] = useState<string[]>([]);
 
@@ -125,6 +127,7 @@ export default function ReviewWriteFlow({
     const bodyParts = step1Result?.availableBodyParts ?? [];
     return bodyParts.length > 0 ? bodyParts.join(', ') : '-';
   }, [step1Result]);
+  const uploadedImageUrls = reviewImageUrls;
 
   useEffect(() => {
     return () => {
@@ -287,7 +290,7 @@ export default function ReviewWriteFlow({
 
       const result = await submitReviewAction(reviewId, {
         textReview,
-        reviewImageUrls: parseCommaSeparated(reviewImageUrlsInput),
+        reviewImageUrls,
         sizeReview: sizeReviewItems.map((item) => item.trim()).filter(Boolean),
         materialReview: materialReviewItems
           .map((item) => item.trim())
@@ -326,6 +329,58 @@ export default function ReviewWriteFlow({
       setMaterialReviewItems(materialResult.data.aiGeneratedReviews ?? []);
       setSuccessMessage('AI 문장을 불러왔습니다.');
     });
+  };
+
+  const handleUploadReviewImages = (files: File[]) => {
+    setErrorMessage('');
+    setSuccessMessage('');
+
+    if (files.length === 0) {
+      setErrorMessage('업로드할 이미지를 선택해 주세요.');
+      return;
+    }
+
+    const existingUrls = uploadedImageUrls;
+    if (existingUrls.length + files.length > MAX_REVIEW_IMAGE_COUNT) {
+      setErrorMessage('리뷰 이미지는 최대 5장까지 등록할 수 있습니다.');
+      return;
+    }
+
+    const selectedTotalBytes = files.reduce((sum, file) => sum + file.size, 0);
+    if (selectedTotalBytes > MAX_REVIEW_IMAGE_TOTAL_BYTES) {
+      setErrorMessage('선택한 이미지 용량 합이 너무 큽니다. (최대 50MB)');
+      return;
+    }
+
+    setIsImageUploading(true);
+    (async () => {
+      try {
+        const formData = new FormData();
+        files.forEach((file) => formData.append('images', file));
+
+        const response = await fetch('/api/reviews/images', {
+          method: 'POST',
+          body: formData,
+        });
+        const payload = (await response.json()) as UploadReviewImagesApiResponse & {
+          message?: string;
+        };
+
+        if (!response.ok) {
+          setErrorMessage(payload.message || '리뷰 이미지 업로드에 실패했습니다.');
+          return;
+        }
+
+        const mergedUrls = Array.from(new Set([...existingUrls, ...payload.data])).slice(
+          0,
+          5,
+        );
+        setReviewImageUrls(mergedUrls);
+        setSuccessMessage('리뷰 이미지를 업로드했습니다.');
+      } finally {
+        setIsImageUploading(false);
+      }
+    })();
   };
 
   return (
@@ -528,14 +583,66 @@ export default function ReviewWriteFlow({
             />
           </label>
 
-          <label className="block text-sm">
-            <span>reviewImageUrls (comma separated)</span>
+          <div className="space-y-2 rounded-md border border-[#e5e5e5] p-3">
+            <p className="text-sm font-medium">리뷰 이미지 업로드 (최대 5장)</p>
             <input
-              className="mt-1 w-full rounded border border-[#cfcfcf] px-3 py-2"
-              value={reviewImageUrlsInput}
-              onChange={(e) => setReviewImageUrlsInput(e.target.value)}
+              type="file"
+              accept="image/*"
+              multiple
+              onChange={(e) => {
+                const files = Array.from(e.target.files ?? []);
+                const remaining = MAX_REVIEW_IMAGE_COUNT - uploadedImageUrls.length;
+                const limitedFiles = files.slice(0, Math.max(remaining, 0));
+                const totalBytes = limitedFiles.reduce((sum, file) => sum + file.size, 0);
+                if (totalBytes > MAX_REVIEW_IMAGE_TOTAL_BYTES) {
+                  setErrorMessage('선택한 이미지 용량 합이 너무 큽니다. (최대 50MB)');
+                  return;
+                }
+                setErrorMessage('');
+                handleUploadReviewImages(limitedFiles);
+                e.currentTarget.value = '';
+              }}
+              disabled={
+                isImageUploading || uploadedImageUrls.length >= MAX_REVIEW_IMAGE_COUNT
+              }
+              className="block w-full text-sm"
             />
-          </label>
+            <p className="text-xs text-[#666666]">
+              {isImageUploading
+                ? '업로드 중...'
+                : `등록됨: ${uploadedImageUrls.length}장`}
+            </p>
+            <p className="text-xs text-[#666666]">
+              이미지를 선택하면 바로 업로드됩니다. (최대 5장, 총 50MB)
+            </p>
+            {uploadedImageUrls.length > 0 ? (
+              <div className="grid grid-cols-3 gap-2 pt-1">
+                {uploadedImageUrls.map((imageUrl, index) => (
+                  <div
+                    key={`${imageUrl}-${index}`}
+                    className="space-y-1 rounded-md border border-[#e5e5e5] p-1"
+                  >
+                    <div
+                      className="h-20 w-full rounded bg-[#f3f3f3] bg-cover bg-center"
+                      style={{ backgroundImage: `url(${imageUrl})` }}
+                    />
+                    <button
+                      type="button"
+                      onClick={() => {
+                        const nextUrls = uploadedImageUrls.filter(
+                          (_, itemIndex) => itemIndex !== index,
+                        );
+                        setReviewImageUrls(nextUrls);
+                      }}
+                      className="w-full rounded border border-[#cfcfcf] py-1 text-xs"
+                    >
+                      삭제
+                    </button>
+                  </div>
+                ))}
+              </div>
+            ) : null}
+          </div>
 
           <div className="flex justify-end">
             <button
