@@ -40,6 +40,11 @@ export interface ReviewSubmitRequest {
   materialReview: string[];
 }
 
+interface AiGeneratedReviewsData {
+  reviewId: number;
+  aiGeneratedReviews: string[];
+}
+
 interface ActionResult<T = undefined> {
   success: boolean;
   message?: string;
@@ -109,6 +114,32 @@ export async function patchReviewStep2MaterialAction(
   } catch (error) {
     console.error('리뷰 step2(소재) 저장 실패:', error);
     return { success: false, message: '2단계 소재 저장에 실패했습니다.' };
+  }
+}
+
+export async function generateSizeAiReviewAction(
+  reviewId: number,
+): Promise<ActionResult<AiGeneratedReviewsData>> {
+  try {
+    const data = await api.get<AiGeneratedReviewsData>(`/reviews/${reviewId}/ai/size`);
+    return { success: true, data };
+  } catch (error) {
+    console.error('리뷰 사이즈 AI 생성 실패:', error);
+    return { success: false, message: '사이즈 AI 생성에 실패했습니다.' };
+  }
+}
+
+export async function generateMaterialAiReviewAction(
+  reviewId: number,
+): Promise<ActionResult<AiGeneratedReviewsData>> {
+  try {
+    const data = await api.get<AiGeneratedReviewsData>(
+      `/reviews/${reviewId}/ai/material`,
+    );
+    return { success: true, data };
+  } catch (error) {
+    console.error('리뷰 소재 AI 생성 실패:', error);
+    return { success: false, message: '소재 AI 생성에 실패했습니다.' };
   }
 }
 
