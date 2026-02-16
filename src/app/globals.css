@@ -131,3 +131,52 @@
     @apply bg-background text-foreground;
   }
 }
+
+@layer utilities {
+  /* 로딩: 아래에서 위로 채워지는(Fill Up) 효과 */
+  @keyframes fill-up {
+    0% {
+      clip-path: inset(100% 0 0 0);
+      opacity: 0.5;
+    }
+    40% {
+      clip-path: inset(0 0 0 0);
+      opacity: 1;
+    }
+    80% {
+      opacity: 1;
+    }
+    100% {
+      opacity: 0;
+    }
+  }
+
+  .animate-fill-up {
+    animation: fill-up 2s ease-in-out infinite;
+  }
+
+  /* 에러: 아이콘 흔들림(Shake) 효과 */
+  @keyframes shake-icon {
+    0%,
+    100% {
+      transform: translateX(0);
+    }
+    10%,
+    30%,
+    50%,
+    70%,
+    90% {
+      transform: translateX(-4px);
+    }
+    20%,
+    40%,
+    60%,
+    80% {
+      transform: translateX(4px);
+    }
+  }
+
+  .animate-shake-icon {
+    animation: shake-icon 0.5s cubic-bezier(0.36, 0.07, 0.19, 0.97) both;
+  }
+}

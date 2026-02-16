@@ -1,6 +1,6 @@
 import { api } from '@/lib/api-client';
 import { Product } from '@/types/domain/product';
-import { RecommendedProductCard } from './recommended-product-card';
+import RecommendedProductCard from './recommended-product-card';
 import { RecommendCarouselItem } from './recommend-carousel-item';
 import { RecommendCarousel } from './recommend-carousel';
 

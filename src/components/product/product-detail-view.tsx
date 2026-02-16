@@ -5,7 +5,6 @@ import {
   ProductImageSlider,
   ProductInfo,
   ProductBottomBar,
-  CompactProductHeader,
   ProductTab,
   ProductInteractionProvider,
   ProductStickyContainer,
@@ -119,10 +118,8 @@ export default function ProductDetailView({
         />
         <ProductInfo product={product} />
 
-        {/* 중단: Sticky 탭 & 가변 컨텐츠 
-        스크롤시 축소되는 헤더와 항상 보이는 탭 바를 슬롯으로 전달 */}
+        {/* 중단: Sticky 탭 & 가변 컨텐츠 */}
         <ProductStickyContainer
-          headerSlot={<CompactProductHeader product={product} />}
           tabBarSlot={
             <ProductTab
               activateTab={activeTab}

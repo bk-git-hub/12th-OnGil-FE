@@ -131,8 +131,8 @@ export default function ProductOptionSheet({
             </Button>
             <DialogClose asChild>
               <Button
-                variant="ghost"
-                className="h-12 w-full rounded-xl text-base font-medium text-gray-500 hover:bg-gray-50"
+                variant="secondary"
+                className="h-12 w-full rounded-xl bg-gray-100 text-base font-medium text-gray-700 hover:bg-gray-200"
               >
                 쇼핑 계속하기
               </Button>

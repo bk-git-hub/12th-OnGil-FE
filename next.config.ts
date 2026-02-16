@@ -26,18 +26,6 @@ const nextConfig: NextConfig = {
       },
       {
         protocol: 'https',
-        hostname: 'image.msscdn.net', // 무신사 상품 이미지 호스팅
-      },
-      {
-        protocol: 'https',
-        hostname: 'image.queenit.kr', // 카테고리 이미지 호스팅
-      },
-      {
-        protocol: 'https',
-        hostname: 'img.a-bly.com', // 카테고리 이미지 호스팅
-      },
-      {
-        protocol: 'https',
         hostname: 'lh3.googleusercontent.com',
       },
 
@@ -56,6 +44,18 @@ const nextConfig: NextConfig = {
       {
         protocol: 'https',
         hostname: 'img.a-bly.com',
+      },
+      {
+        protocol: 'https',
+        hostname: 'd2aqktunwdrlxe.cloudfront.net',
+      },
+      {
+        protocol: 'https',
+        hostname: 'tweecokr.cdn.smart-img.com',
+      },
+      {
+        protocol: 'https',
+        hostname: 'nervpjh.openhost.cafe24.com',
       },
     ],
   },

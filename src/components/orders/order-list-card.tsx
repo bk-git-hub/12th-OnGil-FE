@@ -53,22 +53,22 @@ export default function OrderListCard({
         </div>
 
         {/* 상품 정보 */}
-        <div className="mb-4 flex gap-4">
+        <div className="mb-4 flex items-start gap-4">
           <Image
             src={repItem?.productImage || '/placeholder.png'}
             alt={repItem?.productName || '상품 이미지'}
             width={110}
             height={110}
-            className="h-40 w-30 shrink-0 object-contain"
+            className="h-30 w-30 shrink-0 rounded-md object-cover"
           />
-          <div className="flex flex-col gap-6 text-xl leading-[18px] font-medium">
+          <div className="flex min-w-0 flex-1 flex-col gap-4 text-xl leading-[18px] font-medium">
             <span>{repItem?.brandName}</span>
-            <span>{repItem?.productName}</span>
+            <span className="line-clamp-2">{repItem?.productName}</span>
             <span>
               {repItem?.selectedColor} / {repItem?.selectedSize}
             </span>
             <span>{repItem?.quantity}개</span>
-            <div className="text-right">
+            <div className="mt-auto text-right">
               <span>{order.totalAmount.toLocaleString()}원</span>
             </div>
           </div>

@@ -1,13 +1,21 @@
-import { Category } from '@/types/domain/category';
+import Link from 'next/link';
+import { SubCategory } from '@/types/domain/category';
+
 interface CategoryCarouselCardProps {
-  category: Category;
+  category: SubCategory;
+  parentCategoryId: number | null;
 }
 
-export function RecommendedCategoryCard({
+export default function RecommendedCategoryCard({
   category,
+  parentCategoryId,
 }: CategoryCarouselCardProps) {
+  const href = parentCategoryId
+    ? `/category/${parentCategoryId}/${category.categoryId}`
+    : '/category';
+
   let categorySquare;
-  if (category.iconUrl !== null) {
+  if (category.iconUrl) {
     categorySquare = (
       <img
         src={category.iconUrl}
@@ -26,11 +34,11 @@ export function RecommendedCategoryCard({
   }
 
   return (
-    <div className="flex flex-col items-center">
+    <Link href={href} className="flex flex-col items-center">
       {categorySquare}
       <span className="font-pretendard text-[32px] font-bold">
         {category.name}
       </span>
-    </div>
+    </Link>
   );
 }

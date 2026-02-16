@@ -10,12 +10,14 @@ import { ProductOption } from '@/types/domain/product';
 import { useWishlist } from '@/hooks/use-wishlist';
 import {
   Dialog,
+  DialogClose,
   DialogContent,
   DialogDescription,
   DialogFooter,
   DialogHeader,
   DialogTitle,
 } from '@/components/ui/dialog';
+import { CheckCircle2 } from 'lucide-react';
 
 interface BottomBarProduct {
   id: number;
@@ -104,21 +106,21 @@ export default function ProductBottomBar({
       />
 
       <Dialog open={isWishlistModalOpen} onOpenChange={setIsWishlistModalOpen}>
-        <DialogContent className="sm:max-w-md">
-          <DialogHeader>
-            <DialogTitle>찜 목록에 추가되었습니다</DialogTitle>
-            <DialogDescription>찜 목록으로 이동하시겠습니까?</DialogDescription>
+        <DialogContent className="rounded-xl sm:max-w-sm">
+          <DialogHeader className="flex flex-col items-center justify-center space-y-3 pt-4">
+            <div className="flex h-12 w-12 items-center justify-center rounded-full bg-teal-50">
+              <CheckCircle2 className="text-ongil-teal h-6 w-6" />
+            </div>
+            <DialogTitle className="text-center text-xl font-bold">
+              찜 목록에 추가되었습니다
+            </DialogTitle>
+            <DialogDescription className="text-center">
+              선택하신 상품을 찜 목록에 저장했어요.
+            </DialogDescription>
           </DialogHeader>
-          <DialogFooter className="flex flex-row gap-2 sm:justify-end">
+          <DialogFooter className="mt-4 flex-col gap-2 sm:flex-col">
             <Button
-              variant="secondary"
-              className="flex-1 sm:flex-none"
-              onClick={() => setIsWishlistModalOpen(false)}
-            >
-              쇼핑 계속하기
-            </Button>
-            <Button
-              className="flex-1 sm:flex-none"
+              className="bg-ongil-teal h-12 w-full rounded-xl text-lg font-bold hover:bg-teal-600"
               onClick={() => {
                 setIsWishlistModalOpen(false);
                 router.push('/me/wishlist');
@@ -126,6 +128,14 @@ export default function ProductBottomBar({
             >
               찜 목록 보기
             </Button>
+            <DialogClose asChild>
+              <Button
+                variant="secondary"
+                className="h-12 w-full rounded-xl bg-gray-200 text-base font-medium text-gray-700 hover:bg-gray-300"
+              >
+                쇼핑 계속하기
+              </Button>
+            </DialogClose>
           </DialogFooter>
         </DialogContent>
       </Dialog>

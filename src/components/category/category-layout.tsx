@@ -47,7 +47,7 @@ export default function CategoryLayout({
       </header>
 
       <div className="flex min-h-0 flex-1 overflow-hidden">
-        <nav className="scrollbar-hide z-10 flex h-full min-h-0 w-24 shrink-0 flex-col overflow-y-auto bg-gray-50 pb-20">
+        <nav className="scrollbar-hide z-10 flex h-full min-h-0 w-32 shrink-0 flex-col overflow-y-auto border-r border-gray-300 bg-gray-100 pb-20">
           <ul ref={sidebarRef} className="flex h-full min-h-0 flex-col">
             {categories.map((category) => (
               <li

@@ -22,7 +22,6 @@ export { default as ProductDescription } from './descriptions/product-descriptio
 // ----------------------------------------------------------------------
 // 4. 상품 상세 - 고정 바, 헤더 및 부가 기능
 // ----------------------------------------------------------------------
-export { default as CompactProductHeader } from './compact-product-header';
 export { default as ProductHeader } from './product-header';
 export { default as ProductBottomBar } from './product-bottom-bar';
 export { ProductNotice } from './descriptions/product-notice';

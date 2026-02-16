@@ -13,6 +13,18 @@ interface AddressItemProps {
   showSelectButton?: boolean;
 }
 
+function splitAddressByParen(address: string) {
+  const index = address.indexOf('(');
+  if (index < 0) {
+    return { main: address, sub: '' };
+  }
+
+  return {
+    main: address.slice(0, index).trim(),
+    sub: address.slice(index).trim(),
+  };
+}
+
 export default function AddressItem({
   item,
   isSelected,
@@ -23,18 +35,16 @@ export default function AddressItem({
   const pathname = usePathname();
   const searchParams = useSearchParams();
   const [isDeleting, setIsDeleting] = useState(false);
-  const mode = searchParams.get('mode');
-  const returnTo = searchParams.get('returnTo');
   const currentQuery = searchParams.toString();
-  const editReturnTo =
-    mode === 'select' && returnTo?.startsWith('/')
-      ? returnTo
-      : currentQuery
-        ? `${pathname}?${currentQuery}`
-        : undefined;
+  const editReturnTo = currentQuery ? `${pathname}?${currentQuery}` : pathname;
   const editHref = editReturnTo
     ? `/address/${item.addressId}?returnTo=${encodeURIComponent(editReturnTo)}`
     : `/address/${item.addressId}`;
+  const baseAddress = item.baseAddress?.trim() || '';
+  const detailAddress = item.detailAddress?.trim() || '';
+  const fullAddress = [baseAddress, detailAddress].filter(Boolean).join(' ');
+  const { main: mainBaseAddress, sub: subBaseAddress } =
+    splitAddressByParen(baseAddress);
 
   const handleDelete = async () => {
     if (!confirm('정말 이 배송지를 삭제하시겠습니까?')) return;
@@ -76,13 +86,18 @@ export default function AddressItem({
         </button>
       </div>
 
-      <div className="space-y-7 px-2 text-xl">
+      <div className="space-y-5 px-2 text-xl">
         <p>{item.recipientName}</p>
-        <p className="break-words whitespace-pre-wrap">
-          {[item.baseAddress, item.detailAddress].filter(Boolean).join(' ')}
-        </p>
+        <div
+          title={fullAddress}
+          className="space-y-1 leading-relaxed [overflow-wrap:anywhere] whitespace-normal"
+        >
+          <p>{mainBaseAddress}</p>
+          {subBaseAddress ? <p>{subBaseAddress}</p> : null}
+          {detailAddress ? <p>{detailAddress}</p> : null}
+        </div>
         <p>{item.recipientPhone}</p>
-        <p className="break-words whitespace-pre-wrap">
+        <p className="[overflow-wrap:anywhere] whitespace-pre-wrap">
           {item.deliveryRequest || '요청사항 없음'}
         </p>
       </div>

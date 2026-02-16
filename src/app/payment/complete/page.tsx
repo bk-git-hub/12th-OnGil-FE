@@ -22,6 +22,14 @@ export default async function OrderCompletePage({ searchParams }: PageProps) {
     notFound();
   }
   const order = await getOrderDetail(Number(orderId));
+  const deliveryAddress = order.deliveryAddress ?? '';
+  const bracketIndex = deliveryAddress.indexOf('(');
+  const deliveryAddressMain =
+    bracketIndex >= 0
+      ? deliveryAddress.slice(0, bracketIndex).trim()
+      : deliveryAddress;
+  const deliveryAddressSub =
+    bracketIndex >= 0 ? deliveryAddress.slice(bracketIndex).trim() : '';
 
   return (
     <main className="flex min-h-screen flex-col gap-12 bg-white pb-40">
@@ -61,7 +69,7 @@ export default async function OrderCompletePage({ searchParams }: PageProps) {
           <ul className="flex flex-col gap-8">
             {order.orderItems.map((item, idx) => (
               <li key={idx} className="flex gap-4">
-                <div className="flex h-full w-full items-center justify-center gap-4 rounded-2xl border border-black p-5">
+                <div className="flex h-full w-full items-center gap-4 rounded-2xl border border-black p-5">
                   {item.imageUrl ? (
                     <Image
                       src={item.imageUrl}
@@ -74,7 +82,7 @@ export default async function OrderCompletePage({ searchParams }: PageProps) {
                       No Image
                     </div>
                   )}
-                  <div className="flex flex-col justify-center gap-7 text-xl leading-[18px] font-medium">
+                  <div className="flex flex-1 flex-col justify-center gap-7 text-xl leading-[18px] font-medium">
                     <span>{item.brandName}</span>
                     <p>{item.productName}</p>
                     <span>
@@ -109,11 +117,12 @@ export default async function OrderCompletePage({ searchParams }: PageProps) {
               <span>연락처</span>
               <span>{order.recipientPhone}</span>
             </div>
-            <div className="flex justify-between">
-              <span>주소</span>
-              <span className="text-right text-xl whitespace-pre-line">
-                {order.deliveryAddress.replace('(', '\n(')}
-              </span>
+            <div className="flex items-start gap-4">
+              <span className="w-16 shrink-0 whitespace-nowrap">주소</span>
+              <div className="min-w-0 flex-1 space-y-1 text-right text-xl [overflow-wrap:anywhere] whitespace-normal">
+                <p>{deliveryAddressMain}</p>
+                {deliveryAddressSub ? <p>{deliveryAddressSub}</p> : null}
+              </div>
             </div>
             <div className="flex justify-between">
               <span>요청사항</span>

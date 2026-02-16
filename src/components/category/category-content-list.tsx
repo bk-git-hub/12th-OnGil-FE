@@ -15,10 +15,10 @@ export default function CategoryContentList({
           id={category.categoryId.toString()}
           className="mb-8 scroll-mt-0"
         >
-          <h2 className="sticky top-0 z-10 mb-3 border-b border-gray-100 bg-white py-3 text-sm font-bold text-gray-900">
+          <h2 className="sticky top-0 z-10 mb-3 border-b border-gray-100 bg-white py-3 text-xl font-bold text-gray-900">
             {category.name}
           </h2>
-          <div className="grid grid-cols-3 gap-x-2 gap-y-4">
+          <div className="grid grid-cols-2 gap-x-3 gap-y-4">
             {category.subCategories.map((sub: SubCategory) => (
               <SubCategoryItem
                 key={sub.categoryId}

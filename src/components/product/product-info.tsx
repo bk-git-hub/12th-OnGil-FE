@@ -26,29 +26,27 @@ export default function ProductInfo({
   return (
     <div className="font-pretendard p-[22px] leading-[18px] not-italic">
       {/* 8.1.1 (1) 브랜드 */}
-      <div className="mb-6 text-xl font-extrabold">{product.brandName}</div>
+      <div className="mb-4 text-xl font-extrabold">{product.brandName}</div>
       {/* 8.1.1 (3) 상품명 */}
-      <h1 className="mb-6 px-2 text-2xl leading-tight font-medium">
+      <h1 className="mb-4 px-2 text-2xl leading-tight font-medium">
         {product.name}
       </h1>
       {hasDiscount ? (
         <div className="flex flex-col gap-4">
-          <div className="flex items-center gap-3">
-            {/* 할인가 (현재 판매가) */}
+          <del className="text-xl text-[#0000004F]">
+            <span className="sr-only">정상가</span>
+            {product.price.toLocaleString()}원
+          </del>
+          <div className="flex items-end gap-3">
+            <span className="text-4xl font-bold text-red-600">
+              <span className="sr-only">할인율</span>
+              {product.discountRate}%
+            </span>
             <span className="text-4xl font-bold">
               <span className="sr-only">할인 판매가</span>
-              <span>{product.finalPrice.toLocaleString()}원</span>
+              {product.finalPrice.toLocaleString()}원
             </span>
-            {/* 원가 (취소선)*/}
-            <del className="text-xl text-[#0000004F]">
-              <span className="sr-only">정상가</span>
-              {product.price.toLocaleString()}원
-            </del>
           </div>
-          <span className="mb-1 text-xl font-bold text-red-600">
-            <span className="sr-only">할인율</span>
-            {product.discountRate}%
-          </span>
         </div>
       ) : (
         <span className="text-4xl font-bold">
@@ -56,7 +54,7 @@ export default function ProductInfo({
           {product.price.toLocaleString()}원
         </span>
       )}
-      <div className="mt-2 flex items-center gap-2">
+      <div className="mt-6 flex items-center gap-2">
         <StarRating rating={product.reviewRating} size={24} />
         <span className="font-Poppins text-sm leading-5 font-semibold not-italic">
           ({product.reviewCount ?? 0})

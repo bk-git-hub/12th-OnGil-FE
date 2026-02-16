@@ -6,15 +6,14 @@ import { useProductInteraction } from '@/components/product';
 
 interface ProductStickyContainerProps {
   children: React.ReactNode;
-  headerSlot: React.ReactNode; // 헤더 슬롯
   tabBarSlot: React.ReactNode; // 탭 바 슬롯
 }
 
 export function ProductStickyContainer({
   children,
-  headerSlot,
   tabBarSlot,
 }: ProductStickyContainerProps) {
+  const HEADER_HEIGHT = 90;
   const [isSticky, setIsSticky] = useState(false);
   const sentinelRef = useRef<HTMLDivElement>(null);
 
@@ -39,8 +38,10 @@ export function ProductStickyContainer({
       const elementRect = sentinelRef.current.getBoundingClientRect();
       const absoluteElementTop = elementRect.top + window.scrollY;
 
-      // 헤더 높이(약 64px) 등을 고려해 조금 더 위(-60)로 조정하면 보기가 좋습니다.
-      window.scrollTo({ top: absoluteElementTop, behavior: 'smooth' });
+      window.scrollTo({
+        top: Math.max(absoluteElementTop - HEADER_HEIGHT, 0),
+        behavior: 'smooth',
+      });
       resetScroll();
     }
   }, [shouldScrollToTab, resetScroll]);
@@ -56,21 +57,10 @@ export function ProductStickyContainer({
       {/* Sticky 영역 */}
       <div
         className={cn(
-          'sticky top-0 z-50 w-full bg-white transition-shadow duration-300',
+          'sticky top-[90px] z-40 w-full bg-white transition-shadow duration-300',
           isSticky ? 'shadow-md' : 'shadow-none',
         )}
       >
-        <div
-          className={cn(
-            'overflow-hidden bg-white transition-[height,opacity] duration-300',
-            isSticky
-              ? 'h-16 border-b border-gray-100 opacity-100'
-              : 'h-0 opacity-0',
-          )}
-        >
-          {/* 헤더 슬롯, 스크롤 시 축소되는 영역 */}
-          {headerSlot}
-        </div>
         {/* 탭 바 슬롯, 항상 보이는 영역 */}
         {tabBarSlot}
       </div>
