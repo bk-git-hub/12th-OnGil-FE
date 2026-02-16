@@ -19,7 +19,9 @@ export interface ReviewStep1Request {
 export interface ReviewStep1ResponseData {
   reviewId: number;
   needsSizeSecondaryQuestion: boolean;
+  sizeSecondaryType?: 'POSITIVE' | 'NEGATIVE' | 'NORMAL';
   needsMaterialSecondaryQuestion: boolean;
+  materialSecondaryType?: 'POSITIVE' | 'NEGATIVE' | 'NORMAL';
   availableBodyParts: string[];
 }
 

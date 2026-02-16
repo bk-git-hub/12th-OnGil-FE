@@ -59,6 +59,7 @@ export interface ReviewPurchaseOption {
 export interface ReviewProductSimple {
   productId: number;
   productName: string;
+  clothingCategory?: string;
   brandName: string;
   thumbnailImageUrl: string;
 }
