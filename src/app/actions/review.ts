@@ -5,15 +5,11 @@ import { redirect } from 'next/navigation';
 import { ApiError, api } from '@/lib/api-client';
 import { rethrowNextError } from '@/lib/server-action-utils';
 import type {
-  ClothingCategory,
-  ColorAnswer,
-  MaterialAnswer,
   PageResponse,
   ProductReviewListItem,
   ReviewDetail,
   ReviewHelpfulData,
   ReviewStatsData,
-  SizeAnswer,
 } from '@/types/domain/review';
 
 interface InitReviewResponseData {
@@ -21,11 +17,11 @@ interface InitReviewResponseData {
 }
 
 export interface ReviewStep1Request {
-  clothingCategory: ClothingCategory;
+  clothingCategory: string;
   rating: number;
-  sizeAnswer: SizeAnswer;
-  colorAnswer: ColorAnswer;
-  materialAnswer: MaterialAnswer;
+  sizeAnswer: string;
+  colorAnswer: string;
+  materialAnswer: string;
 }
 
 export interface ReviewStep1ResponseData {
@@ -57,10 +53,10 @@ interface ActionResult<T = undefined> {
 }
 
 export interface ProductReviewsQuery {
-  reviewType?: 'INITIAL' | 'ONE_MONTH' | string;
+  reviewType?: 'INITIAL' | 'ONE_MONTH';
   size?: string | string[];
   color?: string | string[];
-  sort?: 'BEST' | 'RECENT' | 'RATING_HIGH' | 'RATING_LOW' | string;
+  sort?: 'BEST' | 'RECENT' | 'RATING_HIGH' | 'RATING_LOW';
   mySizeOnly?: boolean;
   page?: number;
   pageSize?: number;
@@ -203,18 +199,11 @@ export async function submitReviewAction(
   payload: ReviewSubmitRequest,
 ): Promise<ActionResult> {
   try {
-    console.log('[review-submit] request', {
-      endpoint: `/reviews/${reviewId}/submit`,
-      reviewId,
-      payload,
-    });
-
     await api.post<Record<string, never>, ReviewSubmitRequest>(
       `/reviews/${reviewId}/submit`,
       payload,
     );
 
-    console.log('[review-submit] success', { reviewId });
     return { success: true };
   } catch (error) {
     console.error('리뷰 제출 실패:', error);
@@ -272,12 +261,10 @@ export async function getProductReviewsAction(
   const params: Record<
     string,
     string | number | boolean | string[] | undefined
-  > = {
-    page,
-    pageSize,
-    sort: 'BEST',
-    ...query,
-  };
+  > = { ...query };
+  params.page = page;
+  params.pageSize = pageSize;
+  params.sort = query.sort ?? 'BEST';
 
   try {
     return await api.get<PageResponse<ProductReviewListItem>>(

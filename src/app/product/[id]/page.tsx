@@ -38,7 +38,7 @@ export default async function ProductPage({ params, searchParams }: PageProps) {
   const resolvedBodyInfo =
     bodyInfoResult.status === 'fulfilled'
       ? bodyInfoResult.value
-      : { success: false };
+      : { success: false as const, data: null };
   const resolvedWishlist =
     wishlist.status === 'fulfilled' ? wishlist.value : [];
   const resolvedSimilarProducts =
