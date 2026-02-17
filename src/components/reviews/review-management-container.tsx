@@ -6,7 +6,7 @@ import {
 import ReviewManagementContent from './review-management-content';
 
 interface MyReviewsFallbackResponse {
-  content?: ProductWithReviewStats[];
+  content?: Array<ProductWithReviewStats | WrittenReviewApiItem>;
   page?: {
     totalElements?: number;
     totalPages?: number;
@@ -14,6 +14,78 @@ interface MyReviewsFallbackResponse {
     size?: number;
   };
   data?: MyReviewsFallbackResponse;
+}
+
+interface WrittenReviewApiItem {
+  reviewId?: number;
+  purchaseOption?: string;
+  rating?: number;
+  helpfulCount?: number;
+  product?: {
+    productId?: number;
+    productName?: string;
+    price?: number;
+    discountRate?: number;
+    finalPrice?: number;
+    thumbnailImageUrl?: string;
+    brandName?: string;
+    productType?: string;
+    viewCount?: number;
+    purchaseCount?: number;
+    reviewCount?: number;
+    reviewRating?: number;
+  };
+}
+
+function normalizeWrittenReviewItem(
+  item: ProductWithReviewStats | WrittenReviewApiItem,
+): ProductWithReviewStats | null {
+  if (
+    'id' in item &&
+    typeof item.id === 'number' &&
+    'name' in item &&
+    typeof item.name === 'string'
+  ) {
+    return item as ProductWithReviewStats;
+  }
+
+  if (!('product' in item) || !item.product) {
+    return null;
+  }
+
+  const product = item.product;
+  if (
+    typeof product.productId !== 'number' ||
+    typeof product.productName !== 'string' ||
+    typeof product.brandName !== 'string'
+  ) {
+    return null;
+  }
+
+  return {
+    id: product.productId,
+    reviewId: typeof item.reviewId === 'number' ? item.reviewId : undefined,
+    purchaseOption:
+      typeof item.purchaseOption === 'string' ? item.purchaseOption : undefined,
+    name: product.productName,
+    price: typeof product.price === 'number' ? product.price : 0,
+    discountRate: typeof product.discountRate === 'number' ? product.discountRate : 0,
+    finalPrice: typeof product.finalPrice === 'number' ? product.finalPrice : 0,
+    thumbnailImageUrl: product.thumbnailImageUrl ?? '',
+    brandName: product.brandName,
+    productType: product.productType ?? '',
+    viewCount: typeof product.viewCount === 'number' ? product.viewCount : 0,
+    purchaseCount:
+      typeof product.purchaseCount === 'number' ? product.purchaseCount : 0,
+    reviewCount:
+      typeof product.reviewCount === 'number' ? product.reviewCount : 0,
+    reviewRating:
+      typeof product.reviewRating === 'number'
+        ? product.reviewRating
+        : typeof item.rating === 'number'
+          ? item.rating
+          : 0,
+  };
 }
 
 export default async function ReviewManagementContainer() {
@@ -38,15 +110,12 @@ export default async function ReviewManagementContainer() {
     typeof writtenReviewsPage.data === 'object'
       ? writtenReviewsPage.data
       : writtenReviewsPage;
-  console.log(
-    '[reviews] written response=',
-    JSON.stringify(writtenResponse, null, 2),
-  );
-
   const writtenReviews = Array.isArray(writtenResponse)
     ? []
     : Array.isArray(writtenResponse.content)
       ? writtenResponse.content
+          .map(normalizeWrittenReviewItem)
+          .filter((item): item is ProductWithReviewStats => item !== null)
       : [];
 
   const writtenTotalCount =
@@ -60,39 +129,6 @@ export default async function ReviewManagementContainer() {
       '[reviews] /users/me/reviews 응답에 page.totalElements가 없습니다.',
     );
   }
-
-  console.log('[reviews] pendingCount=', pendingReviews.length);
-  console.log('[reviews] written rawResponse=', writtenReviewsPage);
-  console.log(
-    '[reviews] written responseType=',
-    Array.isArray(writtenResponse) ? 'array' : 'object',
-  );
-  console.log(
-    '[reviews] written responseKeys=',
-    Array.isArray(writtenResponse)
-      ? ['(array)']
-      : Object.keys(writtenResponse || {}),
-  );
-  console.log(
-    '[reviews] written page.totalElements=',
-    Array.isArray(writtenResponse)
-      ? undefined
-      : writtenResponse.page?.totalElements,
-  );
-  console.log(
-    '[reviews] written fallback totalElements=',
-    undefined,
-  );
-  console.log(
-    '[reviews] written fallback numberOfElements=',
-    undefined,
-  );
-  console.log(
-    '[reviews] written fallback totalCount=',
-    undefined,
-  );
-  console.log('[reviews] written contentLength=', writtenReviews.length);
-  console.log('[reviews] written resolvedTotalCount=', writtenTotalCount);
 
   return (
     <ReviewManagementContent
