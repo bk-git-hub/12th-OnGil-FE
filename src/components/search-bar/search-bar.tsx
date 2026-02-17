@@ -52,6 +52,14 @@ export default function SearchBar({ onFocusChange }: SearchBarProps) {
     fetchAutocomplete(e.target.value);
   };
 
+  const handleVoiceSearchOpen = (e: React.PointerEvent<HTMLButtonElement>) => {
+    // 입력 blur로 click이 취소되는 케이스를 방지
+    e.preventDefault();
+    e.stopPropagation();
+    setIsVoiceActive(true);
+    updateFocus(false);
+  };
+
   return (
     <div className="relative z-110 flex-1">
       {isVoiceActive && (
@@ -108,7 +116,11 @@ export default function SearchBar({ onFocusChange }: SearchBarProps) {
               <X size={20} />
             </button>
           )}
-          <button type="button" onClick={() => setIsVoiceActive(true)}>
+          <button
+            type="button"
+            onPointerDown={handleVoiceSearchOpen}
+            onClick={(e) => e.preventDefault()}
+          >
             <img src="/icons/mic.svg" alt="음성검색" />
           </button>
         </div>
