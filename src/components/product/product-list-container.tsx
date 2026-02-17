@@ -42,7 +42,7 @@ export default async function ProductListContainer({
         categoryId: safeCategoryId,
         sortType: safeSortType,
         page: safePage,
-        size: 20,
+        size: 36,
       },
     }),
     getMyWishlist(),
