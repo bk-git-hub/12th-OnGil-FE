@@ -51,7 +51,7 @@ export default function ProductCard({
         <span className="line-clamp-2 min-h-10 text-base font-medium">
           {product.name}
         </span>
-        <div className="mt-0.5 flex w-full items-center gap-1.5 text-base font-bold">
+        <div className="mt-0.5 flex w-full items-center gap-1.5 text-lg font-bold">
           {product.discountRate !== undefined && product.discountRate > 0 && (
             <span className="text-ongil-teal">{product.discountRate}%</span>
           )}
