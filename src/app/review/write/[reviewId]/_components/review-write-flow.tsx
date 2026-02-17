@@ -19,6 +19,10 @@ type FlowStep = 1 | 2;
 interface ReviewWriteFlowProps {
   reviewId: number;
   clothingCategory: string;
+  productThumbnailImageUrl: string;
+  productName: string;
+  productBrandName: string;
+  selectedOptionText: string;
   initialStep1Answers?: {
     sizeAnswer?: string | null;
     colorAnswer?: string | null;
@@ -72,6 +76,10 @@ const STAR_VALUES = [1, 2, 3, 4, 5] as const;
 export default function ReviewWriteFlow({
   reviewId,
   clothingCategory,
+  productThumbnailImageUrl,
+  productName,
+  productBrandName,
+  selectedOptionText,
   initialStep1Answers,
   initialRating,
 }: ReviewWriteFlowProps) {
@@ -96,13 +104,14 @@ export default function ReviewWriteFlow({
     initialStep1Answers?.materialAnswer ?? '',
   );
 
-  const [step1Result, setStep1Result] = useState<ReviewStep1ResponseData | null>(
-    null,
-  );
+  const [step1Result, setStep1Result] =
+    useState<ReviewStep1ResponseData | null>(null);
 
   const [fitIssueParts, setFitIssueParts] = useState<string[]>([]);
   const [featureTypes, setFeatureTypes] = useState<string[]>([]);
-  const sizeDebounceTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const sizeDebounceTimerRef = useRef<ReturnType<typeof setTimeout> | null>(
+    null,
+  );
   const materialDebounceTimerRef = useRef<ReturnType<typeof setTimeout> | null>(
     null,
   );
@@ -115,7 +124,8 @@ export default function ReviewWriteFlow({
   const [materialReviewItems, setMaterialReviewItems] = useState<string[]>([]);
 
   const needsSizeSecondary = step1Result?.needsSizeSecondaryQuestion ?? true;
-  const needsMaterialSecondary = step1Result?.needsMaterialSecondaryQuestion ?? true;
+  const needsMaterialSecondary =
+    step1Result?.needsMaterialSecondaryQuestion ?? true;
 
   const availableBodyPartsText = useMemo(() => {
     const bodyParts = step1Result?.availableBodyParts ?? [];
@@ -264,7 +274,9 @@ export default function ReviewWriteFlow({
         });
 
         if (!sizeResult.success) {
-          setErrorMessage(sizeResult.message || '2단계 사이즈 저장에 실패했습니다.');
+          setErrorMessage(
+            sizeResult.message || '2단계 사이즈 저장에 실패했습니다.',
+          );
           return;
         }
       }
@@ -315,7 +327,9 @@ export default function ReviewWriteFlow({
         return;
       }
       if (!materialResult.success || !materialResult.data) {
-        setErrorMessage(materialResult.message || '소재 AI 생성에 실패했습니다.');
+        setErrorMessage(
+          materialResult.message || '소재 AI 생성에 실패했습니다.',
+        );
         return;
       }
 
@@ -356,19 +370,21 @@ export default function ReviewWriteFlow({
           method: 'POST',
           body: formData,
         });
-        const payload = (await response.json()) as UploadReviewImagesApiResponse & {
-          message?: string;
-        };
+        const payload =
+          (await response.json()) as UploadReviewImagesApiResponse & {
+            message?: string;
+          };
 
         if (!response.ok) {
-          setErrorMessage(payload.message || '리뷰 이미지 업로드에 실패했습니다.');
+          setErrorMessage(
+            payload.message || '리뷰 이미지 업로드에 실패했습니다.',
+          );
           return;
         }
 
-        const mergedUrls = Array.from(new Set([...existingUrls, ...payload.data])).slice(
-          0,
-          5,
-        );
+        const mergedUrls = Array.from(
+          new Set([...existingUrls, ...payload.data]),
+        ).slice(0, 5);
         setReviewImageUrls(mergedUrls);
         setSuccessMessage('리뷰 이미지를 업로드했습니다.');
       } finally {
@@ -378,18 +394,22 @@ export default function ReviewWriteFlow({
   };
 
   return (
-    <section className="space-y-4 px-5 py-6">
-      <div className="flex items-start justify-between px-2">
+    <section className={`space-y-4 pt-6 ${step === 1 ? 'pb-0' : 'pb-6'}`}>
+      <div className="sticky top-[68px] z-[5] mx-5 flex items-start justify-between bg-white px-2 py-2">
         <div className="flex flex-1 items-start">
           <div className="flex flex-col items-center gap-1">
             <Image
-              src={step === 1 ? '/icons/basic-info.svg' : '/icons/basic-info-gray.svg'}
+              src={
+                step === 1
+                  ? '/icons/basic-info.svg'
+                  : '/icons/basic-info-gray.svg'
+              }
               alt="기본정보 단계"
               width={48}
               height={48}
             />
             <span
-              className={`text-sm font-medium ${
+              className={`text-[18px] font-medium ${
                 step === 1 ? 'text-[#223435]' : 'text-[#8a8a8a]'
               }`}
             >
@@ -407,13 +427,17 @@ export default function ReviewWriteFlow({
 
         <div className="flex flex-col items-center gap-1">
           <Image
-            src={step === 2 ? '/icons/detail-info-active.svg' : '/icons/detail-info.svg'}
+            src={
+              step === 2
+                ? '/icons/detail-info-active.svg'
+                : '/icons/detail-info.svg'
+            }
             alt="상세후기 단계"
             width={47}
             height={47}
           />
           <span
-            className={`text-sm font-medium ${
+            className={`text-[18px] font-medium ${
               step === 2 ? 'text-[#223435]' : 'text-[#8a8a8a]'
             }`}
           >
@@ -422,128 +446,172 @@ export default function ReviewWriteFlow({
         </div>
       </div>
 
-      {errorMessage ? <p className="text-sm text-red-600">{errorMessage}</p> : null}
-      {successMessage ? <p className="text-sm text-emerald-700">{successMessage}</p> : null}
+      {errorMessage ? (
+        <p className="text-sm text-red-600">{errorMessage}</p>
+      ) : null}
+      {successMessage ? (
+        <p className="text-sm text-emerald-700">{successMessage}</p>
+      ) : null}
 
       {step === 1 ? (
-        <div className="space-y-6">
-          <div className="space-y-3">
-            <p className="text-2xl font-semibold text-black">Q. 이 상품 어때요?</p>
-            <div className="flex items-center gap-2">
-              {STAR_VALUES.map((star) => (
-                <button
-                  key={star}
-                  type="button"
-                  onClick={() => setRating(star)}
-                  aria-label={`${star}점 선택`}
-                  className="transition-transform active:scale-95"
-                >
-                  <Image
-                    src={rating >= star ? '/icons/star.svg' : '/icons/star-gray.svg'}
-                    alt=""
-                    width={28}
-                    height={28}
-                  />
-                </button>
-              ))}
-            </div>
-          </div>
-
-          <div className="space-y-3">
-            <p className="text-2xl font-semibold text-black">1. 입었을 때 어때요?</p>
-            <div className="flex gap-3 overflow-x-auto pb-1">
-              {sizeAnswerOptions.map((option) => (
-                <button
-                  key={option.value}
-                  type="button"
-                  onClick={() => setSizeAnswer(option.value)}
-                  className="flex min-w-[58px] flex-col items-center gap-2 text-center"
-                >
-                  <span
-                    className={`flex h-8 w-8 items-center justify-center rounded-full border ${
-                      sizeAnswer === option.value
-                        ? 'border-[#005b5e] bg-[#005b5e]'
-                        : 'border-[#d1d1d1] bg-white'
-                    }`}
+        <div>
+          <div className="space-y-6">
+            <div className="mx-5 space-y-3">
+              <p className="text-2xl font-semibold text-black">
+                Q. 이 상품 어때요?
+              </p>
+              <section className="rounded-2xl border border-black/50 bg-white p-4">
+                <div className="flex gap-3">
+                  <div className="relative h-[88px] w-[88px] overflow-hidden rounded-md bg-[#f1f1f1]">
+                    <Image
+                      src={productThumbnailImageUrl}
+                      alt={productName}
+                      fill
+                      sizes="88px"
+                      className="object-cover"
+                    />
+                  </div>
+                  <div className="min-w-0 flex-1 text-black">
+                    <p className="truncate text-[16px] text-[#666666]">
+                      {productBrandName}
+                    </p>
+                    <p className="line-clamp-2 text-[16px] font-semibold">
+                      {productName}
+                    </p>
+                    <p className="mt-1 text-[16px] text-[#444444]">
+                      {selectedOptionText}
+                    </p>
+                  </div>
+                </div>
+              </section>
+              <div className="flex w-full items-center justify-between">
+                {STAR_VALUES.map((star) => (
+                  <button
+                    key={star}
+                    type="button"
+                    onClick={() => setRating(star)}
+                    aria-label={`${star}점 선택`}
+                    className="flex-1 transition-transform active:scale-95"
                   >
-                    {sizeAnswer === option.value ? (
-                      <span className="h-4 w-4 rounded-full bg-white" />
-                    ) : null}
-                  </span>
-                  <span className="text-[11px] leading-[1.3] text-[#6f6f6f]">
-                    {option.label}
-                  </span>
-                </button>
-              ))}
+                    <Image
+                      src={
+                        rating >= star
+                          ? '/icons/star.svg'
+                          : '/icons/star-gray.svg'
+                      }
+                      alt=""
+                      width={62}
+                      height={62}
+                      className="mx-auto"
+                    />
+                  </button>
+                ))}
+              </div>
             </div>
-          </div>
 
-          <div className="space-y-3">
-            <p className="text-2xl font-semibold text-black">2. 제품 색깔은 어때요?</p>
-            <div className="flex gap-3 overflow-x-auto pb-1">
-              {colorAnswerOptions.map((option) => (
-                <button
-                  key={option.value}
-                  type="button"
-                  onClick={() => setColorAnswer(option.value)}
-                  className="flex min-w-[72px] flex-col items-center gap-2 text-center"
-                >
-                  <span
-                    className={`flex h-8 w-8 items-center justify-center rounded-full border ${
-                      colorAnswer === option.value
-                        ? 'border-[#005b5e] bg-[#005b5e]'
-                        : 'border-[#d1d1d1] bg-white'
-                    }`}
+            <div className="mx-5 space-y-3">
+              <p className="text-2xl font-semibold text-black">
+                1. 입었을 때 어때요?
+              </p>
+            <div className="-mx-5 grid grid-cols-5 gap-2 bg-[#F9FAFB] pt-5">
+                {sizeAnswerOptions.map((option) => (
+                  <button
+                    key={option.value}
+                    type="button"
+                    onClick={() => setSizeAnswer(option.value)}
+                    className="flex w-full flex-col items-center gap-2 text-center"
                   >
-                    {colorAnswer === option.value ? (
-                      <span className="h-4 w-4 rounded-full bg-white" />
-                    ) : null}
-                  </span>
-                  <span className="text-[11px] leading-[1.3] text-[#6f6f6f]">
-                    {option.label}
-                  </span>
-                </button>
-              ))}
+                    <span
+                      className={`flex h-12 w-12 items-center justify-center rounded-full border ${
+                        sizeAnswer === option.value
+                          ? 'border-[#005b5e] bg-white'
+                          : 'border-[#d1d1d1] bg-white'
+                      }`}
+                    >
+                      {sizeAnswer === option.value ? (
+                        <span className="h-7 w-7 rounded-full bg-[#005b5e]" />
+                      ) : null}
+                    </span>
+                    <span className="text-ongil-teal text-base leading-[1.3] font-bold">
+                      {option.label}
+                    </span>
+                  </button>
+                ))}
+              </div>
             </div>
-          </div>
 
-          <div className="space-y-3">
-            <p className="text-2xl font-semibold text-black">3. 소재는 어때요?</p>
-            <div className="flex gap-3 overflow-x-auto pb-1">
-              {materialAnswerOptions.map((option) => (
-                <button
-                  key={option.value}
-                  type="button"
-                  onClick={() => setMaterialAnswer(option.value)}
-                  className="flex min-w-[58px] flex-col items-center gap-2 text-center"
-                >
-                  <span
-                    className={`flex h-8 w-8 items-center justify-center rounded-full border ${
-                      materialAnswer === option.value
-                        ? 'border-[#005b5e] bg-[#005b5e]'
-                        : 'border-[#d1d1d1] bg-white'
-                    }`}
+            <div className="mx-5 space-y-3">
+              <p className="text-2xl font-semibold text-black">
+                2. 제품 색깔은 어때요?
+              </p>
+              <div className="-mx-5 grid grid-cols-3 gap-2 bg-[#F9FAFB] py-5">
+                {colorAnswerOptions.map((option) => (
+                  <button
+                    key={option.value}
+                    type="button"
+                    onClick={() => setColorAnswer(option.value)}
+                    className="flex w-full flex-col items-center gap-2 text-center"
                   >
-                    {materialAnswer === option.value ? (
-                      <span className="h-4 w-4 rounded-full bg-white" />
-                    ) : null}
-                  </span>
-                  <span className="text-[11px] leading-[1.3] text-[#6f6f6f]">
-                    {option.label}
-                  </span>
-                </button>
-              ))}
+                    <span
+                      className={`flex h-12 w-12 items-center justify-center rounded-full border ${
+                        colorAnswer === option.value
+                          ? 'border-[#005b5e] bg-white'
+                          : 'border-[#d1d1d1] bg-white'
+                      }`}
+                    >
+                      {colorAnswer === option.value ? (
+                        <span className="h-7 w-7 rounded-full bg-[#005b5e]" />
+                      ) : null}
+                    </span>
+                    <span className="text-ongil-teal text-base leading-[1.3] font-bold">
+                      {option.label}
+                    </span>
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            <div className="mx-5 space-y-3">
+              <p className="text-2xl font-semibold text-black">
+                3. 소재는 어때요?
+              </p>
+              <div className="-mx-5 grid grid-cols-5 gap-2 bg-[#F9FAFB] py-5">
+                {materialAnswerOptions.map((option) => (
+                  <button
+                    key={option.value}
+                    type="button"
+                    onClick={() => setMaterialAnswer(option.value)}
+                    className="flex w-full flex-col items-center gap-2 text-center"
+                  >
+                    <span
+                      className={`flex h-12 w-12 items-center justify-center rounded-full border ${
+                        materialAnswer === option.value
+                          ? 'border-[#005b5e] bg-white'
+                          : 'border-[#d1d1d1] bg-white'
+                      }`}
+                    >
+                      {materialAnswer === option.value ? (
+                        <span className="h-7 w-7 rounded-full bg-[#005b5e]" />
+                      ) : null}
+                    </span>
+                    <span className="text-ongil-teal text-base leading-[1.3] font-bold">
+                      {option.label}
+                    </span>
+                  </button>
+                ))}
+              </div>
             </div>
           </div>
-
-          <button
-            type="button"
-            onClick={handleStep1Next}
-            disabled={isPending}
-            className="w-full rounded-lg bg-[#005b5e] py-2 text-white disabled:opacity-60"
-          >
-            {isPending ? '저장 중...' : '다음 단계'}
-          </button>
+          <div className="sticky bottom-0 z-10 border-t border-[#999999] bg-white px-5 py-3">
+            <button
+              type="button"
+              onClick={handleStep1Next}
+              disabled={isPending}
+              className="w-full rounded-lg bg-[#005b5e] py-3 text-[30px] leading-none font-semibold text-white disabled:opacity-60"
+            >
+              {isPending ? '저장 중...' : '다음 단계'}
+            </button>
+          </div>
         </div>
       ) : null}
 
@@ -569,7 +637,9 @@ export default function ReviewWriteFlow({
           <p className="text-sm text-[#666666]">
             materialSecondaryType: {step1Result?.materialSecondaryType ?? '-'}
           </p>
-          <p className="text-sm text-[#666666]">availableBodyParts: {availableBodyPartsText}</p>
+          <p className="text-sm text-[#666666]">
+            availableBodyParts: {availableBodyPartsText}
+          </p>
           {step2AutoSaveStatus ? (
             <p className="text-sm text-[#005b5e]">{step2AutoSaveStatus}</p>
           ) : null}
@@ -654,11 +724,17 @@ export default function ReviewWriteFlow({
               multiple
               onChange={(e) => {
                 const files = Array.from(e.target.files ?? []);
-                const remaining = MAX_REVIEW_IMAGE_COUNT - uploadedImageUrls.length;
+                const remaining =
+                  MAX_REVIEW_IMAGE_COUNT - uploadedImageUrls.length;
                 const limitedFiles = files.slice(0, Math.max(remaining, 0));
-                const totalBytes = limitedFiles.reduce((sum, file) => sum + file.size, 0);
+                const totalBytes = limitedFiles.reduce(
+                  (sum, file) => sum + file.size,
+                  0,
+                );
                 if (totalBytes > MAX_REVIEW_IMAGE_TOTAL_BYTES) {
-                  setErrorMessage('선택한 이미지 용량 합이 너무 큽니다. (최대 50MB)');
+                  setErrorMessage(
+                    '선택한 이미지 용량 합이 너무 큽니다. (최대 50MB)',
+                  );
                   return;
                 }
                 setErrorMessage('');
@@ -666,7 +742,8 @@ export default function ReviewWriteFlow({
                 e.currentTarget.value = '';
               }}
               disabled={
-                isImageUploading || uploadedImageUrls.length >= MAX_REVIEW_IMAGE_COUNT
+                isImageUploading ||
+                uploadedImageUrls.length >= MAX_REVIEW_IMAGE_COUNT
               }
               className="block w-full text-sm"
             />
