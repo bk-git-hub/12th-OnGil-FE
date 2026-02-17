@@ -1,5 +1,4 @@
-import { api } from '@/lib/api-client';
-import { SubCategory } from '@/types/domain/category';
+import { getSubCategories } from '@/app/actions/category';
 import SubCategorySlider from './sub-category-slider';
 
 interface Props {
@@ -8,10 +7,11 @@ interface Props {
 
 export default async function SubCategorySliderContainer({ params }: Props) {
   const { parentId } = await params;
+  const parsedParentId = Number(parentId);
 
-  const subCategories = await api.get<SubCategory[]>(
-    `/categories/${parentId}/sub-categories`,
-  );
+  const subCategories = Number.isFinite(parsedParentId)
+    ? await getSubCategories(parsedParentId)
+    : [];
 
   const parentCategoryName = subCategories[0]?.parentCategoryName ?? '';
 
