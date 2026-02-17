@@ -37,7 +37,6 @@ export default async function RecommendCategoryContainer() {
 
   return (
     <div className="w-full overflow-hidden">
-      <h2>추천 카테고리</h2>
       <RecommendCarousel heading="추천 카테고리" showDots={true}>
         {categories.map((category) => (
           <RecommendCarouselItem key={category.categoryId}>
