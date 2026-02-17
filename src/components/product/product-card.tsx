@@ -18,12 +18,8 @@ export default function ProductCard({
   const href = detailFrom
     ? `/product/${product.id}?from=${encodeURIComponent(detailFrom)}`
     : `/product/${product.id}`;
-  const reviewRating = Number(product.reviewRating);
-  const reviewCount = Number(product.reviewCount);
-  const rating = Number.isFinite(reviewRating)
-    ? reviewRating.toFixed(1)
-    : '0.0';
-  const count = Number.isFinite(reviewCount) ? reviewCount : 0;
+  const rating = product.reviewRating.toFixed(1);
+  const count = product.reviewCount;
 
   return (
     <Link href={href} className="block h-full">
