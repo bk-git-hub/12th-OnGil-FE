@@ -21,8 +21,9 @@ interface RecommendedBrandClientProps {
 }
 
 export default function RecommendedBrandClient({
-  brands,
+  brands: initialBrands,
 }: RecommendedBrandClientProps) {
+  const [brands] = useState(initialBrands);
   const [selectedIndex, setSelectedIndex] = useState<number>(0);
   const locale = getLocaleFromDocument();
 

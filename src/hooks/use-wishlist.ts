@@ -1,6 +1,6 @@
 'use client';
 
-import { useOptimistic, useTransition } from 'react';
+import { useState, useOptimistic, useTransition } from 'react';
 import { addToWishlist, deleteFromWishlist } from '@/app/actions/wishlist';
 
 interface WishlistState {
@@ -23,18 +23,22 @@ export function useWishlist({
 }: UseWishlistOptions) {
   const [isPending, startTransition] = useTransition();
 
+  const [committedState, setCommittedState] = useState<WishlistState>({
+    isLiked: initialIsLiked,
+    wishlistId: initialWishlistId,
+  });
+
   const [optimisticState, setOptimisticState] = useOptimistic<
     WishlistState,
     Partial<WishlistState>
   >(
-    { isLiked: initialIsLiked, wishlistId: initialWishlistId },
+    committedState,
     (state, update) => ({ ...state, ...update }),
   );
 
   const toggle = () => {
     if (isPending) return;
-    const previousState = optimisticState;
-    const nextIsLiked = !previousState.isLiked;
+    const nextIsLiked = !committedState.isLiked;
 
     startTransition(async () => {
       setOptimisticState({ isLiked: nextIsLiked });
@@ -43,24 +47,17 @@ export function useWishlist({
         if (nextIsLiked) {
           const response = await addToWishlist(productId);
           if (response.success && response.data?.wishlistId) {
-            setOptimisticState({
-              isLiked: true,
-              wishlistId: response.data.wishlistId,
-            });
+            setCommittedState({ isLiked: true, wishlistId: response.data.wishlistId });
             onAddSuccess?.(response.data.wishlistId);
-          } else {
-            setOptimisticState(previousState);
           }
-        } else if (previousState.wishlistId) {
-          const response = await deleteFromWishlist(previousState.wishlistId);
-          if (!response.success) {
-            setOptimisticState(previousState);
+        } else if (committedState.wishlistId) {
+          const response = await deleteFromWishlist(committedState.wishlistId);
+          if (response.success) {
+            setCommittedState({ isLiked: false, wishlistId: undefined });
           }
-        } else {
-          setOptimisticState(previousState);
         }
       } catch {
-        setOptimisticState(previousState);
+        // committedState unchanged → useOptimistic reverts to it automatically
       }
     });
   };
