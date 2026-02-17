@@ -1,7 +1,7 @@
 import { api } from '@/lib/api-client';
 import { ProductSearchResult } from '@/types/domain/product';
 import { ProductSortType } from '@/types/enums';
-import { ProductList } from './product-list';
+import ProductList from './product-list';
 import { getMyWishlist } from '@/app/actions/wishlist';
 
 interface ProductListContainerProps {

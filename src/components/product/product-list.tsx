@@ -9,7 +9,7 @@ interface ProductListProps {
   showWishlistButton?: boolean;
 }
 
-export function ProductList({
+export default function ProductList({
   products,
   totalElements,
   productDetailFrom,
