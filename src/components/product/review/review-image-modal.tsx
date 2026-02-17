@@ -8,8 +8,6 @@ import {
   Carousel,
   CarouselContent,
   CarouselItem,
-  CarouselNext,
-  CarouselPrevious,
   type CarouselApi,
 } from '@/components/ui/carousel';
 
@@ -78,11 +76,11 @@ export default function ReviewImageModal({
             className="grid h-full w-full space-x-2 py-0"
             opts={{ startIndex: initialSlide, loop: true }}
           >
-            <CarouselContent className="m-0 flex h-full">
+            <CarouselContent className="flex h-full">
               {imageUrls.map((src, index) => (
                 <CarouselItem
                   key={index}
-                  className="flex h-full basis-full items-center justify-center gap-2 p-0 pl-0"
+                  className="flex h-full basis-full items-center justify-center p-0 pl-4"
                 >
                   <div className="relative h-full min-h-0 w-full">
                     <Image
@@ -97,12 +95,6 @@ export default function ReviewImageModal({
                 </CarouselItem>
               ))}
             </CarouselContent>
-            {imageUrls.length > 1 && (
-              <>
-                <CarouselPrevious className="left-4 z-[100] h-12 w-12 border-none bg-white/10 text-white hover:bg-white/30 [&_svg]:h-8 [&_svg]:w-8" />
-                <CarouselNext className="right-4 z-[100] h-12 w-12 border-none bg-white/10 text-white hover:bg-white/30 [&_svg]:h-8 [&_svg]:w-8" />
-              </>
-            )}
           </Carousel>
         </div>
       </DialogContent>
