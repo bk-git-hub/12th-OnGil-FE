@@ -94,6 +94,10 @@ export default function ReviewWriteFlow({
   const [isPending, startTransition] = useTransition();
   const [errorMessage, setErrorMessage] = useState('');
   const [successMessage, setSuccessMessage] = useState('');
+  const [toast, setToast] = useState<{
+    type: 'error' | 'success';
+    message: string;
+  } | null>(null);
   const [, setStep2AutoSaveStatus] = useState('');
   const [isImageUploading, setIsImageUploading] = useState(false);
 
@@ -179,6 +183,26 @@ export default function ReviewWriteFlow({
       }
     };
   }, []);
+
+  useEffect(() => {
+    if (errorMessage) {
+      setToast({ type: 'error', message: errorMessage });
+      setErrorMessage('');
+    }
+  }, [errorMessage]);
+
+  useEffect(() => {
+    if (successMessage) {
+      setToast({ type: 'success', message: successMessage });
+      setSuccessMessage('');
+    }
+  }, [successMessage]);
+
+  useEffect(() => {
+    if (!toast) return;
+    const timer = setTimeout(() => setToast(null), 2200);
+    return () => clearTimeout(timer);
+  }, [toast]);
 
   useEffect(() => {
     if (step !== 2 || !step1Result || !needsSizeSecondary) {
@@ -561,11 +585,16 @@ export default function ReviewWriteFlow({
         </div>
       </div>
 
-      {errorMessage ? (
-        <p className="text-sm text-red-600">{errorMessage}</p>
-      ) : null}
-      {successMessage ? (
-        <p className="text-sm text-emerald-700">{successMessage}</p>
+      {toast ? (
+        <div className="pointer-events-none fixed right-5 bottom-24 left-5 z-50 flex justify-center">
+          <div
+            className={`rounded-lg px-4 py-3 text-sm font-medium text-white shadow-lg ${
+              toast.type === 'error' ? 'bg-[#d14343]' : 'bg-[#0f6b5b]'
+            }`}
+          >
+            {toast.message}
+          </div>
+        </div>
       ) : null}
 
       {step === 1 ? (

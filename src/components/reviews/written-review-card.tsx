@@ -14,13 +14,18 @@ export default function WrittenReviewCard({ review }: WrittenReviewCardProps) {
     typeof review.reviewCount === 'number' ? review.reviewCount : 0;
   const resolvedReviewId =
     typeof review.reviewId === 'number' ? review.reviewId : review.id;
+  const thumbnailSrc =
+    typeof review.thumbnailImageUrl === 'string' &&
+    review.thumbnailImageUrl.trim().length > 0
+      ? review.thumbnailImageUrl
+      : '/icons/icon-192.png';
 
   return (
     <li className="rounded-[16px] border border-black/50 bg-white p-5">
       <div className="flex h-[110px] gap-3">
         <div className="relative w-[110px] overflow-hidden rounded-sm bg-[#f1f1f1]">
           <Image
-            src={review.thumbnailImageUrl}
+            src={thumbnailSrc}
             alt={review.name}
             fill
             sizes="110px"
