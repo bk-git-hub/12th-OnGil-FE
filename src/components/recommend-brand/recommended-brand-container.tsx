@@ -5,7 +5,10 @@ import { getMyWishlist } from '@/app/actions/wishlist';
 
 export default async function RecommendedBrandContainer() {
   const [brandsResult, wishlistResult] = await Promise.allSettled([
-    api.get<BrandWithProducts[]>('/brands/recommend'),
+    api.get<BrandWithProducts[]>('/brands/recommend', {
+      cache: 'force-cache',
+      next: { revalidate: 60 },
+    }),
     getMyWishlist(),
   ]);
 
