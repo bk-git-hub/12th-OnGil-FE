@@ -100,6 +100,7 @@ export default function SearchBar({ onFocusChange }: SearchBarProps) {
               type="button"
               onClick={() => {
                 setQuery('');
+                fetchAutocomplete('');
                 inputRef.current?.focus();
               }}
               className="rounded-full p-1 text-gray-400 hover:bg-gray-200"

@@ -1,4 +1,4 @@
-import { useState, useRef } from 'react';
+import { useEffect, useRef, useState } from 'react';
 
 // Mock DB
 const MOCK_KEYWORDS = [
@@ -32,7 +32,18 @@ export function useSmartSearch() {
   const [recommended, setRecommended] = useState<string[]>([]);
   const [isLoading, setIsLoading] = useState(false);
 
-  const debounceTimer = useRef<NodeJS.Timeout | null>(null);
+  const debounceTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const abortControllerRef = useRef<AbortController | null>(null);
+  const requestIdRef = useRef(0);
+
+  useEffect(() => {
+    return () => {
+      if (debounceTimerRef.current) {
+        clearTimeout(debounceTimerRef.current);
+      }
+      abortControllerRef.current?.abort();
+    };
+  }, []);
 
   const fetchRecommended = async () => {
     // 무작위 단어 추출
@@ -40,27 +51,96 @@ export function useSmartSearch() {
     setRecommended(shuffled.slice(0, 5));
   };
 
+  const normalizeSuggestions = (
+    input: string[] | { data?: string[] },
+    query: string,
+  ) => {
+    const source = Array.isArray(input)
+      ? input
+      : Array.isArray(input?.data)
+        ? input.data
+        : [];
+    const normalizedQuery = query.trim().toLowerCase();
+
+    // 백엔드가 query를 무시하고 고정 리스트를 내려도 프론트에서 재필터링
+    const filtered = source
+      .map((item) => item.trim())
+      .filter((item) => item.length > 0)
+      .filter((item) => item.toLowerCase().includes(normalizedQuery));
+
+    // 중복 제거
+    const deduped = Array.from(new Set(filtered));
+    if (deduped.length > 0) {
+      return deduped;
+    }
+
+    // API 결과가 비정상/빈값이면 로컬 fallback
+    return MOCK_KEYWORDS.filter((item) =>
+      item.toLowerCase().includes(normalizedQuery),
+    );
+  };
+
   const fetchAutocomplete = (query: string) => {
     if (!query.trim()) {
+      if (debounceTimerRef.current) {
+        clearTimeout(debounceTimerRef.current);
+      }
+      abortControllerRef.current?.abort();
       setSuggestions([]);
+      setIsLoading(false);
       return;
     }
 
-    if (debounceTimer.current) clearTimeout(debounceTimer.current);
+    if (debounceTimerRef.current) {
+      clearTimeout(debounceTimerRef.current);
+    }
+    abortControllerRef.current?.abort();
 
-    debounceTimer.current = setTimeout(async () => {
+    debounceTimerRef.current = setTimeout(async () => {
+      const currentRequestId = ++requestIdRef.current;
+      const controller = new AbortController();
+      abortControllerRef.current = controller;
       setIsLoading(true);
-      try {
-        // 임의 딜레이 설정
-        await new Promise((resolve) => setTimeout(resolve, 200));
 
-        const lowerQuery = query.toLowerCase();
-        const results = MOCK_KEYWORDS.filter((k) =>
-          k.toLowerCase().includes(lowerQuery),
+      try {
+        const response = await fetch(
+          `/api/search/autocomplete?query=${encodeURIComponent(query)}`,
+          {
+            method: 'GET',
+            cache: 'no-store',
+            signal: controller.signal,
+          },
         );
-        setSuggestions(results);
+
+        if (!response.ok) {
+          if (currentRequestId === requestIdRef.current) {
+            setSuggestions([]);
+          }
+          return;
+        }
+
+        const payload = (await response.json()) as string[] | { data?: string[] };
+        const nextSuggestions = normalizeSuggestions(payload, query);
+
+        if (currentRequestId === requestIdRef.current) {
+          setSuggestions(nextSuggestions);
+        }
+      } catch (error) {
+        if (error instanceof DOMException && error.name === 'AbortError') {
+          return;
+        }
+        if (currentRequestId === requestIdRef.current) {
+          const normalizedQuery = query.trim().toLowerCase();
+          setSuggestions(
+            MOCK_KEYWORDS.filter((item) =>
+              item.toLowerCase().includes(normalizedQuery),
+            ),
+          );
+        }
       } finally {
-        setIsLoading(false);
+        if (currentRequestId === requestIdRef.current) {
+          setIsLoading(false);
+        }
       }
     }, 300); // 300ms 디바운스
   };
