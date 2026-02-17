@@ -13,7 +13,7 @@ export default async function CategoryProductLayout({
     <section className="flex h-full min-h-0 flex-col">
       <CategoryParentHeaderBar />
 
-      <Suspense>
+      <Suspense fallback={<div className="h-12 animate-pulse bg-gray-100" />}>
         <SubCategorySliderContainer params={params} />
       </Suspense>
 
