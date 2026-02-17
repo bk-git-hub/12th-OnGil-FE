@@ -101,6 +101,10 @@ export default async function ReviewManagementContainer() {
       },
     ),
   ]);
+  console.log(
+    '[reviews-page] written reviews payload=',
+    JSON.stringify(writtenReviewsPage, null, 2),
+  );
 
   const writtenResponse =
     !Array.isArray(writtenReviewsPage) &&

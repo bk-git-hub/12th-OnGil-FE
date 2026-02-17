@@ -89,6 +89,7 @@ export default function WrittenReviewCard({ review }: WrittenReviewCardProps) {
         method: 'GET',
       });
       const payload = (await response.json()) as ReviewDetail & { message?: string };
+      console.log('[reviews-page] review detail payload=', payload);
 
       if (!response.ok) {
         setDetailError(payload.message || '리뷰 상세를 불러오지 못했습니다.');
