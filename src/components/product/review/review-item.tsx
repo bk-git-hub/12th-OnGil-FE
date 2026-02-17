@@ -1,45 +1,104 @@
 'use client';
 
-import { useState } from 'react';
+import { startTransition, useEffect, useOptimistic, useState } from 'react';
 import Image from 'next/image';
 import { cn } from '@/lib/utils';
-import { ThumbsUp } from 'lucide-react';
-import { ReviewDetail } from '@/types/domain/review';
+import { MessageCircle, ThumbsUp } from 'lucide-react';
+import { toggleReviewHelpfulAction } from '@/app/actions/review';
+import { ProductReviewListItem } from '@/types/domain/review';
 import StarRating from '@/components/ui/star-rating';
-import ReviewDetailModal from './review-detail-modal';
 import ReviewImageModal from './review-image-modal';
 import {
   Carousel,
   CarouselContent,
   CarouselItem,
 } from '@/components/ui/carousel';
-import { EVALUATION_MAP, EVALUATION_CONFIG } from './review-constants';
-
-// 단일 리뷰 아이템 컴포넌트(하나의 리뷰 정보를 표시)
+import { EVALUATION_MAP, REVIEW_CONTENT_CONFIG } from './review-constants';
 
 interface ReviewItemProps {
-  review: ReviewDetail;
+  review: ProductReviewListItem;
   isAccessory?: boolean;
 }
 
-export function ReviewItem({ review, isAccessory = false }: ReviewItemProps) {
-  const [isHelpful, setIsHelpful] = useState(review.isHelpful);
-  const [helpfulCount, setHelpfulCount] = useState(review.helpfulCount);
-  const [isDetailPopupOpen, setIsDetailPopupOpen] = useState(false);
+interface HelpfulState {
+  isHelpful: boolean;
+  helpfulCount: number;
+}
+
+const DEFAULT_ANSWERS = {
+  sizeAnswer: '',
+  colorAnswer: '',
+  materialAnswer: '',
+} as const;
+
+function normalizeToList(value?: string[] | string | null): string[] {
+  if (!value) return [];
+  return Array.isArray(value) ? value.filter(Boolean) : [value].filter(Boolean);
+}
+
+export default function ReviewItem({
+  review,
+  isAccessory = false,
+}: ReviewItemProps) {
+  const [confirmedState, setConfirmedState] = useState<HelpfulState>({
+    isHelpful: review.isHelpful,
+    helpfulCount: Math.max(review.helpfulCount, 0),
+  });
+
+  const [optimisticState, setOptimisticState] = useOptimistic(
+    confirmedState,
+    (state, newState: HelpfulState) => newState,
+  );
+
+  const [isPending, setIsPending] = useState(false);
   const [isImageModalOpen, setIsImageModalOpen] = useState(false);
   const [initialSlide, setInitialSlide] = useState(0);
 
-  /**
-   * 도움돼요 버튼 클릭 핸들러
-   * 상태를 원자적으로 업데이트하여 일관성을 유지합니다.
-   */
-  const toggleHelpful = () => {
-    setIsHelpful((prevIsHelpful) => {
-      setHelpfulCount((prevCount) =>
-        prevIsHelpful ? prevCount - 1 : prevCount + 1,
-      );
-      return !prevIsHelpful;
+  useEffect(() => {
+    setConfirmedState({
+      isHelpful: review.isHelpful,
+      helpfulCount: Math.max(review.helpfulCount, 0),
     });
+  }, [review.isHelpful, review.helpfulCount]);
+
+  const toggleHelpful = async () => {
+    if (isPending) return;
+
+    const nextIsHelpful = !optimisticState.isHelpful;
+    const nextCount = Math.max(
+      optimisticState.helpfulCount + (nextIsHelpful ? 1 : -1),
+      0,
+    );
+
+    setIsPending(true);
+
+    startTransition(() => {
+      setOptimisticState({
+        isHelpful: nextIsHelpful,
+        helpfulCount: nextCount,
+      });
+    });
+
+    try {
+      const result = await toggleReviewHelpfulAction(review.reviewId);
+
+      if (result.success && result.data) {
+        setConfirmedState({
+          isHelpful: result.data.isHelpful,
+          helpfulCount: Math.max(result.data.helpfulCount, 0),
+        });
+      } else {
+        setConfirmedState(confirmedState);
+      }
+    } catch (error) {
+      console.error('도움돼요 토글 실패:', {
+        error,
+        reviewId: review.reviewId,
+      });
+      setConfirmedState(confirmedState);
+    } finally {
+      setIsPending(false);
+    }
   };
 
   const handleImageClick = (index: number) => {
@@ -47,13 +106,28 @@ export function ReviewItem({ review, isAccessory = false }: ReviewItemProps) {
     setIsImageModalOpen(true);
   };
 
-  const formattedDate = review.createdAt.replace(/-/g, '.');
-  const sizeValue = review.initialFirstAnswers.sizeAnswer;
-  const sizeText = EVALUATION_MAP[sizeValue] || sizeValue;
+  const createdAtDate = new Date(review.createdAt);
+  const formattedDate = Number.isNaN(createdAtDate.getTime())
+    ? review.createdAt
+    : createdAtDate.toISOString().slice(0, 10).replace(/-/g, '.');
+  const answers =
+    review.initialFirstAnswers ?? review.answers ?? DEFAULT_ANSWERS;
+  const colorText =
+    EVALUATION_MAP[answers.colorAnswer] || answers.colorAnswer || '정보 없음';
+  const fitIssueParts = normalizeToList(
+    review.initialSecondAnswers?.fitIssueParts,
+  );
+  const materialFeatures = normalizeToList(
+    review.initialSecondAnswers?.materialFeatures,
+  );
+  const reviewTextByKey = {
+    sizeReview: review.sizeReview?.[0],
+    materialReview: review.materialReview?.[0],
+    textReview: review.textReview,
+  } as const;
 
   return (
     <div className="border-b py-6 last:border-none">
-      {/* 1. 별점 및 날짜 */}
       <div className="mb-3 flex items-center justify-between">
         <div className="flex items-center gap-3">
           <Image
@@ -70,33 +144,27 @@ export function ReviewItem({ review, isAccessory = false }: ReviewItemProps) {
         <span className="text-xs text-gray-400">{formattedDate}</span>
       </div>
 
-      {/* 2. 유저 정보 */}
       <div className="mb-4 flex flex-col gap-1 rounded-lg py-3">
         <div className="flex items-center gap-2">
           <span className="text-xl leading-normal font-normal text-[#0000008C]">
             구매 옵션:{' '}
           </span>
           <span className="text-xl leading-normal font-normal text-[#0000008C]">
-            {review.purchaseOption.selectedColor} /{' '}
-            {review.purchaseOption.selectedSize}
+            {review.purchaseOption?.selectedColor ?? '-'} /{' '}
+            {review.purchaseOption?.selectedSize ?? '-'}
           </span>
         </div>
 
         {!isAccessory && (
           <div className="flex items-center gap-2 text-xl leading-normal font-normal text-[#0000008C]">
-            {review.reviewer.height}cm {review.reviewer.weight}kg
+            {review.reviewer?.height ?? '-'}cm {review.reviewer?.weight ?? '-'}
+            kg
             <span>|</span>
-            {review.reviewer.usualTopSize}
+            {review.reviewer?.usualTopSize ?? review.reviewer?.usualSize ?? '-'}
           </div>
         )}
       </div>
 
-      {/* 4. 후기 텍스트 */}
-      <p className="mb-6 text-xl leading-normal font-normal">
-        {review.textReview}
-      </p>
-
-      {/* 3. 사진 (썸네일 리스트) */}
       {review.reviewImageUrls && review.reviewImageUrls.length > 0 && (
         <Carousel
           opts={{
@@ -113,7 +181,7 @@ export function ReviewItem({ review, isAccessory = false }: ReviewItemProps) {
                   onClick={() => handleImageClick(index)}
                   role="button"
                   tabIndex={0}
-                  aria-label={`리뷰 이미지 ${index + 1}  확대보기`}
+                  aria-label={`리뷰 이미지 ${index + 1} 확대보기`}
                   onKeyDown={(e) => {
                     if (e.key === 'Enter' || e.key === ' ') {
                       e.preventDefault();
@@ -135,72 +203,71 @@ export function ReviewItem({ review, isAccessory = false }: ReviewItemProps) {
         </Carousel>
       )}
 
-      {/* 5. 상세 평가 정보 */}
-      <div
-        className="mb-4 flex cursor-pointer flex-col gap-4"
-        onClick={() => setIsDetailPopupOpen(true)}
-        onKeyDown={(e) => {
-          if (e.key === 'Enter' || e.key === ' ') {
-            e.preventDefault();
-            setIsDetailPopupOpen(true);
-          }
-        }}
-        aria-label="상세 평가 정보 보기"
-        tabIndex={0}
-      >
-        {EVALUATION_CONFIG.map(({ label, key }) => {
-          const value = review.initialFirstAnswers[key];
-          const text = EVALUATION_MAP[value] || value;
-          return (
-            <div
-              key={key}
-              className="flex flex-col gap-4 border-b border-black text-xl"
-            >
-              <span className="min-w-[30px] text-2xl font-bold">{label}</span>
-              <ul className="list-disc gap-2 pl-10">
-                {[text, text, text].map((item, index) => (
-                  <li key={index} className="mb-3">
-                    {item}
-                  </li>
-                ))}
-              </ul>
-            </div>
-          );
-        })}
-      </div>
+      <div className="mb-4 flex flex-col gap-4">
+        {REVIEW_CONTENT_CONFIG.filter((item) => item.key !== 'textReview').map(
+          ({ label, key }) => {
+            const text = reviewTextByKey[key];
 
-      {/* 6. 선택지 태그 더보기 버튼 */}
-      <div className="mb-5 flex items-center justify-between">
-        <div className="border-ongil-teal w-[250px] rounded-lg border-3 bg-white px-[14px] py-[11px]">
-          <span className="font-internal text-xl leading-normal font-normal">
-            {sizeText}
-          </span>
+            return (
+              <div key={key} className="flex flex-col gap-4 text-xl">
+                <span className="min-w-[30px] text-2xl font-bold">{label}</span>
+                <ul className="list-disc gap-2 pl-10">
+                  <li className="mb-3">{text || '정보 없음'}</li>
+                </ul>
+              </div>
+            );
+          },
+        )}
+
+        <div className="flex flex-col gap-4 text-xl">
+          <span className="min-w-[30px] text-2xl font-bold">색감</span>
+          <ul className="list-disc gap-2 pl-10">
+            <li className="mb-3">{colorText}</li>
+          </ul>
         </div>
-        <button
-          onClick={() => setIsDetailPopupOpen(true)}
-          className="h-[40px] w-[85px] rounded-xl border border-black px-2 text-xl font-semibold text-gray-900 transition-colors"
-        >
-          더보기
-        </button>
+
+        <div className="flex flex-col gap-4 text-xl">
+          <span className="min-w-[30px] text-2xl font-bold">기타</span>
+          <div className="mb-3 flex items-center gap-2 pl-3">
+            <MessageCircle className="text-ongil-teal h-6 w-6" />
+            <p>{review.textReview || '정보 없음'}</p>
+          </div>
+        </div>
+
+        {fitIssueParts.length > 0 && (
+          <div className="flex flex-col gap-4 text-xl">
+            <span className="min-w-[30px] text-2xl font-bold">불편 부위</span>
+            <ul className="list-disc gap-2 pl-10">
+              <li className="mb-3">{fitIssueParts.join(', ')}</li>
+            </ul>
+          </div>
+        )}
+
+        {materialFeatures.length > 0 && (
+          <div className="flex flex-col gap-4 text-xl">
+            <span className="min-w-[30px] text-2xl font-bold">소재 특징</span>
+            <ul className="list-disc gap-2 pl-10">
+              <li className="mb-3">{materialFeatures.join(', ')}</li>
+            </ul>
+          </div>
+        )}
       </div>
 
-      {/* 7. 도움돼요 버튼 */}
       <button
+        type="button"
         onClick={toggleHelpful}
+        disabled={isPending}
         className={cn(
           'border-ongil-teal flex w-48 items-center gap-2 rounded-xl border bg-white py-2 pl-[11px] text-xl font-medium transition-colors',
-          isHelpful ? 'bg-ongil-mint' : 'bg-white',
+          optimisticState.isHelpful ? 'bg-ongil-mint' : 'bg-white',
+          isPending && 'cursor-not-allowed opacity-70',
         )}
       >
-        도움돼요 <span>({helpfulCount}명)</span>
-        <ThumbsUp className={cn('h-5 w-5', isHelpful && 'fill-current')} />
+        도움돼요 <span>({optimisticState.helpfulCount}명)</span>
+        <ThumbsUp
+          className={cn('h-5 w-5', optimisticState.isHelpful && 'fill-current')}
+        />
       </button>
-
-      <ReviewDetailModal
-        isOpen={isDetailPopupOpen}
-        onClose={() => setIsDetailPopupOpen(false)}
-        answers={review.initialFirstAnswers}
-      />
 
       <ReviewImageModal
         isOpen={isImageModalOpen}

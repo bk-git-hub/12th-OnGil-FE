@@ -3,8 +3,16 @@
 import { redirect } from 'next/navigation';
 import { auth } from '/auth';
 
-import { api } from '@/lib/api-client';
+import { ApiError, api } from '@/lib/api-client';
+import { rethrowNextError } from '@/lib/server-action-utils';
 import type { ApiResponse } from '@/types/common';
+import type {
+  PageResponse,
+  ProductReviewListItem,
+  ReviewDetail,
+  ReviewHelpfulData,
+  ReviewStatsData,
+} from '@/types/domain/review';
 
 const BASE_URL = process.env.BACKEND_API_URL;
 
@@ -57,6 +65,73 @@ interface ActionResult<T = undefined> {
 
 interface ErrorResponse {
   message?: string;
+}
+
+export interface ProductReviewsQuery {
+  reviewType?: 'INITIAL' | 'ONE_MONTH';
+  size?: string | string[];
+  color?: string | string[];
+  sort?: 'BEST' | 'RECENT' | 'RATING_HIGH' | 'RATING_LOW';
+  mySizeOnly?: boolean;
+  page?: number;
+  pageSize?: number;
+}
+
+const REVIEW_LIST_DEFAULT_PAGE_SIZE = 10;
+
+function createEmptyReviewSummary(): ReviewStatsData {
+  return {
+    averageRating: 0,
+    initialReviewCount: 0,
+    oneMonthReviewCount: 0,
+    sizeSummary: {
+      category: '사이즈',
+      totalCount: 0,
+      topAnswer: null,
+      topAnswerCount: 0,
+      answerStats: [],
+    },
+    colorSummary: {
+      category: '색감',
+      totalCount: 0,
+      topAnswer: null,
+      topAnswerCount: 0,
+      answerStats: [],
+    },
+    materialSummary: {
+      category: '소재',
+      totalCount: 0,
+      topAnswer: null,
+      topAnswerCount: 0,
+      answerStats: [],
+    },
+  };
+}
+
+function createEmptyReviewPage(
+  page = 0,
+  pageSize = REVIEW_LIST_DEFAULT_PAGE_SIZE,
+): PageResponse<ProductReviewListItem> {
+  return {
+    totalPages: 0,
+    totalElements: 0,
+    pageable: {
+      paged: true,
+      pageNumber: page,
+      pageSize,
+      offset: page * pageSize,
+      sort: [],
+      unpaged: false,
+    },
+    first: true,
+    last: true,
+    size: pageSize,
+    content: [],
+    number: page,
+    sort: [],
+    numberOfElements: 0,
+    empty: true,
+  };
 }
 
 export async function initPendingReviewAction(formData: FormData) {
@@ -231,5 +306,89 @@ export async function submitReviewAction(
   } catch (error) {
     console.error('리뷰 제출 실패:', error);
     return { success: false, message: '리뷰 제출에 실패했습니다.' };
+  }
+}
+
+/** 리뷰 도움돼요 토글 */
+export async function toggleReviewHelpfulAction(
+  reviewId: number,
+): Promise<ActionResult<ReviewHelpfulData>> {
+  try {
+    const data = await api.post<ReviewHelpfulData, Record<string, never>>(
+      `/reviews/${reviewId}/helpful`,
+      {},
+    );
+    return { success: true, data };
+  } catch (error) {
+    if (error instanceof ApiError && error.status === 404) {
+      return { success: false, message: '리뷰를 찾을 수 없습니다.' };
+    }
+    rethrowNextError(error);
+    console.error('리뷰 도움돼요 토글 실패:', { error, reviewId });
+    return { success: false, message: '도움돼요 처리에 실패했습니다.' };
+  }
+}
+
+/** 리뷰 상세 조회 */
+export async function getReviewDetailAction(
+  reviewId: number,
+): Promise<ReviewDetail | null> {
+  try {
+    const detail = await api.get<ReviewDetail>(`/reviews/${reviewId}/details`);
+    return detail;
+  } catch (error) {
+    if (error instanceof ApiError && error.status === 404) {
+      console.warn('리뷰 상세 조회: 리뷰를 찾을 수 없습니다.', { reviewId });
+      return null;
+    }
+    rethrowNextError(error);
+    console.error('리뷰 상세 조회 실패:', error);
+    throw new Error(
+      error instanceof Error ? error.message : '리뷰 상세 조회에 실패했습니다.',
+    );
+  }
+}
+
+/** 상품별 리뷰 목록 조회 */
+export async function getProductReviewsAction(
+  productId: number,
+  query: ProductReviewsQuery = {},
+): Promise<PageResponse<ProductReviewListItem>> {
+  const page = query.page ?? 0;
+  const pageSize = query.pageSize ?? REVIEW_LIST_DEFAULT_PAGE_SIZE;
+  const params: Record<
+    string,
+    string | number | boolean | string[] | undefined
+  > = { ...query };
+  params.page = page;
+  params.pageSize = pageSize;
+  params.sort = query.sort ?? 'BEST';
+
+  try {
+    return await api.get<PageResponse<ProductReviewListItem>>(
+      `/products/${productId}/reviews`,
+      {
+        params,
+      },
+    );
+  } catch (error) {
+    rethrowNextError(error);
+    console.error('상품 리뷰 목록 조회 실패:', { error, productId, params });
+    return createEmptyReviewPage(page, pageSize);
+  }
+}
+
+/** 리뷰 통계 요약 조회 */
+export async function getProductReviewsSummaryAction(
+  productId: number,
+): Promise<ReviewStatsData> {
+  try {
+    return await api.get<ReviewStatsData>(
+      `/products/${productId}/reviews/summary`,
+    );
+  } catch (error) {
+    rethrowNextError(error);
+    console.error('리뷰 통계 요약 조회 실패:', { error, productId });
+    return createEmptyReviewSummary();
   }
 }
