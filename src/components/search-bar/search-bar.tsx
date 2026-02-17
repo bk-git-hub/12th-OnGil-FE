@@ -21,7 +21,7 @@ export default function SearchBar({ onFocusChange }: SearchBarProps) {
   const inputRef = useRef<HTMLInputElement>(null);
   const router = useRouter();
 
-  const { history, addSearch, removeSearch, clearHistory } =
+  const { history, addSearch, removeSearch, clearHistory, refreshHistory } =
     useRecentSearches();
   const {
     suggestions,
@@ -37,12 +37,14 @@ export default function SearchBar({ onFocusChange }: SearchBarProps) {
   };
 
   const handleSearch = (text: string) => {
-    if (!text.trim()) return;
+    const keyword = text.trim();
+    if (!keyword) return;
     inputRef.current?.blur();
     updateFocus(false);
+    addSearch(keyword);
 
-    // Navigate to search results page (keyword will be saved after API response)
-    const searchUrl = `/search?q=${encodeURIComponent(text)}`;
+    // Navigate to search results page
+    const searchUrl = `/search?q=${encodeURIComponent(keyword)}`;
     router.push(searchUrl);
     router.refresh(); // Force refresh to trigger server component re-render
   };
@@ -89,6 +91,7 @@ export default function SearchBar({ onFocusChange }: SearchBarProps) {
             value={query}
             onChange={handleInputChange}
             onFocus={() => {
+              refreshHistory();
               updateFocus(true);
               if (recommended.length === 0) fetchRecommended();
             }}

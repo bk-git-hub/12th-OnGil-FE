@@ -1,102 +1,156 @@
-import { useSyncExternalStore } from 'react';
-
-// --- Core Storage Logic (Low-level) ---
-
-const dispatchStorageEvent = (key: string, newValue: string) => {
-  if (typeof window !== 'undefined') {
-    window.dispatchEvent(new StorageEvent('storage', { key, newValue }));
-    window.dispatchEvent(new CustomEvent('local-storage', { detail: key }));
-  }
-};
-
-const subscribe = (callback: () => void) => {
-  if (typeof window === 'undefined') return () => {};
-
-  const onStorage = () => callback();
-  window.addEventListener('storage', onStorage);
-  window.addEventListener('local-storage', onStorage as EventListener);
-
-  return () => {
-    window.removeEventListener('storage', onStorage);
-    window.removeEventListener('local-storage', onStorage as EventListener);
-  };
-};
-
-const getServerSnapshot = () => '';
-
-/**
- * Custom hook for interacting with localStorage.
- * 
- * @template T - The type of the stored value
- * @param key - The localStorage key
- * @param initialValue - The initial value if key doesn't exist
- * @returns A tuple containing the current value and a setter function
- */
-function useLocalStorage<T>(
-  key: string,
-  initialValue: T,
-): [T, (val: T) => void] {
-  const getSnapshot = () => {
-    if (typeof window === 'undefined') return '';
-    return localStorage.getItem(key) || '';
-  };
-
-  const storeValue = useSyncExternalStore(
-    subscribe,
-    getSnapshot,
-    getServerSnapshot,
-  );
-
-  let parsedValue: T;
-  try {
-    parsedValue = storeValue ? JSON.parse(storeValue) : initialValue;
-  } catch {
-    parsedValue = initialValue;
-  }
-
-  const setValue = (value: T) => {
-    const newValue = JSON.stringify(value);
-    localStorage.setItem(key, newValue);
-    dispatchStorageEvent(key, newValue);
-  };
-
-  return [parsedValue, setValue];
-}
-
-// --- Domain Logic: Recent Searches ---
+import { useCallback, useEffect, useSyncExternalStore } from 'react';
 
 const MAX_RECENT_SEARCHES = 10;
-const STORAGE_KEY = 'recent-searches-v1';
+const EMPTY_SNAPSHOT: string[] = [];
+const RECENT_SEARCHES_STORAGE_KEY = 'onsinsa:recent-searches';
 
-/**
- * Custom hook for managing recent search history.
- * 
- * @returns An object containing:
- *   history - Array of recent search terms
- *   addSearch - Function to add a new search term
- *   removeSearch - Function to remove a specific search term
- *   clearHistory - Function to clear all search history
- */
-export function useRecentSearches() {
-  const [history, setHistory] = useLocalStorage<string[]>(STORAGE_KEY, []);
+let recentSearchesCache: string[] = [];
+let isInitialized = false;
 
-  const addSearch = (term: string) => {
-    if (!term.trim()) return;
-    setHistory(
-      [term, ...history.filter((t) => t !== term)].slice(
-        0,
-        MAX_RECENT_SEARCHES,
-      ),
+const listeners = new Set<() => void>();
+
+const subscribe = (callback: () => void) => {
+  listeners.add(callback);
+  return () => listeners.delete(callback);
+};
+
+const getSnapshot = () => recentSearchesCache;
+const getServerSnapshot = () => EMPTY_SNAPSHOT;
+
+const notify = () => {
+  listeners.forEach((listener) => listener());
+};
+
+const normalizeKeywords = (keywords: string[]) =>
+  Array.from(
+    new Set(
+      keywords
+        .map((keyword) => keyword.trim())
+        .filter((keyword) => keyword.length > 0),
+    ),
+  );
+
+const areSameKeywords = (a: string[], b: string[]) => {
+  if (a.length !== b.length) return false;
+  for (let i = 0; i < a.length; i += 1) {
+    if (a[i] !== b[i]) return false;
+  }
+  return true;
+};
+
+const setRecentSearchesCache = (
+  nextKeywords: string[],
+  persistStorage: boolean,
+) => {
+  const normalized = normalizeKeywords(nextKeywords);
+  const changed = !areSameKeywords(recentSearchesCache, normalized);
+
+  recentSearchesCache = normalized;
+
+  if (persistStorage && typeof window !== 'undefined') {
+    try {
+      window.localStorage.setItem(
+        RECENT_SEARCHES_STORAGE_KEY,
+        JSON.stringify(normalized),
+      );
+    } catch {
+      // localStorage 접근 실패 시에도 메모리 캐시는 유지
+    }
+  }
+
+  if (changed) {
+    notify();
+  }
+};
+
+const parseKeywordsFromStorage = (payload: unknown): string[] => {
+  if (Array.isArray(payload)) {
+    return payload.filter(
+      (item): item is string => typeof item === 'string' && item.trim().length > 0,
     );
-  };
+  }
 
-  const removeSearch = (term: string) => {
-    setHistory(history.filter((t) => t !== term));
-  };
+  if (payload && typeof payload === 'object' && 'data' in payload) {
+    const value = (payload as { data?: unknown }).data;
+    if (Array.isArray(value)) {
+      return value.filter(
+        (item): item is string =>
+          typeof item === 'string' && item.trim().length > 0,
+      );
+    }
+  }
 
-  const clearHistory = () => {
-    setHistory([]);
-  };
+  return [];
+};
 
-  return { history, addSearch, removeSearch, clearHistory };
+const loadRecentSearches = () => {
+  if (typeof window === 'undefined') {
+    return recentSearchesCache;
+  }
+
+  try {
+    const raw = window.localStorage.getItem(RECENT_SEARCHES_STORAGE_KEY);
+    const parsed = raw ? (JSON.parse(raw) as unknown) : [];
+    const keywords = parseKeywordsFromStorage(parsed).slice(0, MAX_RECENT_SEARCHES);
+    setRecentSearchesCache(keywords, false);
+    return recentSearchesCache;
+  } catch {
+    setRecentSearchesCache([], false);
+    return recentSearchesCache;
+  }
+};
+
+export function useRecentSearches() {
+  const history = useSyncExternalStore(subscribe, getSnapshot, getServerSnapshot);
+
+  useEffect(() => {
+    if (!isInitialized) {
+      loadRecentSearches();
+      isInitialized = true;
+    }
+
+    const handleStorage = (event: StorageEvent) => {
+      if (event.key === RECENT_SEARCHES_STORAGE_KEY) {
+        loadRecentSearches();
+      }
+    };
+
+    window.addEventListener('storage', handleStorage);
+    return () => {
+      window.removeEventListener('storage', handleStorage);
+    };
+  }, []);
+
+  const addSearch = useCallback((term: string) => {
+    const keyword = term.trim();
+    if (!keyword) return;
+
+    const nextKeywords = [
+      keyword,
+      ...recentSearchesCache.filter((item) => item !== keyword),
+    ].slice(0, MAX_RECENT_SEARCHES);
+    if (areSameKeywords(recentSearchesCache, nextKeywords)) {
+      return;
+    }
+
+    setRecentSearchesCache(nextKeywords, true);
+  }, []);
+
+  const removeSearch = useCallback((term: string) => {
+    const keyword = term.trim();
+    if (!keyword) return;
+
+    const nextKeywords = recentSearchesCache.filter((item) => item !== keyword);
+    setRecentSearchesCache(nextKeywords, true);
+  }, []);
+
+  const clearHistory = useCallback(() => {
+    setRecentSearchesCache([], true);
+  }, []);
+
+  const refreshHistory = useCallback(() => {
+    loadRecentSearches();
+  }, []);
+
+  return { history, addSearch, removeSearch, clearHistory, refreshHistory };
 }

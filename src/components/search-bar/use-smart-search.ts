@@ -1,21 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
 
-// Mock DB
-const MOCK_KEYWORDS = [
-  'React 19',
-  'Next.js 16',
-  'Tailwind CSS',
-  'Server Components',
-  'React Compiler',
-  'Zustand',
-  'TanStack Query',
-  'Framer Motion',
-  'TypeScript',
-  'Vercel',
-  'Turbopack',
-  'AI SDK',
-];
-
 /**
  * Custom hook for smart search functionality.
  * Provides autocomplete suggestions and recommended keywords.
@@ -46,9 +30,38 @@ export function useSmartSearch() {
   }, []);
 
   const fetchRecommended = async () => {
-    // 무작위 단어 추출
-    const shuffled = [...MOCK_KEYWORDS].sort(() => 0.5 - Math.random());
-    setRecommended(shuffled.slice(0, 5));
+    try {
+      const response = await fetch('/api/search/recommend', {
+        method: 'GET',
+        cache: 'no-store',
+      });
+
+      if (!response.ok) {
+        throw new Error('추천 검색어 조회 실패');
+      }
+
+      const payload = (await response.json()) as string[] | { data?: string[] };
+      const keywords = Array.isArray(payload)
+        ? payload
+        : Array.isArray(payload.data)
+          ? payload.data
+          : [];
+
+      const normalized = Array.from(
+        new Set(
+          keywords
+            .map((item) => item.trim())
+            .filter((item) => item.length > 0),
+        ),
+      );
+
+      if (normalized.length > 0) {
+        setRecommended(normalized.slice(0, 10));
+        return;
+      }
+    } catch {
+      setRecommended([]);
+    }
   };
 
   const normalizeSuggestions = (
@@ -74,10 +87,8 @@ export function useSmartSearch() {
       return deduped;
     }
 
-    // API 결과가 비정상/빈값이면 로컬 fallback
-    return MOCK_KEYWORDS.filter((item) =>
-      item.toLowerCase().includes(normalizedQuery),
-    );
+    // API 결과가 비정상/빈값이면 빈 배열
+    return [];
   };
 
   const fetchAutocomplete = (query: string) => {
@@ -130,19 +141,14 @@ export function useSmartSearch() {
           return;
         }
         if (currentRequestId === requestIdRef.current) {
-          const normalizedQuery = query.trim().toLowerCase();
-          setSuggestions(
-            MOCK_KEYWORDS.filter((item) =>
-              item.toLowerCase().includes(normalizedQuery),
-            ),
-          );
+          setSuggestions([]);
         }
       } finally {
         if (currentRequestId === requestIdRef.current) {
           setIsLoading(false);
         }
       }
-    }, 300); // 300ms 디바운스
+    }, 120); // 120ms 디바운스
   };
 
   return {

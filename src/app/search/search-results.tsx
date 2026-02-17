@@ -12,23 +12,33 @@ interface SearchResultsProps {
   query: string;
 }
 
+const normalizeExtractedKeyword = (keyword: string, fallbackQuery: string) => {
+  const cleaned = keyword
+    .trim()
+    .replace(/^(?:응답|답변|response)\s*:\s*/i, '')
+    .replace(/^["'`]+|["'`]+$/g, '')
+    .trim();
+
+  return cleaned || fallbackQuery.trim();
+};
+
 export function SearchResults({ data, query }: SearchResultsProps) {
   const { addSearch } = useRecentSearches();
   const [recommendedKeywords, setRecommendedKeywords] = useState<string[]>([]);
+  const extractedKeyword = normalizeExtractedKeyword(data.extractedKeyword, query);
 
   // Save the extracted keyword to recent searches
   useEffect(() => {
-    if (data.extractedKeyword) {
-      addSearch(data.extractedKeyword);
+    if (extractedKeyword) {
+      addSearch(extractedKeyword);
     }
-  }, [data.extractedKeyword, addSearch]);
+  }, [extractedKeyword, addSearch]);
 
   useEffect(() => {
     const hasSearchResult =
       data.searchResult.hasResult && data.searchResult.products.content.length > 0;
 
     if (hasSearchResult) {
-      setRecommendedKeywords([]);
       return;
     }
 
@@ -71,7 +81,7 @@ export function SearchResults({ data, query }: SearchResultsProps) {
     };
   }, [data.searchResult.hasResult, data.searchResult.products.content.length]);
 
-  const { extractedKeyword, searchResult } = data;
+  const { searchResult } = data;
   const products = searchResult.products.content;
   const totalElements = searchResult.products.totalElements;
   const hasResult = searchResult.hasResult;
