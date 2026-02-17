@@ -1,6 +1,7 @@
 'use client';
 
 import { SubCategory } from '@/types/domain/category';
+import Image from 'next/image';
 import Link from 'next/link';
 import { useParams } from 'next/navigation';
 import { useEffect, useState, useRef } from 'react';
@@ -130,9 +131,11 @@ export default function SubCategorySlider({
                         isActive ? 'ring-2 ring-black' : ''
                       }`}
                     >
-                      <img
+                      <Image
                         src={cat.iconUrl || '/icons/star.svg'}
                         alt={cat.name}
+                        width={80}
+                        height={80}
                         className="h-20 w-20 rounded-full bg-gray-100 object-cover"
                       />
                     </div>

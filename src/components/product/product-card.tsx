@@ -32,9 +32,9 @@ export default function ProductCard({
           <Image
             src={product.thumbnailImageUrl}
             alt={product.name}
-            width={320}
-            height={426}
-            className="h-full w-full object-cover"
+            fill
+            sizes="(min-width: 1280px) 20vw, (min-width: 1024px) 25vw, (min-width: 640px) 33vw, 50vw"
+            className="object-cover"
           />
           {showWishlistButton && (
             <WishlistButton
@@ -59,7 +59,7 @@ export default function ProductCard({
         </div>
 
         <div className="font-poppins flex items-center gap-1 text-sm font-semibold text-gray-500">
-          <img src="/icons/star.svg" width={18} height={18} alt="평점" />
+          <Image src="/icons/star.svg" width={18} height={18} alt="평점" />
           <span>{rating}</span>
           <span>({count.toLocaleString()})</span>
         </div>
