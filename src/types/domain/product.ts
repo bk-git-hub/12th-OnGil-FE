@@ -16,6 +16,11 @@ export interface Product {
   reviewRating: number;
 }
 
+export type ProductWithWishlist = Product & {
+  isLiked?: boolean;
+  wishlistId?: number;
+};
+
 export interface MaterialDescription {
   advantages: string[];
   disadvantages: string[];

@@ -1,11 +1,6 @@
 import Link from 'next/link';
-import { Product } from '@/types/domain/product';
+import { ProductWithWishlist } from '@/types/domain/product';
 import { WishlistButton } from './wishlist-button';
-
-type ProductWithWishlist = Product & {
-  isLiked?: boolean;
-  wishlistId?: number;
-};
 
 // 카드 UI 컴포넌트, 클릭 시 상세 페이지로 이동함.
 interface ProductCardProps {

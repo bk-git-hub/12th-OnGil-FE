@@ -1,17 +1,12 @@
 import Image from 'next/image';
 import Link from 'next/link';
-import { Product } from '@/types/domain/product';
+import { ProductWithWishlist } from '@/types/domain/product';
 import { WishlistButton } from '../product/wishlist-button';
-
-type BrandProduct = Product & {
-  isLiked?: boolean;
-  wishlistId?: number;
-};
 
 export default function RecommendedBrandGridCard({
   product,
 }: {
-  product: BrandProduct;
+  product: ProductWithWishlist;
 }) {
   const href = `/product/${product.id}?from=${encodeURIComponent('/')}`;
 

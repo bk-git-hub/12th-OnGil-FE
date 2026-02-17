@@ -5,15 +5,10 @@ import { BrandWithProducts } from '@/types/domain/brand';
 import RecommendedBrandHeader from './recommended-brand-header';
 import RecommendedBrandGridCard from './recommended-brand-grid-card';
 import { getLocaleFromDocument, t } from '@/lib/i18n';
-import { Product } from '@/types/domain/product';
-
-type BrandProduct = Product & {
-  isLiked?: boolean;
-  wishlistId?: number;
-};
+import { ProductWithWishlist } from '@/types/domain/product';
 
 type BrandWithWishlistProducts = Omit<BrandWithProducts, 'products'> & {
-  products: BrandProduct[];
+  products: ProductWithWishlist[];
 };
 
 interface RecommendedBrandClientProps {
@@ -21,9 +16,8 @@ interface RecommendedBrandClientProps {
 }
 
 export default function RecommendedBrandClient({
-  brands: initialBrands,
+  brands,
 }: RecommendedBrandClientProps) {
-  const [brands] = useState(initialBrands);
   const [selectedIndex, setSelectedIndex] = useState<number>(0);
   const locale = getLocaleFromDocument();
 
