@@ -5,6 +5,7 @@ import { WishlistButton } from '../product/wishlist-button';
 
 interface RecommendedProduct extends Product {
   isLiked?: boolean;
+  wishlistId?: number;
 }
 
 export default function RecommendedProductCard({
@@ -72,6 +73,7 @@ export default function RecommendedProductCard({
           <WishlistButton
             productId={productInfo.id}
             initialIsLiked={productInfo.isLiked || false}
+            initialWishlistId={productInfo.wishlistId}
             className="absolute top-2 right-2"
           />
         </div>
