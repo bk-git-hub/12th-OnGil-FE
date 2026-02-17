@@ -58,7 +58,7 @@ export default function AiMaterialCarousel({
   ];
 
   return (
-    <div className="w-full px-4">
+    <div className="w-full">
       <div className="mb-10 flex items-center gap-2">
         <h3 className="text-2xl leading-5 font-medium -tracking-[0.08px] not-italic">
           {materialName}

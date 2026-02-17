@@ -173,9 +173,9 @@ export default function ReviewItem({
           }}
           className="mb-4 w-full"
         >
-          <CarouselContent className="-ml-8">
+          <CarouselContent>
             {review.reviewImageUrls.map((src, index) => (
-              <CarouselItem key={index} className="basis-1/3">
+              <CarouselItem key={index} className="basis-auto">
                 <div
                   className="relative h-[120px] w-[120px] flex-shrink-0 cursor-pointer overflow-hidden rounded-lg bg-gray-50 transition-transform active:scale-95"
                   onClick={() => handleImageClick(index)}
