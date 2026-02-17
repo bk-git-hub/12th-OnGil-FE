@@ -7,7 +7,7 @@ export default function LoginForm() {
   const router = useRouter();
   const searchParams = useSearchParams();
 
-  const [email, setEmail] = useState('');
+  const [loginId, setLoginId] = useState('');
   const [password, setPassword] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState('');
@@ -58,7 +58,7 @@ export default function LoginForm() {
 
     try {
       const result = await signIn('credentials-login', {
-        email,
+        loginId,
         password,
         redirect: false,
       });
@@ -66,7 +66,7 @@ export default function LoginForm() {
       if (result?.error) {
         setError('Invalid email or password.');
       } else {
-        router.push('/dashboard'); // Success! Redirect to app
+        router.push('/'); // Success! Redirect to app
         router.refresh(); // Refresh router to update session state
       }
     } catch (err) {
@@ -146,20 +146,20 @@ export default function LoginForm() {
         <form className="space-y-6" onSubmit={handleSubmit}>
           <div>
             <label
-              htmlFor="email"
+              htmlFor="loginId"
               className="block text-sm font-medium text-gray-700"
             >
               Id
             </label>
             <div className="mt-1">
               <input
-                id="email"
-                name="email"
-                type="email"
-                autoComplete="email"
+                id="loginId"
+                name="loginId"
+                type="text"
+                autoComplete="loginId"
                 required
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
+                value={loginId}
+                onChange={(e) => setLoginId(e.target.value)}
                 className="block w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 focus:outline-none sm:text-sm"
               />
             </div>

@@ -1,9 +1,11 @@
 'use server';
 
 import { redirect } from 'next/navigation';
+import { auth } from '/auth';
 
 import { ApiError, api } from '@/lib/api-client';
 import { rethrowNextError } from '@/lib/server-action-utils';
+import type { ApiResponse } from '@/types/common';
 import type {
   PageResponse,
   ProductReviewListItem,
@@ -11,6 +13,8 @@ import type {
   ReviewHelpfulData,
   ReviewStatsData,
 } from '@/types/domain/review';
+
+const BASE_URL = process.env.BACKEND_API_URL;
 
 interface InitReviewResponseData {
   reviewId: number;
@@ -27,7 +31,9 @@ export interface ReviewStep1Request {
 export interface ReviewStep1ResponseData {
   reviewId: number;
   needsSizeSecondaryQuestion: boolean;
+  sizeSecondaryType?: 'POSITIVE' | 'NEGATIVE' | 'NORMAL';
   needsMaterialSecondaryQuestion: boolean;
+  materialSecondaryType?: 'POSITIVE' | 'NEGATIVE' | 'NORMAL';
   availableBodyParts: string[];
 }
 
@@ -46,10 +52,19 @@ export interface ReviewSubmitRequest {
   materialReview: string[];
 }
 
+interface AiGeneratedReviewsData {
+  reviewId: number;
+  aiGeneratedReviews: string[];
+}
+
 interface ActionResult<T = undefined> {
   success: boolean;
   message?: string;
   data?: T;
+}
+
+interface ErrorResponse {
+  message?: string;
 }
 
 export interface ProductReviewsQuery {
@@ -95,7 +110,7 @@ function createEmptyReviewSummary(): ReviewStatsData {
 
 function createEmptyReviewPage(
   page = 0,
-  pageSize = 10,
+  pageSize = REVIEW_LIST_DEFAULT_PAGE_SIZE,
 ): PageResponse<ProductReviewListItem> {
   return {
     totalPages: 0,
@@ -121,11 +136,8 @@ function createEmptyReviewPage(
 
 export async function initPendingReviewAction(formData: FormData) {
   const rawOrderItemId = formData.get('orderItemId');
-  const rawProductId = formData.get('productId');
   const orderItemId =
     typeof rawOrderItemId === 'string' ? Number(rawOrderItemId) : NaN;
-  const productId =
-    typeof rawProductId === 'string' ? Number(rawProductId) : NaN;
 
   if (!Number.isFinite(orderItemId)) {
     return;
@@ -136,13 +148,7 @@ export async function initPendingReviewAction(formData: FormData) {
     {},
     { params: { orderItemId } },
   );
-  const searchParams = new URLSearchParams();
-  searchParams.set('orderItemId', String(orderItemId));
-  if (Number.isFinite(productId)) {
-    searchParams.set('productId', String(productId));
-  }
-
-  redirect(`/review/write/${data.reviewId}?${searchParams.toString()}`);
+  redirect(`/review/write/${data.reviewId}`);
 }
 
 export async function patchReviewStep1Action(
@@ -194,16 +200,108 @@ export async function patchReviewStep2MaterialAction(
   }
 }
 
+export async function generateSizeAiReviewAction(
+  reviewId: number,
+): Promise<ActionResult<AiGeneratedReviewsData>> {
+  try {
+    const data = await api.get<AiGeneratedReviewsData>(`/reviews/${reviewId}/ai/size`);
+    return { success: true, data };
+  } catch (error) {
+    console.error('리뷰 사이즈 AI 생성 실패:', error);
+    return { success: false, message: '사이즈 AI 생성에 실패했습니다.' };
+  }
+}
+
+export async function generateMaterialAiReviewAction(
+  reviewId: number,
+): Promise<ActionResult<AiGeneratedReviewsData>> {
+  try {
+    const data = await api.get<AiGeneratedReviewsData>(
+      `/reviews/${reviewId}/ai/material`,
+    );
+    return { success: true, data };
+  } catch (error) {
+    console.error('리뷰 소재 AI 생성 실패:', error);
+    return { success: false, message: '소재 AI 생성에 실패했습니다.' };
+  }
+}
+
+export async function uploadReviewImagesAction(
+  formData: FormData,
+): Promise<ActionResult<string[]>> {
+  try {
+    if (!BASE_URL) {
+      return { success: false, message: 'BACKEND_API_URL이 설정되지 않았습니다.' };
+    }
+
+    const images = formData
+      .getAll('images')
+      .filter((item): item is File => item instanceof File && item.size > 0);
+
+    if (images.length === 0) {
+      return { success: false, message: '업로드할 이미지가 없습니다.' };
+    }
+    if (images.length > 5) {
+      return { success: false, message: '이미지는 최대 5장까지 업로드할 수 있습니다.' };
+    }
+
+    const session = await auth();
+    const accessToken = session?.accessToken as string | undefined;
+
+    const payload = new FormData();
+    images.forEach((file) => payload.append('images', file));
+
+    const response = await fetch(`${BASE_URL}/reviews/images`, {
+      method: 'POST',
+      headers: accessToken ? { Authorization: `Bearer ${accessToken}` } : {},
+      body: payload,
+      cache: 'no-store',
+    });
+
+    let responseData: unknown = null;
+    const contentType = response.headers.get('content-type');
+    if (contentType && contentType.includes('application/json')) {
+      responseData = await response.json();
+    } else {
+      responseData = await response.text();
+    }
+
+    if (!response.ok) {
+      const errorData =
+        typeof responseData === 'object' && responseData !== null
+          ? (responseData as ErrorResponse)
+          : { message: String(responseData) };
+      return {
+        success: false,
+        message: errorData.message || '리뷰 이미지 업로드에 실패했습니다.',
+      };
+    }
+
+    const uploadedUrls = (responseData as ApiResponse<string[]>).data ?? [];
+    return { success: true, data: uploadedUrls };
+  } catch (error) {
+    console.error('리뷰 이미지 업로드 실패:', error);
+    return { success: false, message: '리뷰 이미지 업로드에 실패했습니다.' };
+  }
+}
+
 export async function submitReviewAction(
   reviewId: number,
   payload: ReviewSubmitRequest,
 ): Promise<ActionResult> {
   try {
+    console.log('[review-submit] request', {
+      endpoint: `/reviews/${reviewId}/submit`,
+      reviewId,
+      payload,
+    });
+
     await api.post<Record<string, never>, ReviewSubmitRequest>(
       `/reviews/${reviewId}/submit`,
       payload,
     );
 
+    console.log('[review-submit] success', { reviewId });
     return { success: true };
   } catch (error) {
     console.error('리뷰 제출 실패:', error);
