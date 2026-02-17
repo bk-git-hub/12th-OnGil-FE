@@ -2,6 +2,7 @@
 
 import { useEffect, useMemo, useRef, useState, useTransition } from 'react';
 import { useRouter } from 'next/navigation';
+import Image from 'next/image';
 
 import {
   generateMaterialAiReviewAction,
@@ -31,14 +32,6 @@ interface UploadReviewImagesApiResponse {
   timestamp: string;
   data: string[];
 }
-
-const categoryNameMap: Record<string, string> = {
-  OUTER: '아우터',
-  TOP: '상의',
-  SKIRT: '스커트',
-  PANTS: '팬츠',
-  DRESS: '원피스',
-};
 
 const sizeAnswerOptions = [
   { value: 'TIGHT_IMMEDIATELY', label: '숨막히게 답답' },
@@ -74,6 +67,7 @@ const materialFeatureTypeOptions = [
 const STEP2_AUTOSAVE_DEBOUNCE_MS = 500;
 const MAX_REVIEW_IMAGE_COUNT = 5;
 const MAX_REVIEW_IMAGE_TOTAL_BYTES = 50 * 1024 * 1024;
+const STAR_VALUES = [1, 2, 3, 4, 5] as const;
 
 export default function ReviewWriteFlow({
   reviewId,
@@ -385,90 +379,159 @@ export default function ReviewWriteFlow({
 
   return (
     <section className="space-y-4 px-5 py-6">
-      <p className="text-lg font-semibold text-black">리뷰 ID: {reviewId}</p>
-      <p className="text-sm text-[#666666]">
-        카테고리: {categoryNameMap[clothingCategory] ?? clothingCategory}
-      </p>
-      <p className="text-sm text-[#666666]">현재 단계: STEP {step}</p>
+      <div className="flex items-start justify-between px-2">
+        <div className="flex flex-1 items-start">
+          <div className="flex flex-col items-center gap-1">
+            <Image
+              src={step === 1 ? '/icons/basic-info.svg' : '/icons/basic-info-gray.svg'}
+              alt="기본정보 단계"
+              width={48}
+              height={48}
+            />
+            <span
+              className={`text-sm font-medium ${
+                step === 1 ? 'text-[#223435]' : 'text-[#8a8a8a]'
+              }`}
+            >
+              기본 정보
+            </span>
+          </div>
+          <div className="mt-6 h-[2px] flex-1 rounded-full bg-[#d9d9d9]">
+            <div
+              className={`h-full rounded-full bg-[#223435] transition-all duration-200 ${
+                step === 1 ? 'w-1/2' : 'w-full'
+              }`}
+            />
+          </div>
+        </div>
+
+        <div className="flex flex-col items-center gap-1">
+          <Image
+            src={step === 2 ? '/icons/detail-info-active.svg' : '/icons/detail-info.svg'}
+            alt="상세후기 단계"
+            width={47}
+            height={47}
+          />
+          <span
+            className={`text-sm font-medium ${
+              step === 2 ? 'text-[#223435]' : 'text-[#8a8a8a]'
+            }`}
+          >
+            상세후기
+          </span>
+        </div>
+      </div>
 
       {errorMessage ? <p className="text-sm text-red-600">{errorMessage}</p> : null}
       {successMessage ? <p className="text-sm text-emerald-700">{successMessage}</p> : null}
 
       {step === 1 ? (
-        <div className="space-y-3 rounded-xl border border-[#d9d9d9] p-4">
-          <h2 className="text-lg font-semibold">STEP 1</h2>
+        <div className="space-y-6">
+          <div className="space-y-3">
+            <p className="text-2xl font-semibold text-black">Q. 이 상품 어때요?</p>
+            <div className="flex items-center gap-2">
+              {STAR_VALUES.map((star) => (
+                <button
+                  key={star}
+                  type="button"
+                  onClick={() => setRating(star)}
+                  aria-label={`${star}점 선택`}
+                  className="transition-transform active:scale-95"
+                >
+                  <Image
+                    src={rating >= star ? '/icons/star.svg' : '/icons/star-gray.svg'}
+                    alt=""
+                    width={28}
+                    height={28}
+                  />
+                </button>
+              ))}
+            </div>
+          </div>
 
-          <label className="block text-sm font-medium">
-            <span>Q. 평점은 몇 점인가요?</span>
-            <input
-              type="number"
-              min={1}
-              max={5}
-              className="mt-2 w-full rounded border border-[#cfcfcf] px-3 py-2"
-              value={rating}
-              onChange={(e) => setRating(Number(e.target.value))}
-            />
-          </label>
-
-          <div className="space-y-2">
-            <p className="text-sm font-medium">Q. 착용 시 사이즈가 어땠나요?</p>
-            <div className="space-y-2">
+          <div className="space-y-3">
+            <p className="text-2xl font-semibold text-black">1. 입었을 때 어때요?</p>
+            <div className="flex gap-3 overflow-x-auto pb-1">
               {sizeAnswerOptions.map((option) => (
-                <label
+                <button
                   key={option.value}
-                  className="flex cursor-pointer items-center gap-2 text-sm"
+                  type="button"
+                  onClick={() => setSizeAnswer(option.value)}
+                  className="flex min-w-[58px] flex-col items-center gap-2 text-center"
                 >
-                  <input
-                    type="radio"
-                    name="sizeAnswer"
-                    value={option.value}
-                    checked={sizeAnswer === option.value}
-                    onChange={() => setSizeAnswer(option.value)}
-                  />
-                  <span>{option.label}</span>
-                </label>
+                  <span
+                    className={`flex h-8 w-8 items-center justify-center rounded-full border ${
+                      sizeAnswer === option.value
+                        ? 'border-[#005b5e] bg-[#005b5e]'
+                        : 'border-[#d1d1d1] bg-white'
+                    }`}
+                  >
+                    {sizeAnswer === option.value ? (
+                      <span className="h-4 w-4 rounded-full bg-white" />
+                    ) : null}
+                  </span>
+                  <span className="text-[11px] leading-[1.3] text-[#6f6f6f]">
+                    {option.label}
+                  </span>
+                </button>
               ))}
             </div>
           </div>
 
-          <div className="space-y-2">
-            <p className="text-sm font-medium">Q. 제품의 색깔은 어때요?</p>
-            <div className="space-y-2">
+          <div className="space-y-3">
+            <p className="text-2xl font-semibold text-black">2. 제품 색깔은 어때요?</p>
+            <div className="flex gap-3 overflow-x-auto pb-1">
               {colorAnswerOptions.map((option) => (
-                <label
+                <button
                   key={option.value}
-                  className="flex cursor-pointer items-center gap-2 text-sm"
+                  type="button"
+                  onClick={() => setColorAnswer(option.value)}
+                  className="flex min-w-[72px] flex-col items-center gap-2 text-center"
                 >
-                  <input
-                    type="radio"
-                    name="colorAnswer"
-                    value={option.value}
-                    checked={colorAnswer === option.value}
-                    onChange={() => setColorAnswer(option.value)}
-                  />
-                  <span>{option.label}</span>
-                </label>
+                  <span
+                    className={`flex h-8 w-8 items-center justify-center rounded-full border ${
+                      colorAnswer === option.value
+                        ? 'border-[#005b5e] bg-[#005b5e]'
+                        : 'border-[#d1d1d1] bg-white'
+                    }`}
+                  >
+                    {colorAnswer === option.value ? (
+                      <span className="h-4 w-4 rounded-full bg-white" />
+                    ) : null}
+                  </span>
+                  <span className="text-[11px] leading-[1.3] text-[#6f6f6f]">
+                    {option.label}
+                  </span>
+                </button>
               ))}
             </div>
           </div>
 
-          <div className="space-y-2">
-            <p className="text-sm font-medium">Q. 소재는 어때요?</p>
-            <div className="space-y-2">
+          <div className="space-y-3">
+            <p className="text-2xl font-semibold text-black">3. 소재는 어때요?</p>
+            <div className="flex gap-3 overflow-x-auto pb-1">
               {materialAnswerOptions.map((option) => (
-                <label
+                <button
                   key={option.value}
-                  className="flex cursor-pointer items-center gap-2 text-sm"
+                  type="button"
+                  onClick={() => setMaterialAnswer(option.value)}
+                  className="flex min-w-[58px] flex-col items-center gap-2 text-center"
                 >
-                  <input
-                    type="radio"
-                    name="materialAnswer"
-                    value={option.value}
-                    checked={materialAnswer === option.value}
-                    onChange={() => setMaterialAnswer(option.value)}
-                  />
-                  <span>{option.label}</span>
-                </label>
+                  <span
+                    className={`flex h-8 w-8 items-center justify-center rounded-full border ${
+                      materialAnswer === option.value
+                        ? 'border-[#005b5e] bg-[#005b5e]'
+                        : 'border-[#d1d1d1] bg-white'
+                    }`}
+                  >
+                    {materialAnswer === option.value ? (
+                      <span className="h-4 w-4 rounded-full bg-white" />
+                    ) : null}
+                  </span>
+                  <span className="text-[11px] leading-[1.3] text-[#6f6f6f]">
+                    {option.label}
+                  </span>
+                </button>
               ))}
             </div>
           </div>
