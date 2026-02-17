@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect } from 'react';
-import { ProductList } from '@/components/product/product-list';
+import ProductList from '@/components/product/product-list';
 import { VoiceSearchResponse } from '@/types/domain/product';
 import { useRecentSearches } from '@/components/search-bar/use-recent-searches';
 
@@ -52,24 +52,25 @@ export function SearchResults({ data, query }: SearchResultsProps) {
           </div>
 
           {/* Alternative suggestions */}
-          {searchResult.alternatives && searchResult.alternatives.length > 0 && (
-            <div className="w-full max-w-md">
-              <h2 className="mb-3 text-sm font-semibold text-gray-700">
-                추천 검색어
-              </h2>
-              <div className="flex flex-wrap gap-2">
-                {searchResult.alternatives.map((keyword, index) => (
-                  <a
-                    key={index}
-                    href={`/search?q=${encodeURIComponent(keyword)}`}
-                    className="rounded-full border border-gray-300 bg-white px-4 py-2 text-sm hover:bg-gray-50"
-                  >
-                    {keyword}
-                  </a>
-                ))}
+          {searchResult.alternatives &&
+            searchResult.alternatives.length > 0 && (
+              <div className="w-full max-w-md">
+                <h2 className="mb-3 text-sm font-semibold text-gray-700">
+                  추천 검색어
+                </h2>
+                <div className="flex flex-wrap gap-2">
+                  {searchResult.alternatives.map((keyword, index) => (
+                    <a
+                      key={index}
+                      href={`/search?q=${encodeURIComponent(keyword)}`}
+                      className="rounded-full border border-gray-300 bg-white px-4 py-2 text-sm hover:bg-gray-50"
+                    >
+                      {keyword}
+                    </a>
+                  ))}
+                </div>
               </div>
-            </div>
-          )}
+            )}
         </div>
       )}
     </div>

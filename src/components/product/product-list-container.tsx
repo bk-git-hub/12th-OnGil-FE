@@ -1,7 +1,7 @@
 import { api } from '@/lib/api-client';
 import { ProductSearchResult } from '@/types/domain/product';
 import { ProductSortType } from '@/types/enums';
-import { ProductList } from './product-list';
+import ProductList from './product-list';
 import { getMyWishlist } from '@/app/actions/wishlist';
 
 interface ProductListContainerProps {
@@ -42,7 +42,7 @@ export default async function ProductListContainer({
         categoryId: safeCategoryId,
         sortType: safeSortType,
         page: safePage,
-        size: 20,
+        size: 36,
       },
     }),
     getMyWishlist(),
