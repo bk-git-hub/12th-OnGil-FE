@@ -38,9 +38,7 @@ export default function CategoryMainLayout({
 
       <CategoryMainParentList categories={categories} />
 
-      <div className="fixed bottom-0 w-full">
-        <MainNavBar />
-      </div>
+      <MainNavBar />
     </main>
   );
 }
