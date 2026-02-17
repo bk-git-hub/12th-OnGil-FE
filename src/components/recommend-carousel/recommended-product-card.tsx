@@ -1,16 +1,12 @@
 import Image from 'next/image';
 import Link from 'next/link';
-import { Product } from '@/types/domain/product';
+import { ProductWithWishlist } from '@/types/domain/product';
 import { WishlistButton } from '../product/wishlist-button';
-
-interface RecommendedProduct extends Product {
-  isLiked?: boolean;
-}
 
 export default function RecommendedProductCard({
   productInfo,
 }: {
-  productInfo: RecommendedProduct;
+  productInfo: ProductWithWishlist;
 }) {
   const href = `/product/${productInfo.id}?from=${encodeURIComponent('/')}`;
   const hasDiscount = productInfo.discountRate && productInfo.discountRate > 0;
@@ -72,6 +68,7 @@ export default function RecommendedProductCard({
           <WishlistButton
             productId={productInfo.id}
             initialIsLiked={productInfo.isLiked || false}
+            initialWishlistId={productInfo.wishlistId}
             className="absolute top-2 right-2"
           />
         </div>

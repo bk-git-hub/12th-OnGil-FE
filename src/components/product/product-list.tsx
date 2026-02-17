@@ -1,19 +1,19 @@
-import { Product } from '@/types/domain/product';
+import { ProductWithWishlist } from '@/types/domain/product';
 import ProductCard from './product-card';
 
-// 상품 목록 데이터를 받아서 그리드 형태로 보여주는 목록 페이지 컴포넌트
-
 interface ProductListProps {
-  products: Product[];
+  products: ProductWithWishlist[];
   title?: string;
   totalElements?: number;
   productDetailFrom?: string;
+  showWishlistButton?: boolean;
 }
 
 export function ProductList({
   products,
   totalElements,
   productDetailFrom,
+  showWishlistButton = false,
 }: ProductListProps) {
   const count = totalElements ?? products.length;
 
@@ -37,6 +37,7 @@ export function ProductList({
                 key={product.id}
                 product={product}
                 detailFrom={productDetailFrom}
+                showWishlistButton={showWishlistButton}
               />
             ))}
           </div>
