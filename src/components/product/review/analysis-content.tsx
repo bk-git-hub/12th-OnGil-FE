@@ -1,7 +1,5 @@
 'use client';
 
-import { useState, useMemo } from 'react';
-import { cn } from '@/lib/utils';
 import {
   Select,
   SelectContent,
@@ -9,78 +7,111 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
-import { AlertCircle } from 'lucide-react';
-import { ReviewCategorySummary } from '@/types/domain/review';
-
-// 리뷰 통계의 특정 카테고리(사이즈, 색감, 소재 등) 분석 컨텐츠 컴포넌트
+import {
+  COLOR_ANSWER_OPTIONS,
+  MATERIAL_ANSWER_OPTIONS,
+  ReviewCategorySummary,
+  SIZE_ANSWER_OPTIONS,
+} from '@/types/domain/review';
+import { EVALUATION_MAP } from './review-constants';
 
 interface AnalysisContentProps {
   category: string;
+  title?: string;
+  subtitle?: string;
   stat: ReviewCategorySummary;
+  maxItems?: number;
+  emptyMessageVariant?: 'size' | 'color' | 'default';
+  selectedOption?: string;
   filterOptions?: string[];
+  isLoading?: boolean;
+  onOptionChange?: (value: string) => void;
 }
 
-/**
- * 리뷰 통계의 특정 카테고리(사이즈, 색감, 소재 등) 분석 컨텐츠 컴포넌트
- * @param {AnalysisContentProps} props - 컴포넌트 props
- * @param {string} props.category - 카테고리 이름
- * @param {ReviewCategorySummary} props.stat - 통계 데이터
- * @param {string[]} [props.filterOptions] - 필터 옵션 목록
- * @returns {JSX.Element} 분석 컨텐츠 컴포넌트
- */
+function getStatLabel(item: { label?: string; answer?: string }) {
+  const raw = item.label ?? item.answer ?? '정보 없음';
+  return EVALUATION_MAP[raw] ?? raw;
+}
+
+function getDefaultAnswers(category: string) {
+  if (category === '사이즈') {
+    return [...SIZE_ANSWER_OPTIONS];
+  }
+  if (category === '색감') {
+    return [...COLOR_ANSWER_OPTIONS];
+  }
+  if (category === '소재') {
+    return [...MATERIAL_ANSWER_OPTIONS];
+  }
+  return [];
+}
+
+function getEmptyMessage(
+  variant: 'size' | 'color' | 'default',
+  selectedOption: string,
+) {
+  if (variant === 'size') {
+    return '유사 체형의 후기가 아직 없어요.';
+  }
+  if (variant === 'color') {
+    return `"${selectedOption}" 색상을 선택한 분의 후기가 없어요`;
+  }
+  return '아직 이 옵션을 고른 분들의 후기가 없어요';
+}
+
 export default function AnalysisContent({
   category,
+  title,
+  subtitle,
   stat,
+  maxItems = 5,
+  emptyMessageVariant = 'default',
+  selectedOption = 'all',
   filterOptions = [],
+  isLoading = false,
+  onOptionChange,
 }: AnalysisContentProps) {
-  const [selectedOption, setSelectedOption] = useState<string>('all');
+  const sorted = [...(stat.answerStats ?? [])].sort(
+    (a, b) => b.count - a.count,
+  );
+  const defaultAnswers = getDefaultAnswers(category);
+  const existingLabels = new Set(sorted.map((item) => getStatLabel(item)));
+  const enumFallbackDetails = defaultAnswers
+    .filter((answer) => !existingLabels.has(getStatLabel({ answer })))
+    .map((answer) => ({ answer, count: 0, percentage: 0 }));
+  const limitedDetails = [...sorted, ...enumFallbackDetails].slice(0, maxItems);
 
-  const { details: displayDetails, totalCount } = useMemo(() => {
-    let details = stat.answerStats.map((item) => ({ ...item, percentage: 0 }));
-
-    if (selectedOption !== 'all') {
-      // NOTE: 목업용 랜덤 처리 (실제 데이터 적용 시 제거)
-      if (category === '색감' && selectedOption === 'Mint') {
-        details = details.map((d) => ({ ...d, count: 0 }));
-      } else {
-        details = details.map((d) => ({
-          ...d,
-          count: Math.floor(d.count * (0.3 + Math.random() * 0.4)),
-        }));
-      }
-    }
-
-    const total = details.reduce((acc, curr) => acc + curr.count, 0);
-
-    details = details.map((d) => ({
-      ...d,
-      percentage: total === 0 ? 0 : Math.round((d.count / total) * 100),
-    }));
-
-    if (selectedOption === 'all') {
-      details.sort((a, b) => b.count - a.count);
-    }
-
-    return { details, totalCount: total };
-  }, [stat.answerStats, selectedOption, category]);
+  const totalCount = (stat.answerStats ?? []).reduce(
+    (sum, item) => sum + item.count,
+    0,
+  );
+  const isFiltered = selectedOption !== 'all';
+  const isEmpty = totalCount === 0;
 
   return (
-    <div className="flex w-full flex-col px-5">
-      {/* 1. 타이틀 & 필터 영역 */}
+    <div className="flex w-full flex-col px-3 pb-2">
       <div className="mb-4 flex flex-col items-center">
-        <h3 className="text-xl font-bold text-gray-900">{category}</h3>
+        <h3 className="text-center text-[34px] leading-tight font-semibold text-[#004E57]">
+          {title ?? category}
+        </h3>
+        {subtitle && (
+          <p className="mt-1 text-center text-sm font-medium text-gray-500">
+            {subtitle}
+          </p>
+        )}
 
-        {/* 필터 Select */}
         <div className="mt-4 flex w-full justify-end">
           {filterOptions.length > 0 ? (
-            <Select value={selectedOption} onValueChange={setSelectedOption}>
-              <SelectTrigger className="max-h-[45px] w-[140px] border-gray-200 bg-gray-50 font-medium">
+            <Select value={selectedOption} onValueChange={onOptionChange}>
+              <SelectTrigger className="h-[44px] w-full max-w-[180px] rounded-[8px] border border-[#9E9E9E] bg-[#F9F9F9] px-3 text-[18px] leading-none font-medium text-[#222]">
                 <SelectValue placeholder={`${category} 선택`} />
               </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all">전체 {category}</SelectItem>
+              <SelectContent className="w-[180px] min-w-[180px] rounded-[8px] border border-[#9E9E9E] bg-[#F9F9F9] p-0">
+                <SelectItem value="all" className="text-[18px]">
+                  {category === '색상' ? '색상 옵션' : `전체 ${category}`}
+                </SelectItem>
                 {filterOptions.map((opt) => (
-                  <SelectItem key={opt} value={opt}>
+                  <SelectItem key={opt} value={opt} className="text-[18px]">
                     {opt}
                   </SelectItem>
                 ))}
@@ -92,33 +123,27 @@ export default function AnalysisContent({
         </div>
       </div>
 
-      {/* 2. 컨텐츠 영역 (조건부 렌더링) */}
-
-      {totalCount === 0 && selectedOption !== 'all' ? (
-        <div className="flex h-[200px] w-full flex-col items-center justify-center gap-3 text-center">
-          <AlertCircle className="h-8 w-8 text-gray-300" />
-          <p className="text-sm font-medium text-gray-500">
-            아직 이 {category === '색감' ? '색상을' : '옵션을'} 고른 분들의
-            <br />
-            후기가 없어요
+      {isLoading ? (
+        <div className="flex h-[340px] items-center justify-center text-base text-gray-500">
+          통계를 불러오는 중...
+        </div>
+      ) : isEmpty && isFiltered ? (
+        <div className="flex h-[340px] w-full items-center justify-center px-8 text-center">
+          <p className="text-[30px] leading-snug font-medium text-[#333]">
+            {getEmptyMessage(emptyMessageVariant, selectedOption)}
           </p>
         </div>
       ) : (
         <div className="flex w-full flex-col gap-3">
-          {displayDetails.map((detail, index) => (
+          {limitedDetails.map((detail, index) => (
             <div
-              key={`${category}-${detail.label ?? index}`}
-              className="flex h-[60px] w-full items-center justify-between rounded-[10px] border border-[#B7ADAD] bg-[#F4F4F4] px-[15px]"
+              key={`${category}-${getStatLabel(detail)}-${index}`}
+              className="flex h-[66px] w-full items-center justify-between rounded-[10px] border border-[#B7ADAD] bg-[#F4F4F4] px-4"
             >
-              <span
-                className={cn(
-                  'font-medium transition-colors duration-300',
-                  detail.count > 0 ? 'text-gray-900' : 'text-gray-500',
-                )}
-              >
-                {detail.label}
+              <span className="text-[27px] leading-none font-medium text-[#222]">
+                {getStatLabel(detail)}
               </span>
-              <span className="text-sm font-medium text-gray-600">
+              <span className="text-[30px] leading-none font-medium text-[#222]">
                 {detail.count}명
               </span>
             </div>
