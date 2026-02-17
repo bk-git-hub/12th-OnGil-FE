@@ -115,7 +115,7 @@ export default function SubCategorySlider({
         }`}
       >
         <nav className="pb-2">
-          <ul className="no-scrollbar flex w-full gap-4 overflow-x-auto px-4 pb-2">
+          <ul className="no-scrollbar flex w-full gap-4 overflow-x-auto px-4 pt-2 pb-2">
             {categories.map((cat) => {
               const isActive = cat.categoryId === Number(id);
               return (
