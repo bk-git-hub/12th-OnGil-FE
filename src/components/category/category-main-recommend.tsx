@@ -31,7 +31,7 @@ export default function CategoryMainRecommend({
 
   return (
     <section
-      className={`overflow-hidden border-b border-gray-200 bg-white transition-all duration-300 ${
+      className={`overflow-hidden border-b border-gray-200 bg-white transition-[max-height,opacity] duration-300 ${
         isVisible ? 'max-h-[280px] opacity-100' : 'max-h-0 opacity-0'
       }`}
       aria-hidden={!isVisible}
