@@ -89,7 +89,11 @@ export default function SubCategorySlider({
   }, []);
 
   return (
-    <div className="sticky top-[85px] z-50 border-b bg-white shadow-sm transition-all duration-300">
+    <div
+      className={`border-b bg-white shadow-sm transition-all duration-300 ${
+        isVisible ? 'relative' : 'sticky top-[138px] z-50'
+      }`}
+    >
       <div className="relative z-20 flex h-14 items-center justify-between bg-white px-4">
         {isVisible ? (
           <h2 className="text-xl font-bold text-gray-900">
