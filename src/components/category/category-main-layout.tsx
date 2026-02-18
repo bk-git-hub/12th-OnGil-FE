@@ -26,23 +26,19 @@ export default function CategoryMainLayout({
   });
 
   return (
-    <>
-      <main className="min-h-screen bg-white pb-120">
-        <CategoryMainHeader />
+    <main className="min-h-screen bg-white pb-96">
+      <CategoryMainHeader />
 
-        <CategoryMainRecommend
-          items={recommended}
-          parentLookup={parentLookup}
-          isVisible={isRecommendVisible}
-          userName={userName}
-        />
+      <CategoryMainRecommend
+        items={recommended}
+        parentLookup={parentLookup}
+        isVisible={isRecommendVisible}
+        userName={userName}
+      />
 
-        <CategoryMainParentList categories={categories} />
-      </main>
+      <CategoryMainParentList categories={categories} />
 
-      <div className="fixed right-0 bottom-0 left-0">
-        <MainNavBar />
-      </div>
-    </>
+      <MainNavBar />
+    </main>
   );
 }
