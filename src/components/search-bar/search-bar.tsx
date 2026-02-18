@@ -21,7 +21,7 @@ export default function SearchBar({ onFocusChange }: SearchBarProps) {
   const inputRef = useRef<HTMLInputElement>(null);
   const router = useRouter();
 
-  const { history, addSearch, removeSearch, clearHistory } =
+  const { history, addSearch, removeSearch, clearHistory, refreshHistory } =
     useRecentSearches();
   const {
     suggestions,
@@ -37,12 +37,14 @@ export default function SearchBar({ onFocusChange }: SearchBarProps) {
   };
 
   const handleSearch = (text: string) => {
-    if (!text.trim()) return;
+    const keyword = text.trim();
+    if (!keyword) return;
     inputRef.current?.blur();
     updateFocus(false);
+    addSearch(keyword);
 
-    // Navigate to search results page (keyword will be saved after API response)
-    const searchUrl = `/search?q=${encodeURIComponent(text)}`;
+    // Navigate to search results page
+    const searchUrl = `/search?q=${encodeURIComponent(keyword)}`;
     router.push(searchUrl);
     router.refresh(); // Force refresh to trigger server component re-render
   };
@@ -50,6 +52,14 @@ export default function SearchBar({ onFocusChange }: SearchBarProps) {
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setQuery(e.target.value);
     fetchAutocomplete(e.target.value);
+  };
+
+  const handleVoiceSearchOpen = (e: React.PointerEvent<HTMLButtonElement>) => {
+    // 입력 blur로 click이 취소되는 케이스를 방지
+    e.preventDefault();
+    e.stopPropagation();
+    setIsVoiceActive(true);
+    updateFocus(false);
   };
 
   return (
@@ -81,6 +91,7 @@ export default function SearchBar({ onFocusChange }: SearchBarProps) {
             value={query}
             onChange={handleInputChange}
             onFocus={() => {
+              refreshHistory();
               updateFocus(true);
               if (recommended.length === 0) fetchRecommended();
             }}
@@ -100,6 +111,7 @@ export default function SearchBar({ onFocusChange }: SearchBarProps) {
               type="button"
               onClick={() => {
                 setQuery('');
+                fetchAutocomplete('');
                 inputRef.current?.focus();
               }}
               className="rounded-full p-1 text-gray-400 hover:bg-gray-200"
@@ -107,7 +119,11 @@ export default function SearchBar({ onFocusChange }: SearchBarProps) {
               <X size={20} />
             </button>
           )}
-          <button type="button" onClick={() => setIsVoiceActive(true)}>
+          <button
+            type="button"
+            onPointerDown={handleVoiceSearchOpen}
+            onClick={(e) => e.preventDefault()}
+          >
             <img src="/icons/mic.svg" alt="음성검색" />
           </button>
         </div>

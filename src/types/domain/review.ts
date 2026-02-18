@@ -175,6 +175,7 @@ export interface ProductReviewListItem {
 export interface ProductWithReviewStats {
   id: number;
   reviewId?: number; // 내가 쓴 리뷰 조회 응답에서 내려오는 실제 리뷰 ID(옵션)
+  purchaseOption?: string;
   name: string;
   price: number;
   discountRate: number;

@@ -2,7 +2,7 @@ import Link from 'next/link';
 
 export default function MainNavBar() {
   return (
-    <div className="font-pretendard sticky bottom-0 z-50 flex w-full items-center justify-around border-t border-[#c3c3c3] bg-white py-3 text-sm font-medium">
+    <div className="font-pretendard sticky bottom-0 flex w-full items-center justify-between border-t border-[#c3c3c3] bg-white px-6 py-3 text-sm font-medium">
       <Link href={'/'} className="flex flex-col items-center">
         <img src="/icons/home.svg" alt="홈으로 이동" width={30} height={30} />홈
       </Link>
@@ -17,16 +17,6 @@ export default function MainNavBar() {
           />
         </div>
         카테고리
-      </Link>
-
-      <Link href={'/'} className="flex flex-col items-center">
-        <img
-          src="/icons/magazine.svg"
-          alt="매거진으로 이동"
-          width={30}
-          height={30}
-        />
-        매거진
       </Link>
 
       <Link href={'/me/wishlist'} className="flex flex-col items-center">
