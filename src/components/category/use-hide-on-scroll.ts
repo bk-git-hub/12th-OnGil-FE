@@ -8,6 +8,7 @@ interface UseHideOnScrollOptions {
   showDelta?: number;
   freezeAfterToggleMs?: number;
   initialVisible?: boolean;
+  scrollTarget?: HTMLElement | null;
 }
 
 export default function useHideOnScroll(options: UseHideOnScrollOptions = {}) {
@@ -17,6 +18,7 @@ export default function useHideOnScroll(options: UseHideOnScrollOptions = {}) {
     showDelta = 28,
     freezeAfterToggleMs = 340,
     initialVisible = true,
+    scrollTarget = null,
   } = options;
 
   const [isVisible, setIsVisible] = useState(initialVisible);
@@ -36,7 +38,12 @@ export default function useHideOnScroll(options: UseHideOnScrollOptions = {}) {
     const safeShowDelta = Math.max(showDelta, 0);
     const safeFreezeAfterToggleMs = Math.max(freezeAfterToggleMs, 0);
 
-    anchorYRef.current = Math.max(window.scrollY, 0);
+    const getCurrentY = () =>
+      scrollTarget
+        ? Math.max(scrollTarget.scrollTop, 0)
+        : Math.max(window.scrollY, 0);
+
+    anchorYRef.current = getCurrentY();
 
     const toggleVisibility = (nextVisible: boolean) => {
       if (nextVisible === isVisibleRef.current) return;
@@ -49,13 +56,13 @@ export default function useHideOnScroll(options: UseHideOnScrollOptions = {}) {
         window.cancelAnimationFrame(anchorSyncRafIdRef.current);
       }
       anchorSyncRafIdRef.current = window.requestAnimationFrame(() => {
-        anchorYRef.current = Math.max(window.scrollY, 0);
+        anchorYRef.current = getCurrentY();
       });
     };
 
     const updateVisibility = () => {
       tickingRef.current = false;
-      const currentY = Math.max(window.scrollY, 0);
+      const currentY = getCurrentY();
 
       if (currentY <= topOffset) {
         anchorYRef.current = currentY;
@@ -87,9 +94,10 @@ export default function useHideOnScroll(options: UseHideOnScrollOptions = {}) {
       scrollRafIdRef.current = window.requestAnimationFrame(updateVisibility);
     };
 
-    window.addEventListener('scroll', handleScroll, { passive: true });
+    const eventTarget: Window | HTMLElement = scrollTarget ?? window;
+    eventTarget.addEventListener('scroll', handleScroll, { passive: true });
     return () => {
-      window.removeEventListener('scroll', handleScroll);
+      eventTarget.removeEventListener('scroll', handleScroll);
       if (scrollRafIdRef.current !== null) {
         window.cancelAnimationFrame(scrollRafIdRef.current);
       }
@@ -97,7 +105,7 @@ export default function useHideOnScroll(options: UseHideOnScrollOptions = {}) {
         window.cancelAnimationFrame(anchorSyncRafIdRef.current);
       }
     };
-  }, [topOffset, hideDelta, showDelta, freezeAfterToggleMs]);
+  }, [topOffset, hideDelta, showDelta, freezeAfterToggleMs, scrollTarget]);
 
   return isVisible;
 }
