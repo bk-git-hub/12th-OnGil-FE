@@ -1,12 +1,16 @@
 'use client';
+import { useState } from 'react';
 import Image from 'next/image';
 import { MaterialDescription } from '@/types/domain/product';
 import {
   Carousel,
+  type CarouselApi,
   CarouselContent,
   CarouselItem,
 } from '@/components/ui/carousel';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { useCarouselDots } from '@/components/banner-carousel/use-carousel-dots';
+import { DotNavigation } from '@/components/banner-carousel/dot-navigation';
 import { cn } from '@/lib/utils';
 
 interface AiMaterialCarouselProps {
@@ -25,6 +29,9 @@ export default function AiMaterialCarousel({
   materialDescription,
   materialName,
 }: AiMaterialCarouselProps) {
+  const [api, setApi] = useState<CarouselApi>();
+  const { current, count, scrollTo } = useCarouselDots(api);
+
   if (!materialDescription) {
     return (
       <div className="py-10 text-center text-gray-500">
@@ -66,6 +73,7 @@ export default function AiMaterialCarousel({
       </div>
 
       <Carousel
+        setApi={setApi}
         opts={{
           align: 'start',
           loop: true,
@@ -113,6 +121,12 @@ export default function AiMaterialCarousel({
           ))}
         </CarouselContent>
       </Carousel>
+      <DotNavigation
+        count={count}
+        current={current}
+        onDotClick={scrollTo}
+        className="pt-4 pb-0"
+      />
     </div>
   );
 }

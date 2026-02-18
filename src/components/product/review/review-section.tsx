@@ -67,8 +67,6 @@ function createEmptyStats(oneMonthReviewCount: number): ReviewStatsData {
   };
 }
 
-const REVIEW_FILTER_STICKY_TOP = 188;
-
 /**
  * 상품 리뷰 섹션 컴포넌트, 리뷰 탭, 필터, 정렬, 리뷰 리스트 포함
  * 리뷰 관련 모든 UI와 상태 관리를 담당
@@ -137,8 +135,6 @@ export default function ProductReviewContent({
     setFilters((prev) => ({ ...prev, ...newFilters }));
   };
 
-  if (isTotallyEmpty) return <EmptyReviewState />;
-
   return (
     <div className="flex flex-col gap-6 space-y-0 pb-10">
       {/* 1. 상단 AI 소재 분석 캐러셀 */}
@@ -151,83 +147,84 @@ export default function ProductReviewContent({
 
       <div className="h-2 w-full bg-gray-100" />
 
-      {/* 2. 리뷰 타이틀 및 개수 */}
-      <div className="mt-[20px] px-4 leading-normal font-semibold not-italic">
-        <span className="text-3xl">리뷰 </span>
-        <span className="text-ongil-teal text-3xl">
-          {stats.initialReviewCount + stats.oneMonthReviewCount}
-        </span>
-      </div>
+      {isTotallyEmpty ? (
+        <EmptyReviewState />
+      ) : (
+        <>
+          {/* 2. 리뷰 타이틀 및 개수 */}
+          <div className="mt-[20px] px-4 leading-normal font-semibold not-italic">
+            <span className="text-3xl">리뷰 </span>
+            <span className="text-ongil-teal text-3xl">
+              {stats.initialReviewCount + stats.oneMonthReviewCount}
+            </span>
+          </div>
 
-      {/* 3. 탭 (전체 / 한달 사용) */}
-      <ReviewTabs
-        activeTab={activeReviewTab}
-        onTabChange={handleTabChange}
-        generalCount={stats.initialReviewCount}
-        monthCount={stats.oneMonthReviewCount}
-      />
+          {/* 3. 탭 (전체 / 한달 사용) */}
+          <ReviewTabs
+            activeTab={activeReviewTab}
+            onTabChange={handleTabChange}
+            generalCount={stats.initialReviewCount}
+            monthCount={stats.oneMonthReviewCount}
+          />
 
-      <>
-        {isMonthTabEmpty ? (
-          <EmptyReviewState variant="month" />
-        ) : (
-          <>
-            {/* 통계 요약 섹션 */}
-            <ReviewSummarySection
-              productId={productInfo.productId}
-              reviewType={activeReviewTab === 'month' ? 'ONE_MONTH' : 'INITIAL'}
-              recommendedSize={productInfo.recommendedSize}
-              stats={currentDisplayStats}
-              reviewCount={currentTotalCount}
-              availableOptions={productInfo.availableOptions}
-            />
+          {isMonthTabEmpty ? (
+            <EmptyReviewState variant="month" />
+          ) : (
+            <>
+              {/* 통계 요약 섹션 */}
+              <ReviewSummarySection
+                productId={productInfo.productId}
+                reviewType={activeReviewTab === 'month' ? 'ONE_MONTH' : 'INITIAL'}
+                recommendedSize={productInfo.recommendedSize}
+                stats={currentDisplayStats}
+                reviewCount={currentTotalCount}
+                availableOptions={productInfo.availableOptions}
+              />
 
-            {/* Sticky 필터/정렬 바 */}
-            <div
-              className="sticky z-20 flex flex-col gap-3 bg-white px-4 py-3 transition-all"
-              style={{ top: REVIEW_FILTER_STICKY_TOP }}
-            >
-              {/* 내 사이즈 보기 스위치 */}
-              <div className="flex justify-end space-x-2">
-                <div className="flex items-center space-x-2">
-                  <Switch
-                    id="my-size-mode"
-                    checked={filters.mySize}
-                    onCheckedChange={handleMySizeToggle}
-                    className="data-[state=checked]:bg-[#34C759]"
+              {/* 필터/정렬 바 */}
+              <div className="z-20 flex flex-col gap-3 bg-white px-4 py-3 transition-all">
+                {/* 내 사이즈 보기 스위치 */}
+                <div className="flex justify-end space-x-2">
+                  <div className="flex items-center space-x-2">
+                    <Switch
+                      id="my-size-mode"
+                      checked={filters.mySize}
+                      onCheckedChange={handleMySizeToggle}
+                      className="data-[state=checked]:bg-[#34C759]"
+                    />
+                    <Label
+                      htmlFor="my-size-mode"
+                      className="cursor-pointer text-2xl leading-normal font-medium not-italic"
+                    >
+                      내 사이즈만 보기
+                    </Label>
+                  </div>
+                </div>
+                <div className="border-ongil-teal flex items-center justify-between border-y py-[10px]">
+                  <ReviewOptionSheet
+                    availableSizes={productInfo.availableOptions.sizes}
+                    availableColors={productInfo.availableOptions.colors}
+                    filters={filters}
+                    onApply={handleApplyFilters}
                   />
-                  <Label
-                    htmlFor="my-size-mode"
-                    className="cursor-pointer text-2xl leading-normal font-medium not-italic"
-                  >
-                    내 사이즈만 보기
-                  </Label>
+                  <ReviewSortSheet
+                    currentSort={sortOption}
+                    onSortChange={setSortOption}
+                  />
                 </div>
               </div>
-              <div className="border-ongil-teal flex items-center justify-between border-y py-[10px]">
-                <ReviewOptionSheet
-                  availableSizes={productInfo.availableOptions.sizes}
-                  availableColors={productInfo.availableOptions.colors}
-                  filters={filters}
-                  onApply={handleApplyFilters}
-                />
-                <ReviewSortSheet
-                  currentSort={sortOption}
-                  onSortChange={setSortOption}
-                />
-              </div>
-            </div>
 
-            {/* 리뷰 리스트 */}
-            <ReviewList
-              productId={productInfo.productId}
-              activeTab={activeReviewTab}
-              filters={filters}
-              sortOption={sortOption}
-            />
-          </>
-        )}
-      </>
+              {/* 리뷰 리스트 */}
+              <ReviewList
+                productId={productInfo.productId}
+                activeTab={activeReviewTab}
+                filters={filters}
+                sortOption={sortOption}
+              />
+            </>
+          )}
+        </>
+      )}
     </div>
   );
 }

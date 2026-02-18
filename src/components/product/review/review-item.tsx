@@ -112,8 +112,7 @@ export default function ReviewItem({
     : createdAtDate.toISOString().slice(0, 10).replace(/-/g, '.');
   const answers =
     review.initialFirstAnswers ?? review.answers ?? DEFAULT_ANSWERS;
-  const colorText =
-    EVALUATION_MAP[answers.colorAnswer] || answers.colorAnswer || '정보 없음';
+  const colorText = EVALUATION_MAP[answers.colorAnswer] || answers.colorAnswer;
   const fitIssueParts = normalizeToList(
     review.initialSecondAnswers?.fitIssueParts,
   );
@@ -207,32 +206,37 @@ export default function ReviewItem({
         {REVIEW_CONTENT_CONFIG.filter((item) => item.key !== 'textReview').map(
           ({ label, key }) => {
             const text = reviewTextByKey[key];
+            if (!text) return null;
 
             return (
               <div key={key} className="flex flex-col gap-4 text-xl">
                 <span className="min-w-[30px] text-2xl font-bold">{label}</span>
                 <ul className="list-disc gap-2 pl-10">
-                  <li className="mb-3">{text || '정보 없음'}</li>
+                  <li className="mb-3">{text}</li>
                 </ul>
               </div>
             );
           },
         )}
 
-        <div className="flex flex-col gap-4 text-xl">
-          <span className="min-w-[30px] text-2xl font-bold">색감</span>
-          <ul className="list-disc gap-2 pl-10">
-            <li className="mb-3">{colorText}</li>
-          </ul>
-        </div>
-
-        <div className="flex flex-col gap-4 text-xl">
-          <span className="min-w-[30px] text-2xl font-bold">기타</span>
-          <div className="mb-3 flex items-center gap-2 pl-3">
-            <MessageCircle className="text-ongil-teal h-6 w-6" />
-            <p>{review.textReview || '정보 없음'}</p>
+        {colorText && (
+          <div className="flex flex-col gap-4 text-xl">
+            <span className="min-w-[30px] text-2xl font-bold">색감</span>
+            <ul className="list-disc gap-2 pl-10">
+              <li className="mb-3">{colorText}</li>
+            </ul>
           </div>
-        </div>
+        )}
+
+        {review.textReview && (
+          <div className="flex flex-col gap-4 text-xl">
+            <span className="min-w-[30px] text-2xl font-bold">기타</span>
+            <div className="mb-3 flex items-center gap-2 pl-3">
+              <MessageCircle className="text-ongil-teal h-6 w-6" />
+              <p>{review.textReview}</p>
+            </div>
+          </div>
+        )}
 
         {fitIssueParts.length > 0 && (
           <div className="flex flex-col gap-4 text-xl">
