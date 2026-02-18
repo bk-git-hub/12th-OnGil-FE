@@ -7,8 +7,15 @@ import PaymentSection from '@/components/mypage/payment-section';
 import CustomerServiceSection from '@/components/mypage/customer-service-section';
 import SettingsSection from '@/components/mypage/settings-section';
 import MainNavBar from '@/components/layout/main-nav-bar';
+import { api } from '@/lib/api-client';
+import type { WritableReviewItem } from '@/types/domain/review';
 
-export default function MyPage() {
+export default async function MyPage() {
+  const pendingReviews = await api.get<WritableReviewItem[]>(
+    '/users/me/reviews/pending',
+  );
+  const writableReviewCount = pendingReviews.length;
+
   return (
     <main className="mx-auto min-h-screen max-w-2xl bg-white pb-20">
       {/* 헤더 */}
@@ -23,7 +30,7 @@ export default function MyPage() {
         <PointSection />
 
         {/* 리뷰 요청 카드 */}
-        <ReviewRequestCard />
+        <ReviewRequestCard writableReviewCount={writableReviewCount} />
 
         {/* 빠른 메뉴 */}
         <QuickMenuSection />

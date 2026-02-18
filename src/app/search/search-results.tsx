@@ -1,10 +1,9 @@
 'use client';
 
-
 import { useEffect, useState } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
-import { ProductList } from '@/components/product/product-list';
+import ProductList from '@/components/product/product-list';
 
 import { VoiceSearchResponse } from '@/types/domain/product';
 import { useRecentSearches } from '@/components/search-bar/use-recent-searches';
@@ -27,7 +26,10 @@ const normalizeExtractedKeyword = (keyword: string, fallbackQuery: string) => {
 export function SearchResults({ data, query }: SearchResultsProps) {
   const { addSearch } = useRecentSearches();
   const [recommendedKeywords, setRecommendedKeywords] = useState<string[]>([]);
-  const extractedKeyword = normalizeExtractedKeyword(data.extractedKeyword, query);
+  const extractedKeyword = normalizeExtractedKeyword(
+    data.extractedKeyword,
+    query,
+  );
 
   // Save the extracted keyword to recent searches
   useEffect(() => {
@@ -38,7 +40,8 @@ export function SearchResults({ data, query }: SearchResultsProps) {
 
   useEffect(() => {
     const hasSearchResult =
-      data.searchResult.hasResult && data.searchResult.products.content.length > 0;
+      data.searchResult.hasResult &&
+      data.searchResult.products.content.length > 0;
 
     if (hasSearchResult) {
       return;
@@ -59,7 +62,9 @@ export function SearchResults({ data, query }: SearchResultsProps) {
           return;
         }
 
-        const payload = (await response.json()) as string[] | { data?: string[] };
+        const payload = (await response.json()) as
+          | string[]
+          | { data?: string[] };
         const nextKeywords = Array.isArray(payload)
           ? payload
           : Array.isArray(payload.data)
