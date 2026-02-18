@@ -1,12 +1,19 @@
 import Link from 'next/link';
+import { redirect } from 'next/navigation';
+import { auth } from '/auth';
+import { api } from '@/lib/api-client';
+import type { WritableReviewItem } from '@/types/domain/review';
 
-interface ReviewRequestCardProps {
-  writableReviewCount?: number;
-}
+export default async function ReviewRequestCard() {
+  const session = await auth();
+  if (!session) {
+    redirect('/login');
+  }
 
-export default function ReviewRequestCard({
-  writableReviewCount = 0,
-}: ReviewRequestCardProps) {
+  const pendingReviews = await api.get<WritableReviewItem[]>(
+    '/users/me/reviews/pending',
+  );
+  const writableReviewCount = pendingReviews.length;
   const reviewPoints = writableReviewCount * 500;
 
   return (
