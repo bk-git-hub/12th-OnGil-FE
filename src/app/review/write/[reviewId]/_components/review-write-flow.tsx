@@ -1056,7 +1056,7 @@ export default function ReviewWriteFlow({
             <span className="text-2xl font-semibold text-black">기타</span>
             <textarea
               placeholder="추가로 하고싶은 말을 적어주세요"
-              className="mt-3 min-h-24 w-full rounded border border-[#cfcfcf] px-3 py-2"
+              className="mt-3 min-h-24 w-full rounded border border-[#cfcfcf] px-3 py-2 text-base"
               value={textReview}
               onChange={(e) => setTextReview(e.target.value)}
             />
