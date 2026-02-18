@@ -4,65 +4,100 @@ import { useEffect, useRef, useState } from 'react';
 
 interface UseHideOnScrollOptions {
   topOffset?: number;
-  scrollDelta?: number;
+  hideDelta?: number;
+  showDelta?: number;
+  freezeAfterToggleMs?: number;
   initialVisible?: boolean;
 }
 
 export default function useHideOnScroll(options: UseHideOnScrollOptions = {}) {
-  const { topOffset = 24, scrollDelta = 10, initialVisible = true } = options;
+  const {
+    topOffset = 24,
+    hideDelta = 12,
+    showDelta = 28,
+    freezeAfterToggleMs = 340,
+    initialVisible = true,
+  } = options;
 
   const [isVisible, setIsVisible] = useState(initialVisible);
-  const lastScrollYRef = useRef(0);
+  const anchorYRef = useRef(0);
   const isVisibleRef = useRef(initialVisible);
   const tickingRef = useRef(false);
-  const rafIdRef = useRef<number | null>(null);
+  const scrollRafIdRef = useRef<number | null>(null);
+  const anchorSyncRafIdRef = useRef<number | null>(null);
+  const lockUntilRef = useRef(0);
 
   useEffect(() => {
     isVisibleRef.current = isVisible;
   }, [isVisible]);
 
   useEffect(() => {
-    lastScrollYRef.current = window.scrollY;
+    const safeHideDelta = Math.max(hideDelta, 0);
+    const safeShowDelta = Math.max(showDelta, 0);
+    const safeFreezeAfterToggleMs = Math.max(freezeAfterToggleMs, 0);
+
+    anchorYRef.current = Math.max(window.scrollY, 0);
+
+    const toggleVisibility = (nextVisible: boolean) => {
+      if (nextVisible === isVisibleRef.current) return;
+
+      isVisibleRef.current = nextVisible;
+      setIsVisible(nextVisible);
+      lockUntilRef.current = performance.now() + safeFreezeAfterToggleMs;
+
+      if (anchorSyncRafIdRef.current !== null) {
+        window.cancelAnimationFrame(anchorSyncRafIdRef.current);
+      }
+      anchorSyncRafIdRef.current = window.requestAnimationFrame(() => {
+        anchorYRef.current = Math.max(window.scrollY, 0);
+      });
+    };
 
     const updateVisibility = () => {
       tickingRef.current = false;
       const currentY = Math.max(window.scrollY, 0);
-      const diff = currentY - lastScrollYRef.current;
 
       if (currentY <= topOffset) {
-        if (!isVisibleRef.current) {
-          isVisibleRef.current = true;
-          setIsVisible(true);
-        }
-        lastScrollYRef.current = currentY;
+        anchorYRef.current = currentY;
+        toggleVisibility(true);
         return;
       }
 
-      if (Math.abs(diff) < scrollDelta) return;
-
-      const nextVisible = diff < 0;
-      if (nextVisible !== isVisibleRef.current) {
-        isVisibleRef.current = nextVisible;
-        setIsVisible(nextVisible);
+      if (performance.now() < lockUntilRef.current) {
+        anchorYRef.current = currentY;
+        return;
       }
 
-      lastScrollYRef.current = currentY;
+      const distanceFromAnchor = currentY - anchorYRef.current;
+      if (isVisibleRef.current) {
+        if (distanceFromAnchor >= safeHideDelta) {
+          toggleVisibility(false);
+        }
+        return;
+      }
+
+      if (distanceFromAnchor <= -safeShowDelta) {
+        toggleVisibility(true);
+      }
     };
 
     const handleScroll = () => {
       if (tickingRef.current) return;
       tickingRef.current = true;
-      rafIdRef.current = window.requestAnimationFrame(updateVisibility);
+      scrollRafIdRef.current = window.requestAnimationFrame(updateVisibility);
     };
 
     window.addEventListener('scroll', handleScroll, { passive: true });
     return () => {
       window.removeEventListener('scroll', handleScroll);
-      if (rafIdRef.current !== null) {
-        window.cancelAnimationFrame(rafIdRef.current);
+      if (scrollRafIdRef.current !== null) {
+        window.cancelAnimationFrame(scrollRafIdRef.current);
+      }
+      if (anchorSyncRafIdRef.current !== null) {
+        window.cancelAnimationFrame(anchorSyncRafIdRef.current);
       }
     };
-  }, [topOffset, scrollDelta]);
+  }, [topOffset, hideDelta, showDelta, freezeAfterToggleMs]);
 
   return isVisible;
 }

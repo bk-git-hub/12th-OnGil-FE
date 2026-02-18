@@ -22,14 +22,15 @@ export default function CategoryMainLayout({
 }: CategoryMainLayoutProps) {
   const isRecommendVisible = useHideOnScroll({
     topOffset: 24,
-    scrollDelta: 12,
+    hideDelta: 12,
+    showDelta: 28,
+    freezeAfterToggleMs: 340,
   });
 
   return (
     <>
       <main className="min-h-screen bg-white pb-24">
         <CategoryMainHeader />
-
         <CategoryMainRecommend
           items={recommended}
           parentLookup={parentLookup}
