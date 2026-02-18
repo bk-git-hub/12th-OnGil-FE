@@ -55,7 +55,7 @@ export const SearchDropdown = ({
             </ul>
           ) : (
             <div className="px-4 py-3 text-sm text-gray-400">
-              검색 결과가 없습니다.
+              추천 자동완성 검색어가 없습니다.
             </div>
           )}
         </div>
