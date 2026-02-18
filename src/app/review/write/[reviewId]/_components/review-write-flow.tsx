@@ -369,7 +369,7 @@ export default function ReviewWriteFlow({
       }
 
       setSuccessMessage('리뷰 제출 완료');
-      router.replace('/reviews');
+      router.replace('/reviews?tab=written');
     });
   };
 

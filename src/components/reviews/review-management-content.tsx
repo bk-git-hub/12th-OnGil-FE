@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { usePathname, useRouter, useSearchParams } from 'next/navigation';
 
 import {
   ProductWithReviewStats,
@@ -21,7 +21,24 @@ export default function ReviewManagementContent({
   writtenReviews,
   writtenTotalCount,
 }: ReviewManagementContentProps) {
-  const [activeTab, setActiveTab] = useState<ReviewTab>('writable');
+  const router = useRouter();
+  const pathname = usePathname();
+  const searchParams = useSearchParams();
+  const tabParam = searchParams.get('tab');
+  const activeTab: ReviewTab = tabParam === 'written' ? 'written' : 'writable';
+
+  const handleTabChange = (tab: ReviewTab) => {
+    if (tabParam === tab) {
+      return;
+    }
+
+    const nextParams = new URLSearchParams(searchParams.toString());
+    nextParams.set('tab', tab);
+    const nextSearch = nextParams.toString();
+    const nextHref = nextSearch ? `${pathname}?${nextSearch}` : pathname;
+
+    router.replace(nextHref, { scroll: false });
+  };
 
   return (
     <section className="px-5 py-6">
@@ -29,7 +46,7 @@ export default function ReviewManagementContent({
         writableCount={pendingReviews.length}
         writtenCount={writtenTotalCount}
         activeTab={activeTab}
-        onTabChange={setActiveTab}
+        onTabChange={handleTabChange}
       />
 
       {activeTab === 'writable' ? (
