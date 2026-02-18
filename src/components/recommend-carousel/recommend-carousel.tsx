@@ -20,7 +20,7 @@ export function RecommendCarousel({
   const { current, count, scrollTo } = useCarouselDots(api);
 
   return (
-    <div className="flex w-full flex-col items-center gap-7.5 px-4">
+    <div className="flex w-full flex-col items-center gap-7.5 px-4 pt-10">
       <h2 className="font-pretendard text-2xl font-bold">{heading}</h2>
 
       <Carousel
