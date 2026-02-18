@@ -25,12 +25,18 @@ function getPurchaseOptionLabel(review: WritableReviewItem) {
 }
 
 export default function PendingReviewCard({ review }: PendingReviewCardProps) {
+  const thumbnailSrc =
+    typeof review.product.thumbnailImageUrl === 'string' &&
+    review.product.thumbnailImageUrl.trim().length > 0
+      ? review.product.thumbnailImageUrl
+      : '/icons/icon-192.png';
+
   return (
     <li className="rounded-[16px] border border-black/50 bg-white p-5">
       <div className="flex h-[110px] gap-3">
         <div className="relative w-[110px] overflow-hidden rounded-sm bg-[#f1f1f1]">
           <Image
-            src={review.product.thumbnailImageUrl}
+            src={thumbnailSrc}
             alt={review.product.productName}
             fill
             sizes="110px"

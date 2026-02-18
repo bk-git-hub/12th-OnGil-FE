@@ -1,4 +1,4 @@
-import { Mic } from 'lucide-react';
+import Image from 'next/image';
 import { useSpeechRecognition } from './use-speech-recognition';
 
 interface VoiceOverlayProps {
@@ -20,8 +20,15 @@ export const VoiceOverlay = ({ onClose, onFinalResult }: VoiceOverlayProps) => {
   return (
     <div className="fixed inset-0 z-100 flex flex-col items-center justify-center bg-black/80 p-6 text-white backdrop-blur-xl">
       <div className="relative mb-12 flex items-center justify-center">
-        <div className="relative z-10 rounded-full bg-red-600 p-8 shadow-2xl">
-          <Mic size={64} strokeWidth={2.5} />
+        <div className="relative z-10 flex h-[190px] w-[190px] items-center justify-center">
+          <Image
+            src="/icons/Union.svg"
+            alt=""
+            fill
+            priority
+            sizes="190px"
+            className="object-contain"
+          />
         </div>
       </div>
 

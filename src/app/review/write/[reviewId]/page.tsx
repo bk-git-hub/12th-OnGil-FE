@@ -1,6 +1,5 @@
 import { Metadata } from 'next';
 import { notFound, redirect } from 'next/navigation';
-import Image from 'next/image';
 
 import ReviewWriteFlow from './_components/review-write-flow';
 import { CloseButton } from '@/components/ui/close-button';
@@ -52,7 +51,7 @@ export default async function ReviewWritePage({ params }: ReviewWritePageProps) 
   const clothingCategory = reviewDetail.product.clothingCategory ?? 'TOP';
 
   return (
-    <main className="mx-auto min-h-screen max-w-2xl bg-white">
+    <main className="font-pretendard mx-auto min-h-screen max-w-2xl bg-white">
       <header className="sticky top-0 z-10 flex items-center justify-center border-b border-[#d9d9d9] bg-white py-4">
         <h1 className="text-3xl font-semibold">리뷰 작성</h1>
         <div className="absolute top-1/2 left-5 -translate-y-1/2">
@@ -60,34 +59,13 @@ export default async function ReviewWritePage({ params }: ReviewWritePageProps) 
         </div>
       </header>
 
-      <section className="border-b border-[#d9d9d9] px-5 py-4">
-        <div className="flex gap-3">
-          <div className="relative h-[88px] w-[88px] overflow-hidden rounded-md bg-[#f1f1f1]">
-            <Image
-              src={reviewDetail.product.thumbnailImageUrl}
-              alt={reviewDetail.product.productName}
-              fill
-              sizes="88px"
-              className="object-cover"
-            />
-          </div>
-          <div className="min-w-0 flex-1 text-black">
-            <p className="truncate text-sm text-[#666666]">
-              {reviewDetail.product.brandName}
-            </p>
-            <p className="line-clamp-2 text-base font-semibold">
-              {reviewDetail.product.productName}
-            </p>
-            <p className="mt-1 text-sm text-[#444444]">
-              {selectedOption || '옵션 정보 없음'}
-            </p>
-          </div>
-        </div>
-      </section>
-
       <ReviewWriteFlow
         reviewId={numericReviewId}
         clothingCategory={clothingCategory}
+        productThumbnailImageUrl={reviewDetail.product.thumbnailImageUrl}
+        productName={reviewDetail.product.productName}
+        productBrandName={reviewDetail.product.brandName}
+        selectedOptionText={selectedOption || '옵션 정보 없음'}
         initialStep1Answers={reviewDetail.initialFirstAnswers}
         initialRating={reviewDetail.rating}
       />
