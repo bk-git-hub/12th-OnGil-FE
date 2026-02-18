@@ -127,11 +127,15 @@ export default function ReviewWriteFlow({
   );
   const lastSavedFitIssuePartsKeyRef = useRef('');
   const lastSavedFeatureTypesKeyRef = useRef('');
+  const lastGeneratedSizeAiKeyRef = useRef('');
+  const lastGeneratedMaterialAiKeyRef = useRef('');
 
   const [textReview, setTextReview] = useState('');
   const [reviewImageUrls, setReviewImageUrls] = useState<string[]>([]);
   const [sizeReviewItems, setSizeReviewItems] = useState<string[]>([]);
   const [materialReviewItems, setMaterialReviewItems] = useState<string[]>([]);
+  const [sizeDraftReview, setSizeDraftReview] = useState('');
+  const [materialDraftReview, setMaterialDraftReview] = useState('');
   const sizeTextareaRefs = useRef<Array<HTMLTextAreaElement | null>>([]);
   const materialTextareaRefs = useRef<Array<HTMLTextAreaElement | null>>([]);
   const [pendingSizeFocusIndex, setPendingSizeFocusIndex] = useState<number | null>(
@@ -148,8 +152,24 @@ export default function ReviewWriteFlow({
     !needsSizeSecondary || fitIssueParts.length > 0;
   const canGenerateMaterialAiReview =
     !needsMaterialSecondary || featureTypes.length > 0;
-  const canGenerateCombinedAiReview =
-    canGenerateSizeAiReview && canGenerateMaterialAiReview;
+  const sizeAiRequestKey = canGenerateSizeAiReview
+    ? needsSizeSecondary
+      ? [...fitIssueParts].sort().join('|')
+      : '__no-size-secondary__'
+    : '';
+  const materialAiRequestKey = canGenerateMaterialAiReview
+    ? needsMaterialSecondary
+      ? [...featureTypes].sort().join('|')
+      : '__no-material-secondary__'
+    : '';
+  const shouldGenerateSizeAiReview =
+    sizeAiRequestKey.length > 0 &&
+    sizeAiRequestKey !== lastGeneratedSizeAiKeyRef.current;
+  const shouldGenerateMaterialAiReview =
+    materialAiRequestKey.length > 0 &&
+    materialAiRequestKey !== lastGeneratedMaterialAiKeyRef.current;
+  const canGenerateAiReviews =
+    shouldGenerateSizeAiReview || shouldGenerateMaterialAiReview;
 
   const uploadedImageUrls = reviewImageUrls;
 
@@ -308,6 +328,8 @@ export default function ReviewWriteFlow({
       setFeatureTypes([]);
       lastSavedFitIssuePartsKeyRef.current = '';
       lastSavedFeatureTypesKeyRef.current = '';
+      lastGeneratedSizeAiKeyRef.current = '';
+      lastGeneratedMaterialAiKeyRef.current = '';
       setStep2AutoSaveStatus('');
       setSuccessMessage('');
       setStep(2);
@@ -369,76 +391,58 @@ export default function ReviewWriteFlow({
       }
 
       setSuccessMessage('리뷰 제출 완료');
-      router.replace('/reviews');
+      router.replace('/reviews?tab=written');
     });
   };
 
   const handleGenerateAiReviews = () => {
     setErrorMessage('');
     setSuccessMessage('');
+
+    if (!canGenerateAiReviews) {
+      setErrorMessage('새로 생성할 수 있는 문장이 없습니다.');
+      return;
+    }
+
     startTransition(async () => {
-      const [sizeResult, materialResult] = await Promise.all([
-        generateSizeAiReviewAction(reviewId),
-        generateMaterialAiReviewAction(reviewId),
-      ]);
-
-      if (!sizeResult.success || !sizeResult.data) {
-        setErrorMessage(sizeResult.message || '사이즈 AI 생성에 실패했습니다.');
-        return;
-      }
-      if (!materialResult.success || !materialResult.data) {
-        setErrorMessage(
-          materialResult.message || '소재 AI 생성에 실패했습니다.',
-        );
-        return;
+      if (shouldGenerateSizeAiReview) {
+        const sizeResult = await generateSizeAiReviewAction(reviewId);
+        if (!sizeResult.success || !sizeResult.data) {
+          setErrorMessage(sizeResult.message || '사이즈 AI 생성에 실패했습니다.');
+          return;
+        }
+        setSizeReviewItems(sizeResult.data.aiGeneratedReviews ?? []);
+        lastGeneratedSizeAiKeyRef.current = sizeAiRequestKey;
       }
 
-      setSizeReviewItems(sizeResult.data.aiGeneratedReviews ?? []);
-      setMaterialReviewItems(materialResult.data.aiGeneratedReviews ?? []);
+      if (shouldGenerateMaterialAiReview) {
+        const materialResult = await generateMaterialAiReviewAction(reviewId);
+        if (!materialResult.success || !materialResult.data) {
+          setErrorMessage(
+            materialResult.message || '소재 AI 생성에 실패했습니다.',
+          );
+          return;
+        }
+        setMaterialReviewItems(materialResult.data.aiGeneratedReviews ?? []);
+        lastGeneratedMaterialAiKeyRef.current = materialAiRequestKey;
+      }
+
       setSuccessMessage('AI 문장을 불러왔습니다.');
     });
   };
 
-  const handleGenerateSizeAiReview = () => {
-    setErrorMessage('');
-    setSuccessMessage('');
-    startTransition(async () => {
-      const result = await generateSizeAiReviewAction(reviewId);
-      if (!result.success || !result.data) {
-        setErrorMessage(result.message || '사이즈 AI 생성에 실패했습니다.');
-        return;
-      }
-      setSizeReviewItems(result.data.aiGeneratedReviews ?? []);
-      setSuccessMessage('사이즈 문장을 불러왔습니다.');
-    });
+  const commitSizeDraftReview = () => {
+    const nextValue = sizeDraftReview.trim();
+    if (!nextValue) return;
+    setSizeReviewItems((prev) => [...prev, nextValue]);
+    setSizeDraftReview('');
   };
 
-  const handleGenerateMaterialAiReview = () => {
-    setErrorMessage('');
-    setSuccessMessage('');
-    startTransition(async () => {
-      const result = await generateMaterialAiReviewAction(reviewId);
-      if (!result.success || !result.data) {
-        setErrorMessage(result.message || '소재 AI 생성에 실패했습니다.');
-        return;
-      }
-      setMaterialReviewItems(result.data.aiGeneratedReviews ?? []);
-      setSuccessMessage('소재 문장을 불러왔습니다.');
-    });
-  };
-
-  const handleAddSizeReviewItem = () => {
-    setSizeReviewItems((prev) => {
-      setPendingSizeFocusIndex(prev.length);
-      return [...prev, ''];
-    });
-  };
-
-  const handleAddMaterialReviewItem = () => {
-    setMaterialReviewItems((prev) => {
-      setPendingMaterialFocusIndex(prev.length);
-      return [...prev, ''];
-    });
+  const commitMaterialDraftReview = () => {
+    const nextValue = materialDraftReview.trim();
+    if (!nextValue) return;
+    setMaterialReviewItems((prev) => [...prev, nextValue]);
+    setMaterialDraftReview('');
   };
 
   const handleUploadReviewImages = (files: File[]) => {
@@ -874,7 +878,7 @@ export default function ReviewWriteFlow({
             <button
               type="button"
               onClick={handleGenerateAiReviews}
-              disabled={isPending || !canGenerateCombinedAiReview}
+              disabled={isPending || !canGenerateAiReviews}
               className="w-full rounded-2xl bg-[#00363d] py-3 text-[24px] font-semibold leading-none text-white disabled:opacity-60"
             >
               후기 문장 받아보기
@@ -889,34 +893,13 @@ export default function ReviewWriteFlow({
               <Image src="/icons/ai-star.svg" alt="" width={18} height={18} />
               <p className="text-2xl font-semibold text-[#1c1c1c]">사이즈 관련</p>
             </div>
-            <p className="text-sm text-[#7d7d7d]">
-              {sizeReviewItems.length === 0
-                ? '버튼을 클릭해서 문장을 생성할 수 있어요'
-                : '각 문장은 클릭해서 수정 할 수 있어요'}
+            <p className="text-base text-[#7d7d7d]">
+              후기 문장을 받거나 문장을 직접 추가할 수 있어요
             </p>
-            {sizeReviewItems.length === 0 ? (
-              <div className="space-y-2">
-                <button
-                  type="button"
-                  onClick={handleGenerateSizeAiReview}
-                  disabled={isPending || !canGenerateSizeAiReview}
-                  className="w-full rounded-lg bg-[#00363d] py-2 text-lg font-semibold text-white disabled:opacity-60"
-                >
-                  사이즈 문장 생성
-                </button>
-                <button
-                  type="button"
-                  onClick={handleAddSizeReviewItem}
-                  className="w-full rounded-lg border border-[#999] bg-white py-2 text-base font-medium text-[#1c1c1c]"
-                >
-                  직접 문장 추가
-                </button>
-              </div>
-            ) : (
-              <div className="space-y-2">
-                <div className="divide-y divide-[#e3e3e3] rounded-md bg-white">
-                  {sizeReviewItems.map((item, index) => (
-                    <div key={`size-review-${index}`} className="flex items-center">
+            <div className="space-y-2">
+              <div className="divide-y divide-[#e3e3e3] rounded-md bg-white">
+                {sizeReviewItems.map((item, index) => (
+                  <div key={`size-review-${index}`} className="flex items-center">
                     <textarea
                       rows={1}
                       ref={(element) => {
@@ -931,7 +914,7 @@ export default function ReviewWriteFlow({
                           );
                         }
                       }}
-                      className="min-h-[56px] w-full resize-none overflow-hidden rounded-md border border-transparent bg-transparent px-4 py-4 text-lg leading-[1.35] font-medium whitespace-pre-wrap break-words text-[#1c1c1c] outline-none focus:border-ongil-teal focus:outline focus:outline-1 focus:outline-ongil-teal"
+                      className="min-h-[56px] w-full resize-none overflow-hidden rounded-md border border-[#d1d1d1] bg-transparent px-4 py-4 text-lg leading-[1.35] font-medium whitespace-pre-wrap break-words text-[#1c1c1c] outline-none focus:border-ongil-teal focus:outline focus:outline-1 focus:outline-ongil-teal"
                       value={item}
                       onChange={(e) => {
                           const next = [...sizeReviewItems];
@@ -951,18 +934,40 @@ export default function ReviewWriteFlow({
                       >
                         ×
                       </button>
-                    </div>
-                  ))}
+                  </div>
+                ))}
+                <div className="flex items-center">
+                  <textarea
+                    rows={1}
+                    enterKeyHint="done"
+                    placeholder="문장을 직접 입력해 주세요"
+                    onInput={(e) => autoResizeTextarea(e.currentTarget)}
+                    onKeyDown={(e) => {
+                      const nativeEvent = e.nativeEvent as KeyboardEvent;
+                      if (
+                        e.key === 'Enter' &&
+                        !e.shiftKey &&
+                        !nativeEvent.isComposing
+                      ) {
+                        e.preventDefault();
+                        commitSizeDraftReview();
+                      }
+                    }}
+                    className="min-h-[56px] w-full resize-none overflow-hidden rounded-md border border-[#d1d1d1] bg-transparent px-4 py-4 text-lg leading-[1.35] font-medium whitespace-pre-wrap break-words text-[#1c1c1c] outline-none focus:border-ongil-teal focus:outline focus:outline-1 focus:outline-ongil-teal"
+                    value={sizeDraftReview}
+                    onChange={(e) => setSizeDraftReview(e.target.value)}
+                  />
+                  <button
+                    type="button"
+                    onClick={commitSizeDraftReview}
+                    className="px-4 text-[28px] leading-none text-[#8e8e8e]"
+                    aria-label="사이즈 문장 추가"
+                  >
+                    +
+                  </button>
                 </div>
-                <button
-                  type="button"
-                  onClick={handleAddSizeReviewItem}
-                  className="w-full rounded-lg border border-[#999] bg-white py-2 text-base font-medium text-[#1c1c1c]"
-                >
-                  직접 문장 추가
-                </button>
               </div>
-            )}
+            </div>
           </div>
 
           <div className="space-y-3 bg-white px-5 py-4">
@@ -970,34 +975,13 @@ export default function ReviewWriteFlow({
               <Image src="/icons/ai-star.svg" alt="" width={18} height={18} />
               <p className="text-2xl font-semibold text-[#1c1c1c]">소재 관련</p>
             </div>
-            <p className="text-sm text-[#7d7d7d]">
-              {materialReviewItems.length === 0
-                ? '버튼을 클릭해서 문장을 생성할 수 있어요'
-                : '각 문장은 클릭해서 수정 할 수 있어요'}
+            <p className="text-base text-[#7d7d7d]">
+              후기 문장을 받거나 문장을 직접 추가할 수 있어요
             </p>
-            {materialReviewItems.length === 0 ? (
-              <div className="space-y-2">
-                <button
-                  type="button"
-                  onClick={handleGenerateMaterialAiReview}
-                  disabled={isPending || !canGenerateMaterialAiReview}
-                  className="w-full rounded-lg bg-[#00363d] py-2 text-lg font-semibold text-white disabled:opacity-60"
-                >
-                  소재 문장 생성
-                </button>
-                <button
-                  type="button"
-                  onClick={handleAddMaterialReviewItem}
-                  className="w-full rounded-lg border border-[#999] bg-white py-2 text-base font-medium text-[#1c1c1c]"
-                >
-                  직접 문장 추가
-                </button>
-              </div>
-            ) : (
-              <div className="space-y-2">
-                <div className="divide-y divide-[#e3e3e3] rounded-md bg-white">
-                  {materialReviewItems.map((item, index) => (
-                    <div key={`material-review-${index}`} className="flex items-center">
+            <div className="space-y-2">
+              <div className="divide-y divide-[#e3e3e3] rounded-md bg-white">
+                {materialReviewItems.map((item, index) => (
+                  <div key={`material-review-${index}`} className="flex items-center">
                     <textarea
                       rows={1}
                       ref={(element) => {
@@ -1012,7 +996,7 @@ export default function ReviewWriteFlow({
                           );
                         }
                       }}
-                      className="min-h-[56px] w-full resize-none overflow-hidden rounded-md border border-transparent bg-transparent px-4 py-4 text-lg leading-[1.35] font-medium whitespace-pre-wrap break-words text-[#1c1c1c] outline-none focus:border-ongil-teal focus:outline focus:outline-1 focus:outline-ongil-teal"
+                      className="min-h-[56px] w-full resize-none overflow-hidden rounded-md border border-[#d1d1d1] bg-transparent px-4 py-4 text-lg leading-[1.35] font-medium whitespace-pre-wrap break-words text-[#1c1c1c] outline-none focus:border-ongil-teal focus:outline focus:outline-1 focus:outline-ongil-teal"
                       value={item}
                       onChange={(e) => {
                           const next = [...materialReviewItems];
@@ -1032,25 +1016,47 @@ export default function ReviewWriteFlow({
                       >
                         ×
                       </button>
-                    </div>
-                  ))}
+                  </div>
+                ))}
+                <div className="flex items-center">
+                  <textarea
+                    rows={1}
+                    enterKeyHint="done"
+                    placeholder="문장을 직접 입력해 주세요"
+                    onInput={(e) => autoResizeTextarea(e.currentTarget)}
+                    onKeyDown={(e) => {
+                      const nativeEvent = e.nativeEvent as KeyboardEvent;
+                      if (
+                        e.key === 'Enter' &&
+                        !e.shiftKey &&
+                        !nativeEvent.isComposing
+                      ) {
+                        e.preventDefault();
+                        commitMaterialDraftReview();
+                      }
+                    }}
+                    className="min-h-[56px] w-full resize-none overflow-hidden rounded-md border border-[#d1d1d1] bg-transparent px-4 py-4 text-lg leading-[1.35] font-medium whitespace-pre-wrap break-words text-[#1c1c1c] outline-none focus:border-ongil-teal focus:outline focus:outline-1 focus:outline-ongil-teal"
+                    value={materialDraftReview}
+                    onChange={(e) => setMaterialDraftReview(e.target.value)}
+                  />
+                  <button
+                    type="button"
+                    onClick={commitMaterialDraftReview}
+                    className="px-4 text-[28px] leading-none text-[#8e8e8e]"
+                    aria-label="소재 문장 추가"
+                  >
+                    +
+                  </button>
                 </div>
-                <button
-                  type="button"
-                  onClick={handleAddMaterialReviewItem}
-                  className="w-full rounded-lg border border-[#999] bg-white py-2 text-base font-medium text-[#1c1c1c]"
-                >
-                  직접 문장 추가
-                </button>
               </div>
-            )}
+            </div>
           </div>
 
           <label className="mx-5 block text-sm">
             <span className="text-2xl font-semibold text-black">기타</span>
             <textarea
               placeholder="추가로 하고싶은 말을 적어주세요"
-              className="mt-3 min-h-24 w-full rounded border border-[#cfcfcf] px-3 py-2"
+              className="mt-3 min-h-24 w-full rounded border border-[#cfcfcf] px-3 py-2 text-base"
               value={textReview}
               onChange={(e) => setTextReview(e.target.value)}
             />
