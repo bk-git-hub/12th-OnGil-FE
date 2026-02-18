@@ -1,8 +1,9 @@
 import Link from 'next/link';
-import { SubCategory } from '@/types/domain/category';
+import Image from 'next/image';
+import { CategorySimple } from '@/types/domain/category';
 
 interface CategoryCarouselCardProps {
-  category: SubCategory;
+  category: CategorySimple;
   parentCategoryId: number | null;
 }
 
@@ -17,7 +18,7 @@ export default function RecommendedCategoryCard({
   let categorySquare;
   if (category.iconUrl) {
     categorySquare = (
-      <img
+      <Image
         src={category.iconUrl}
         alt={category.name}
         width={200}

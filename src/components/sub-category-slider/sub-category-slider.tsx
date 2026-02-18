@@ -1,6 +1,7 @@
 'use client';
 
 import { SubCategory } from '@/types/domain/category';
+import Image from 'next/image';
 import Link from 'next/link';
 import { useParams } from 'next/navigation';
 import { useEffect, useState, useRef } from 'react';
@@ -19,9 +20,10 @@ export default function SubCategorySlider({
 }: Props) {
   const { id } = useParams();
   const [isVisible, setIsVisible] = useState(true);
+  const isVisibleRef = useRef(true);
 
   const lastScrollY = useRef(0);
-  const isAnimating = useRef(false); // [핵심 1] 애니메이션 중인지 확인하는 락(Lock)
+  const isAnimating = useRef(false);
   const animationTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
   const selectedSubCategory = categories.find(
@@ -32,46 +34,40 @@ export default function SubCategorySlider({
     const THRESHOLD = 15; // 감도 설정
 
     const handleScroll = () => {
-      // 내가 높이를 바꾸는 중(애니메이션 중)이면 스크롤 이벤트 무시
       if (isAnimating.current) return;
 
       const currentScrollY = window.scrollY;
       const diff = currentScrollY - lastScrollY.current;
 
-      // 1. 최상단 안전장치 (맨 위면 무조건 펼침)
       if (currentScrollY < 10) {
-        if (!isVisible) {
+        if (!isVisibleRef.current) {
+          isVisibleRef.current = true;
           setIsVisible(true);
-          // 펼칠 때도 높이가 변하므로 잠금
           lockAnimation();
         }
         lastScrollY.current = currentScrollY;
         return;
       }
 
-      // 의미 없는 미세 움직임 무시
       if (Math.abs(diff) < THRESHOLD) return;
 
-      if (diff > 0 && isVisible) {
-        // ⬇️ 내리는 중 -> 접기
+      if (diff > 0 && isVisibleRef.current) {
+        isVisibleRef.current = false;
         setIsVisible(false);
         lastScrollY.current = currentScrollY;
-        lockAnimation(); // 높이가 줄어들면서 생기는 스크롤 이벤트 무시 시작
-      } else if (diff < 0 && !isVisible) {
-        // ⬆️ 올리는 중 -> 펼치기
+        lockAnimation();
+      } else if (diff < 0 && !isVisibleRef.current) {
+        isVisibleRef.current = true;
         setIsVisible(true);
         lastScrollY.current = currentScrollY;
-        lockAnimation(); // 높이가 늘어나면서 생기는 스크롤 이벤트 무시 시작
+        lockAnimation();
       }
 
-      // 상태 변화가 없을 때는 그냥 현재 위치만 갱신
-      if (isVisible === diff < 0) {
-        // (내리는데 접혀있거나) or (올리는데 펴져있으면)
+      if (isVisibleRef.current === diff < 0) {
         lastScrollY.current = currentScrollY;
       }
     };
 
-    // [핵심 3] 락을 거는 함수 (CSS duration인 300ms 동안 얼음)
     const lockAnimation = () => {
       isAnimating.current = true;
       if (animationTimeoutRef.current) {
@@ -79,9 +75,8 @@ export default function SubCategorySlider({
       }
       animationTimeoutRef.current = setTimeout(() => {
         isAnimating.current = false;
-        // 애니메이션 끝나고 락 풀릴 때 스크롤 위치 재조정 (튀는 거 방지)
         lastScrollY.current = window.scrollY;
-      }, 350); // CSS transition duration(300ms)보다 살짝 길게 잡음
+      }, 350);
     };
 
     window.addEventListener('scroll', handleScroll, { passive: true });
@@ -91,11 +86,10 @@ export default function SubCategorySlider({
         clearTimeout(animationTimeoutRef.current);
       }
     };
-  }, [isVisible]); // isVisible 의존성 추가
+  }, []);
 
   return (
     <div className="sticky top-[85px] z-50 border-b bg-white shadow-sm transition-all duration-300">
-      {/* 1. 상단 헤더 바 (높이 고정) */}
       <div className="relative z-20 flex h-14 items-center justify-between bg-white px-4">
         {isVisible ? (
           <h2 className="text-xl font-bold text-gray-900">
@@ -116,15 +110,13 @@ export default function SubCategorySlider({
         )}
       </div>
 
-      {/* 2. 슬라이더 영역 (높이를 직접 조절하여 Layout Shift 발생 시킴) */}
-      {/* max-height로 애니메이션을 줍니다. height: auto는 애니메이션이 안 먹힘 */}
       <div
         className={`overflow-hidden bg-white transition-all duration-300 ease-in-out ${
           isVisible ? 'max-h-50 opacity-100' : 'max-h-0 opacity-0'
         }`}
       >
         <nav className="pb-2">
-          <ul className="no-scrollbar flex w-full gap-4 overflow-x-auto px-4 pb-2">
+          <ul className="no-scrollbar flex w-full gap-4 overflow-x-auto px-4 pt-2 pb-2">
             {categories.map((cat) => {
               const isActive = cat.categoryId === Number(id);
               return (
@@ -139,9 +131,11 @@ export default function SubCategorySlider({
                         isActive ? 'ring-2 ring-black' : ''
                       }`}
                     >
-                      <img
+                      <Image
                         src={cat.iconUrl || '/icons/star.svg'}
                         alt={cat.name}
+                        width={80}
+                        height={80}
                         className="h-20 w-20 rounded-full bg-gray-100 object-cover"
                       />
                     </div>

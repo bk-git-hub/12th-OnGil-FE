@@ -1,9 +1,11 @@
 'use client';
 
+
 import { useEffect, useState } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { ProductList } from '@/components/product/product-list';
+
 import { VoiceSearchResponse } from '@/types/domain/product';
 import { useRecentSearches } from '@/components/search-bar/use-recent-searches';
 

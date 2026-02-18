@@ -1,5 +1,7 @@
-import { api } from '@/lib/api-client';
-import { Category, SubCategory } from '@/types/domain/category';
+import {
+  getCategories,
+  getRecommendedSubCategories,
+} from '@/app/actions/category';
 import { RecommendCarousel } from './recommend-carousel';
 import { RecommendCarouselItem } from './recommend-carousel-item';
 import RecommendedCategoryCard from './recommended-category-card';
@@ -11,8 +13,8 @@ export default async function RecommendCategoryContainer() {
     return null;
   }
   const [recommendedSubResult, allCategoriesResult] = await Promise.allSettled([
-    api.get<SubCategory[]>('/categories/recommended-sub'),
-    api.get<Category[]>('/categories'),
+    getRecommendedSubCategories(),
+    getCategories(),
   ]);
 
   if (recommendedSubResult.status !== 'fulfilled') {
@@ -35,8 +37,7 @@ export default async function RecommendCategoryContainer() {
 
   return (
     <div className="w-full overflow-hidden">
-      <h2>추천 카테고리</h2>
-      <RecommendCarousel heading="추천 카테고리">
+      <RecommendCarousel heading="추천 카테고리" showDots={true}>
         {categories.map((category) => (
           <RecommendCarouselItem key={category.categoryId}>
             <RecommendedCategoryCard

@@ -42,7 +42,7 @@ export function ScrollToTop({ className }: { className?: string }) {
       aria-label="맨 위로 스크롤"
     >
       <Image
-        src="/icons/arrow-up.svg"
+        src="/icons/arrow-up-scroll.svg"
         width={16}
         height={16}
         alt="위로"

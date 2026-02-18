@@ -1,17 +1,64 @@
-import CategoryLayout from '@/components/category/category-layout';
-import CategoryContentList from '@/components/category/category-content-list';
-import { api } from '@/lib/api-client';
-import { Category } from '@/types/domain/category';
+import {
+  getCategories,
+  getRecommendedSubCategories,
+} from '@/app/actions/category';
+import CategoryMainLayout from '@/components/category/category-main-layout';
+import type { CategorySimple, SubCategory } from '@/types/domain/category';
+import { auth } from '/auth';
 
-// 페이지에서 데이터(CATEGORIES)를 불러와, 레이아웃 컴포넌트 안에 리스트 컴포넌트를 Children으로 내려보냄.
+function buildFallbackRecommendations(
+  categories: Awaited<ReturnType<typeof getCategories>>,
+): CategorySimple[] {
+  const sortedSubs: SubCategory[] = categories
+    .toSorted((a, b) => a.displayOrder - b.displayOrder)
+    .flatMap((category) =>
+      category.subCategories.toSorted(
+        (a, b) => a.displayOrder - b.displayOrder,
+      ),
+    );
+
+  return sortedSubs.slice(0, 8).map((sub) => ({
+    categoryId: sub.categoryId,
+    name: sub.name,
+    iconUrl: sub.iconUrl ?? undefined,
+    displayOrder: sub.displayOrder,
+  }));
+}
 
 export default async function CategoryPage() {
-  // fetch()나 다른 비동기 작업이 필요하면 여기에 추가 가능.
-  const data = await api.get<Category[]>('/categories');
+  const session = await auth();
+  const userName = session?.user.nickName || '사용자';
+
+  const [categories, recommendedSubCategories] = await Promise.all([
+    getCategories(),
+    getRecommendedSubCategories(),
+  ]);
+
+  const sortedCategories = categories.toSorted(
+    (a, b) => a.displayOrder - b.displayOrder,
+  );
+
+  const parentLookup = sortedCategories.reduce<Record<number, number>>(
+    (lookup, parent) => {
+      parent.subCategories.forEach((sub) => {
+        lookup[sub.categoryId] = parent.categoryId;
+      });
+      return lookup;
+    },
+    {},
+  );
+
+  const recommended =
+    recommendedSubCategories.length > 0
+      ? recommendedSubCategories
+      : buildFallbackRecommendations(sortedCategories);
 
   return (
-    <CategoryLayout categories={data}>
-      <CategoryContentList categories={data} />
-    </CategoryLayout>
+    <CategoryMainLayout
+      categories={sortedCategories}
+      recommended={recommended}
+      parentLookup={parentLookup}
+      userName={userName}
+    />
   );
 }

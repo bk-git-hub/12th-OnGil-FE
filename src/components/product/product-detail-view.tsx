@@ -17,6 +17,7 @@ import ProductReviewContent from '@/components/product/review/review-section';
 
 import {
   Product,
+  ProductWithWishlist,
   MaterialDescription,
   ProductOption,
 } from '@/types/domain/product';
@@ -46,16 +47,14 @@ interface ProductDetailProps extends Omit<
   imageUrls?: string[];
 }
 
-interface ProductDetailViewProps {
+type ProductDetailViewProps = {
   product: ProductDetailProps;
   similarProducts: Product[];
   userInfo: UserBodyInfo | null;
   analysisData: SizeAnalysisResult | null;
   productReviewSummary?: ReviewStatsData;
   backHref?: string;
-  isLiked?: boolean;
-  wishlistId?: number;
-}
+} & Pick<ProductWithWishlist, 'isLiked' | 'wishlistId'>;
 
 export default function ProductDetailView({
   product,

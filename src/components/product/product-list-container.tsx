@@ -1,7 +1,8 @@
 import { api } from '@/lib/api-client';
 import { ProductSearchResult } from '@/types/domain/product';
 import { ProductSortType } from '@/types/enums';
-import { ProductList } from './product-list';
+import ProductList from './product-list';
+import { getMyWishlist } from '@/app/actions/wishlist';
 
 interface ProductListContainerProps {
   params: Promise<{ parentId: string; id: string }>;
@@ -35,22 +36,35 @@ export default async function ProductListContainer({
     throw new Error('Invalid category ID');
   }
 
-  const result = await api.get<ProductSearchResult>('/products', {
-    params: {
-      categoryId: safeCategoryId,
-      sortType: safeSortType,
-      page: safePage,
-      size: 20,
-    },
-  });
+  const [result, wishlistItems] = await Promise.all([
+    api.get<ProductSearchResult>('/products', {
+      params: {
+        categoryId: safeCategoryId,
+        sortType: safeSortType,
+        page: safePage,
+        size: 36,
+      },
+    }),
+    getMyWishlist(),
+  ]);
+
+  const wishlistByProductId = new Map(
+    wishlistItems.map((item) => [item.productId, item.wishlistId]),
+  );
+  const productsWithWishlist = result.products.content.map((product) => ({
+    ...product,
+    isLiked: wishlistByProductId.has(product.id),
+    wishlistId: wishlistByProductId.get(product.id),
+  }));
 
   const totalElements = result.products.totalElements;
 
   return (
     <ProductList
-      products={result.products.content}
+      products={productsWithWishlist}
       totalElements={totalElements}
       productDetailFrom={`/category/${parentId}/${subCategoryId}`}
+      showWishlistButton
     />
   );
 }

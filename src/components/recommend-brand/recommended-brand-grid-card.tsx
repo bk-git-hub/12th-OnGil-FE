@@ -1,24 +1,33 @@
 import Image from 'next/image';
 import Link from 'next/link';
-import { Product } from '@/types/domain/product';
+import { ProductWithWishlist } from '@/types/domain/product';
+import { WishlistButton } from '../product/wishlist-button';
 
 export default function RecommendedBrandGridCard({
   product,
 }: {
-  product: Product;
+  product: ProductWithWishlist;
 }) {
   const href = `/product/${product.id}?from=${encodeURIComponent('/')}`;
 
   return (
     <Link href={href} className="block">
       <div className="font-pretendard flex w-41 flex-col gap-1">
-        <Image
-          src={product.thumbnailImageUrl}
-          alt={product.name}
-          width={164}
-          height={170}
-          className="h-[170px] w-[164px] object-cover"
-        />
+        <div className="relative">
+          <Image
+            src={product.thumbnailImageUrl}
+            alt={product.name}
+            width={164}
+            height={170}
+            className="h-[170px] w-[164px] object-cover"
+          />
+          <WishlistButton
+            productId={product.id}
+            initialIsLiked={product.isLiked || false}
+            initialWishlistId={product.wishlistId}
+            className="absolute top-2 right-2"
+          />
+        </div>
         <span className="font-extrabold">{product.brandName}</span>
         <span className="line-clamp-2 h-14 w-full overflow-hidden text-lg font-medium text-ellipsis">
           {product.name}

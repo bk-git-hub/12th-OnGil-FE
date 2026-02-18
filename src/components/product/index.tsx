@@ -1,7 +1,7 @@
 // ----------------------------------------------------------------------
 // 1. 상품 목록 및 카드
 // ----------------------------------------------------------------------
-export { ProductList } from './product-list';
+export { default as ProductList } from './product-list';
 export { default as ProductCard } from './product-card';
 export { ProductFilterBar } from './product-filter-bar';
 
