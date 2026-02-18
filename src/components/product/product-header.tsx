@@ -18,11 +18,8 @@ interface ProductHeaderProps {
  * @param {number} props.initialCartCount - 초기 장바구니 담긴 개수 (SSR)
  * @returns {JSX.Element} 상품 헤더 컴포넌트
  */
-export default function ProductHeader({
-  categoryID,
-  backHref,
-}: ProductHeaderProps) {
-  const fallback = categoryID ? `/category/${categoryID}` : '/category';
+export default function ProductHeader({ backHref }: ProductHeaderProps) {
+  const fallback = '/category';
 
   return (
     <header className="sticky top-0 z-50 flex h-[90px] w-full items-center justify-between bg-white px-[18px]">
