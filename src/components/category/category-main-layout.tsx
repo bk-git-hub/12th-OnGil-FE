@@ -29,7 +29,7 @@ export default function CategoryMainLayout({
 
   return (
     <>
-      <main className="min-h-screen bg-white pb-24">
+      <main className="min-h-screen bg-white pb-72">
         <CategoryMainHeader />
         <CategoryMainRecommend
           items={recommended}
