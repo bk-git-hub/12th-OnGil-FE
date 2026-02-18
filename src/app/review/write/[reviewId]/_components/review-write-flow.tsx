@@ -127,6 +127,8 @@ export default function ReviewWriteFlow({
   );
   const lastSavedFitIssuePartsKeyRef = useRef('');
   const lastSavedFeatureTypesKeyRef = useRef('');
+  const lastGeneratedSizeAiKeyRef = useRef('');
+  const lastGeneratedMaterialAiKeyRef = useRef('');
 
   const [textReview, setTextReview] = useState('');
   const [reviewImageUrls, setReviewImageUrls] = useState<string[]>([]);
@@ -148,8 +150,24 @@ export default function ReviewWriteFlow({
     !needsSizeSecondary || fitIssueParts.length > 0;
   const canGenerateMaterialAiReview =
     !needsMaterialSecondary || featureTypes.length > 0;
-  const canGenerateCombinedAiReview =
-    canGenerateSizeAiReview && canGenerateMaterialAiReview;
+  const sizeAiRequestKey = canGenerateSizeAiReview
+    ? needsSizeSecondary
+      ? [...fitIssueParts].sort().join('|')
+      : '__no-size-secondary__'
+    : '';
+  const materialAiRequestKey = canGenerateMaterialAiReview
+    ? needsMaterialSecondary
+      ? [...featureTypes].sort().join('|')
+      : '__no-material-secondary__'
+    : '';
+  const shouldGenerateSizeAiReview =
+    sizeAiRequestKey.length > 0 &&
+    sizeAiRequestKey !== lastGeneratedSizeAiKeyRef.current;
+  const shouldGenerateMaterialAiReview =
+    materialAiRequestKey.length > 0 &&
+    materialAiRequestKey !== lastGeneratedMaterialAiKeyRef.current;
+  const canGenerateAiReviews =
+    shouldGenerateSizeAiReview || shouldGenerateMaterialAiReview;
 
   const uploadedImageUrls = reviewImageUrls;
 
@@ -308,6 +326,8 @@ export default function ReviewWriteFlow({
       setFeatureTypes([]);
       lastSavedFitIssuePartsKeyRef.current = '';
       lastSavedFeatureTypesKeyRef.current = '';
+      lastGeneratedSizeAiKeyRef.current = '';
+      lastGeneratedMaterialAiKeyRef.current = '';
       setStep2AutoSaveStatus('');
       setSuccessMessage('');
       setStep(2);
@@ -376,54 +396,36 @@ export default function ReviewWriteFlow({
   const handleGenerateAiReviews = () => {
     setErrorMessage('');
     setSuccessMessage('');
+
+    if (!canGenerateAiReviews) {
+      setErrorMessage('새로 생성할 수 있는 문장이 없습니다.');
+      return;
+    }
+
     startTransition(async () => {
-      const [sizeResult, materialResult] = await Promise.all([
-        generateSizeAiReviewAction(reviewId),
-        generateMaterialAiReviewAction(reviewId),
-      ]);
-
-      if (!sizeResult.success || !sizeResult.data) {
-        setErrorMessage(sizeResult.message || '사이즈 AI 생성에 실패했습니다.');
-        return;
-      }
-      if (!materialResult.success || !materialResult.data) {
-        setErrorMessage(
-          materialResult.message || '소재 AI 생성에 실패했습니다.',
-        );
-        return;
+      if (shouldGenerateSizeAiReview) {
+        const sizeResult = await generateSizeAiReviewAction(reviewId);
+        if (!sizeResult.success || !sizeResult.data) {
+          setErrorMessage(sizeResult.message || '사이즈 AI 생성에 실패했습니다.');
+          return;
+        }
+        setSizeReviewItems(sizeResult.data.aiGeneratedReviews ?? []);
+        lastGeneratedSizeAiKeyRef.current = sizeAiRequestKey;
       }
 
-      setSizeReviewItems(sizeResult.data.aiGeneratedReviews ?? []);
-      setMaterialReviewItems(materialResult.data.aiGeneratedReviews ?? []);
+      if (shouldGenerateMaterialAiReview) {
+        const materialResult = await generateMaterialAiReviewAction(reviewId);
+        if (!materialResult.success || !materialResult.data) {
+          setErrorMessage(
+            materialResult.message || '소재 AI 생성에 실패했습니다.',
+          );
+          return;
+        }
+        setMaterialReviewItems(materialResult.data.aiGeneratedReviews ?? []);
+        lastGeneratedMaterialAiKeyRef.current = materialAiRequestKey;
+      }
+
       setSuccessMessage('AI 문장을 불러왔습니다.');
-    });
-  };
-
-  const handleGenerateSizeAiReview = () => {
-    setErrorMessage('');
-    setSuccessMessage('');
-    startTransition(async () => {
-      const result = await generateSizeAiReviewAction(reviewId);
-      if (!result.success || !result.data) {
-        setErrorMessage(result.message || '사이즈 AI 생성에 실패했습니다.');
-        return;
-      }
-      setSizeReviewItems(result.data.aiGeneratedReviews ?? []);
-      setSuccessMessage('사이즈 문장을 불러왔습니다.');
-    });
-  };
-
-  const handleGenerateMaterialAiReview = () => {
-    setErrorMessage('');
-    setSuccessMessage('');
-    startTransition(async () => {
-      const result = await generateMaterialAiReviewAction(reviewId);
-      if (!result.success || !result.data) {
-        setErrorMessage(result.message || '소재 AI 생성에 실패했습니다.');
-        return;
-      }
-      setMaterialReviewItems(result.data.aiGeneratedReviews ?? []);
-      setSuccessMessage('소재 문장을 불러왔습니다.');
     });
   };
 
@@ -874,7 +876,7 @@ export default function ReviewWriteFlow({
             <button
               type="button"
               onClick={handleGenerateAiReviews}
-              disabled={isPending || !canGenerateCombinedAiReview}
+              disabled={isPending || !canGenerateAiReviews}
               className="w-full rounded-2xl bg-[#00363d] py-3 text-[24px] font-semibold leading-none text-white disabled:opacity-60"
             >
               후기 문장 받아보기
@@ -891,19 +893,11 @@ export default function ReviewWriteFlow({
             </div>
             <p className="text-sm text-[#7d7d7d]">
               {sizeReviewItems.length === 0
-                ? '버튼을 클릭해서 문장을 생성할 수 있어요'
+                ? '후기 문장 받아보기 버튼으로 문장을 생성할 수 있어요'
                 : '각 문장은 클릭해서 수정 할 수 있어요'}
             </p>
             {sizeReviewItems.length === 0 ? (
-              <div className="space-y-2">
-                <button
-                  type="button"
-                  onClick={handleGenerateSizeAiReview}
-                  disabled={isPending || !canGenerateSizeAiReview}
-                  className="w-full rounded-lg bg-[#00363d] py-2 text-lg font-semibold text-white disabled:opacity-60"
-                >
-                  사이즈 문장 생성
-                </button>
+              <div>
                 <button
                   type="button"
                   onClick={handleAddSizeReviewItem}
@@ -972,19 +966,11 @@ export default function ReviewWriteFlow({
             </div>
             <p className="text-sm text-[#7d7d7d]">
               {materialReviewItems.length === 0
-                ? '버튼을 클릭해서 문장을 생성할 수 있어요'
+                ? '후기 문장 받아보기 버튼으로 문장을 생성할 수 있어요'
                 : '각 문장은 클릭해서 수정 할 수 있어요'}
             </p>
             {materialReviewItems.length === 0 ? (
-              <div className="space-y-2">
-                <button
-                  type="button"
-                  onClick={handleGenerateMaterialAiReview}
-                  disabled={isPending || !canGenerateMaterialAiReview}
-                  className="w-full rounded-lg bg-[#00363d] py-2 text-lg font-semibold text-white disabled:opacity-60"
-                >
-                  소재 문장 생성
-                </button>
+              <div>
                 <button
                   type="button"
                   onClick={handleAddMaterialReviewItem}
