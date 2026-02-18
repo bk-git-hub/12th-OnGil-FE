@@ -14,7 +14,10 @@ export default function MainHeader() {
   const isHomePage = pathname === '/';
 
   return (
-    <div className="sticky top-0 z-100 flex w-full items-center justify-between bg-white p-5 shadow-[0_4px_4px_0_rgba(0,0,0,0.25)]">
+    <div
+      className="sticky top-0 z-100 flex w-full items-center justify-between bg-white px-5 pb-5 shadow-[0_4px_4px_0_rgba(0,0,0,0.25)]"
+      style={{ paddingTop: 'calc(env(safe-area-inset-top, 0px) + 20px)' }}
+    >
       {/* Back button - only show when not on home page */}
       {!isHomePage && (
         <button
