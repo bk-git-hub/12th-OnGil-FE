@@ -1,6 +1,7 @@
 import { redirect } from 'next/navigation';
 import { Session } from 'next-auth';
 import Image from 'next/image';
+import { UserRound } from 'lucide-react';
 
 interface ProfileProps {
   session: Session | null;
@@ -25,12 +26,10 @@ export default function Profile({ session }: ProfileProps) {
         />
       ) : (
         <div className="flex h-full w-full items-center justify-center">
-          <Image
-            src="/icons/profile.svg"
-            alt="기본 프로필"
-            className="h-10 w-10"
-            width={40}
-            height={40}
+          <UserRound
+            aria-hidden="true"
+            className="h-10 w-10 text-gray-600"
+            strokeWidth={2.1}
           />
         </div>
       )}

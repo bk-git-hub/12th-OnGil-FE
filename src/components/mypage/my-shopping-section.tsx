@@ -1,18 +1,18 @@
 import Link from 'next/link';
-import Image from 'next/image';
+import { History, PackageX, type LucideIcon } from 'lucide-react';
 
 const shoppingMenuItems = [
   {
-    icon: 'icons/delivery-return.svg',
+    icon: PackageX,
     label: '반품 내역',
     href: '/me/returns',
   },
   {
-    icon: 'icons/current-view.svg',
+    icon: History,
     label: '최근 본 상품',
     href: '/me/recent',
   },
-];
+] satisfies Array<{ icon: LucideIcon; label: string; href: string }>;
 
 export default function MyShoppingSection() {
   return (
@@ -29,12 +29,10 @@ export default function MyShoppingSection() {
               className="flex flex-col items-center gap-2"
             >
               <div className="flex h-12 w-12 items-center justify-center">
-                <Image
-                  src={`/${item.icon}`}
-                  alt={item.label}
-                  className="h-full w-full"
-                  width={48}
-                  height={48}
+                <item.icon
+                  aria-hidden="true"
+                  className="h-10 w-10 text-[#00363D]"
+                  strokeWidth={2.3}
                 />
               </div>
               <span className="text-lg leading-normal font-normal">

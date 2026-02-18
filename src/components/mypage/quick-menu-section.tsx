@@ -1,27 +1,34 @@
 import Link from 'next/link';
+import {
+  MessageSquare,
+  ReceiptText,
+  ShoppingCart,
+  Star,
+  type LucideIcon,
+} from 'lucide-react';
 
 const menuItems = [
   {
-    icon: 'icons/shop.svg',
+    icon: ShoppingCart,
     label: '장바구니',
     href: '/cart',
   },
   {
-    icon: 'icons/order.svg',
+    icon: ReceiptText,
     label: '주문내역',
     href: '/orders',
   },
   {
-    icon: 'icons/review.svg',
-    label: '리뷰 관리',
+    icon: Star,
+    label: '리뷰관리',
     href: '/reviews',
   },
   {
-    icon: 'icons/inquiry.svg',
+    icon: MessageSquare,
     label: '문의하기',
     href: '/inquiry',
   },
-];
+] satisfies Array<{ icon: LucideIcon; label: string; href: string }>;
 
 export default function QuickMenuSection() {
   return (
@@ -34,10 +41,10 @@ export default function QuickMenuSection() {
             className="flex flex-col items-center gap-2"
           >
             <div className="flex h-12 w-12 items-center justify-center rounded-lg">
-              <img
-                src={`/${item.icon}`}
-                alt={item.label}
-                className="h-full w-full"
+              <item.icon
+                aria-hidden="true"
+                className="h-10 w-10 text-[#00363D]"
+                strokeWidth={2.3}
               />
             </div>
             <span className="text-lg leading-normal font-normal">

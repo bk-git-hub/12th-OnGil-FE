@@ -2,33 +2,38 @@
 
 import Link from 'next/link';
 import { signOut } from 'next-auth/react';
-import Image from 'next/image';
+import { Bell, LogOut, UserPen, UserX, type LucideIcon } from 'lucide-react';
 
 const settingsItems = [
   {
-    icon: 'icons/notification.svg',
+    icon: Bell,
     label: '알림 받기',
     href: '/me/notifications',
     type: 'link' as const,
   },
   {
-    icon: 'icons/my-edit.svg',
+    icon: UserPen,
     label: '내 정보 수정',
     href: '/me/edit',
     type: 'link' as const,
   },
   {
-    icon: 'icons/logout.svg',
+    icon: LogOut,
     label: '로그아웃',
     type: 'logout' as const,
   },
   {
-    icon: 'icons/people-delete.svg',
+    icon: UserX,
     label: '회원 탈퇴',
     href: '/me/withdraw',
     type: 'link' as const,
   },
-];
+] satisfies Array<{
+  icon: LucideIcon;
+  label: string;
+  href?: string;
+  type: 'link' | 'logout';
+}>;
 
 export default function SettingsSection() {
   const handleLogout = async () => {
@@ -50,12 +55,10 @@ export default function SettingsSection() {
                 className="flex flex-col items-center gap-2"
               >
                 <div className="flex h-12 w-12 items-center justify-center">
-                  <Image
-                    src={`/${item.icon}`}
-                    alt={item.label}
-                    className="h-full w-full"
-                    width={48}
-                    height={48}
+                  <item.icon
+                    aria-hidden="true"
+                    className="h-10 w-10 text-[#00363D]"
+                    strokeWidth={2.3}
                   />
                 </div>
                 <span className="text-center text-lg leading-normal font-normal">
@@ -69,12 +72,10 @@ export default function SettingsSection() {
                 className="flex flex-col items-center gap-2"
               >
                 <div className="flex h-12 w-12 items-center justify-center">
-                  <Image
-                    src={`/${item.icon}`}
-                    alt={item.label}
-                    className="h-full w-full"
-                    width={48}
-                    height={48}
+                  <item.icon
+                    aria-hidden="true"
+                    className="h-10 w-10 text-[#00363D]"
+                    strokeWidth={2.3}
                   />
                 </div>
                 <span className="text-center text-lg leading-normal font-normal">

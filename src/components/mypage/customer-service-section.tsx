@@ -1,23 +1,24 @@
 import Link from 'next/link';
-import Image from 'next/image';
+import { CircleHelp, Store, type LucideIcon } from 'lucide-react';
+import { MessageSquare } from 'lucide-react';
 
 const customerServiceItems = [
   {
-    icon: 'icons/many-question.svg',
+    icon: CircleHelp,
     label: '자주 묻는\n질문',
     href: '/faq',
   },
   {
-    icon: 'icons/inquiry.svg',
+    icon: MessageSquare,
     label: '문의하기',
     href: '/inquiry',
   },
   {
-    icon: 'icons/shop.svg',
+    icon: Store,
     label: '입점 문의',
     href: '/vendor-inquiry',
   },
-];
+] satisfies Array<{ icon: LucideIcon; label: string; href: string }>;
 
 export default function CustomerServiceSection() {
   return (
@@ -34,11 +35,10 @@ export default function CustomerServiceSection() {
               className="flex max-w-20 flex-col items-center gap-2"
             >
               <div className="flex h-12 w-12 items-center justify-center">
-                <Image
-                  src={`/${item.icon}`}
-                  alt={item.label}
-                  width={48}
-                  height={48}
+                <item.icon
+                  aria-hidden="true"
+                  className="h-10 w-10 text-[#00363D]"
+                  strokeWidth={2.3}
                 />
               </div>
               <span className="text-center text-lg leading-normal font-normal text-balance whitespace-pre-wrap">

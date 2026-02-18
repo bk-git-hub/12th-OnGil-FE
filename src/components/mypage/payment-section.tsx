@@ -1,23 +1,23 @@
 import Link from 'next/link';
-import Image from 'next/image';
+import { CreditCard, Target, TicketPercent, type LucideIcon } from 'lucide-react';
 
 const paymentMenuItems = [
   {
-    icon: 'icons/payment.svg',
+    icon: CreditCard,
     label: '결제 수단',
     href: '/me/payment-methods',
   },
   {
-    icon: 'icons/coupon.svg',
+    icon: TicketPercent,
     label: '할인 쿠폰',
     href: '/me/coupons',
   },
   {
-    icon: 'icons/mission.svg',
+    icon: Target,
     label: '미션 후 적립금',
     href: '/me/mission-points',
   },
-];
+] satisfies Array<{ icon: LucideIcon; label: string; href: string }>;
 
 export default function PaymentSection() {
   return (
@@ -34,12 +34,10 @@ export default function PaymentSection() {
               className="flex max-w-20 flex-col items-center gap-2"
             >
               <div className="flex h-12 w-12 items-center justify-center">
-                <Image
-                  src={`/${item.icon}`}
-                  alt={item.label}
-                  className="h-full w-full"
-                  width={48}
-                  height={48}
+                <item.icon
+                  aria-hidden="true"
+                  className="h-10 w-10 text-[#00363D]"
+                  strokeWidth={2.3}
                 />
               </div>
               <span className="text-center text-lg leading-normal font-normal text-balance whitespace-pre-wrap">
