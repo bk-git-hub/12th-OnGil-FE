@@ -9,9 +9,9 @@ interface ProductListContainerProps {
   searchParams: Promise<{
     sortType?: string;
     page?: string;
-    clothingSize?: string | string[];
+    clothingSizes?: string | string[];
     priceRange?: string | string[];
-    brand?: string | string[];
+    brandIds?: string | string[];
   }>;
 }
 
@@ -42,8 +42,9 @@ export default async function ProductListContainer({
   const {
     sortType = ProductSortType.POPULAR,
     page = '0',
-    clothingSize,
+    clothingSizes,
     priceRange,
+    brandIds,
   } = await searchParams;
 
   // 쿼리 파라미터 검증
@@ -54,9 +55,13 @@ export default async function ProductListContainer({
 
   const safePage =
     Number.isFinite(Number(page)) && Number(page) >= 0 ? Number(page) : 0;
-  const safeClothingSize = normalizeArray(clothingSize).filter((size) =>
+  const safeClothingSizes = normalizeArray(clothingSizes).filter((size) =>
     ['XS', 'S', 'M', 'L', 'XL'].includes(size),
   );
+  const safeBrandIds = normalizeArray(brandIds).filter((value) => {
+    const parsed = Number(value);
+    return Number.isFinite(parsed) && parsed > 0;
+  });
   const rawPriceRange = normalizePriceRange(priceRange);
   const safePriceRange = PRICE_RANGE_PATTERN.test(rawPriceRange)
     ? rawPriceRange
@@ -80,9 +85,10 @@ export default async function ProductListContainer({
         sortType: safeSortType,
         page: safePage,
         size: 36,
-        clothingSize: safeClothingSize.length > 0 ? safeClothingSize : undefined,
+        clothingSizes:
+          safeClothingSizes.length > 0 ? safeClothingSizes : undefined,
         priceRange: safePriceRange || undefined,
-        // 1차 구현에서는 brandId 연동 없이 브랜드 UI/URL 상태만 제공합니다.
+        brandIds: safeBrandIds.length > 0 ? safeBrandIds : undefined,
       },
     }),
     getMyWishlist(),

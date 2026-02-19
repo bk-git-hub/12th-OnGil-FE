@@ -7,13 +7,18 @@ import { ProductSortType } from '@/types/enums';
 type FilterTab = 'size' | 'brand' | 'price';
 type SheetType = 'sort' | 'filters' | null;
 
+export interface BrandFilterOption {
+  id: number;
+  name: string;
+}
+
 interface ProductFilterBarProps {
   parentCategoryName: string;
-  availableBrands: string[];
+  availableBrands: BrandFilterOption[];
 }
 
 interface ChipItem {
-  key: 'clothingSize' | 'priceRange' | 'brand';
+  key: 'clothingSizes' | 'priceRange' | 'brandIds';
   value: string;
   label: string;
 }
@@ -62,7 +67,7 @@ function setRepeatedQuery(params: URLSearchParams, key: string, values: string[]
 
 function removeOneMultiFilterValue(
   params: URLSearchParams,
-  key: 'clothingSize' | 'brand',
+  key: 'clothingSizes' | 'brandIds',
   value: string,
 ) {
   const nextValues = params.getAll(key).filter((item) => item !== value);
@@ -82,6 +87,17 @@ function getPriceRangeLabel(value: string) {
   return PRICE_OPTIONS.find((option) => option.value === value)?.label ?? value;
 }
 
+function getBrandLabelById(
+  id: string,
+  options: BrandFilterOption[],
+  selectedFallback: string[],
+) {
+  const found = options.find((option) => String(option.id) === id);
+  if (found) return found.name;
+  const fallback = selectedFallback.find((optionId) => optionId === id);
+  return fallback ? `브랜드 ${fallback}` : `브랜드 ${id}`;
+}
+
 export function ProductFilterBar({
   parentCategoryName,
   availableBrands,
@@ -91,15 +107,15 @@ export function ProductFilterBar({
   const searchParams = useSearchParams();
 
   const currentSort = searchParams.get('sortType') || ProductSortType.POPULAR;
-  const selectedSizes = searchParams.getAll('clothingSize');
+  const selectedSizes = searchParams.getAll('clothingSizes');
   const selectedPriceRange = searchParams.get('priceRange') ?? '';
-  const selectedBrands = searchParams.getAll('brand');
+  const selectedBrandIds = searchParams.getAll('brandIds');
 
   const [openSheet, setOpenSheet] = useState<SheetType>(null);
   const [activeFilterTab, setActiveFilterTab] = useState<FilterTab>('size');
   const [tempSizes, setTempSizes] = useState<string[]>([]);
   const [tempPriceRange, setTempPriceRange] = useState('');
-  const [tempBrands, setTempBrands] = useState<string[]>([]);
+  const [tempBrandIds, setTempBrandIds] = useState<string[]>([]);
   const [brandKeyword, setBrandKeyword] = useState('');
   const [customMinPrice, setCustomMinPrice] = useState('');
   const [customMaxPrice, setCustomMaxPrice] = useState('');
@@ -112,16 +128,25 @@ export function ProductFilterBar({
   }, [parentCategoryName]);
 
   const mergedBrandOptions = useMemo(() => {
-    return Array.from(new Set([...availableBrands, ...selectedBrands])).sort((a, b) =>
-      a.localeCompare(b, 'ko'),
+    const selectedOptionBackfills = selectedBrandIds
+      .map((id) => {
+        const found = availableBrands.find((option) => String(option.id) === id);
+        return found ?? { id: Number(id), name: `브랜드 ${id}` };
+      })
+      .filter((option) => Number.isFinite(option.id));
+
+    const merged = [...availableBrands, ...selectedOptionBackfills];
+    const uniqueById = Array.from(
+      new Map(merged.map((item) => [String(item.id), item])).values(),
     );
-  }, [availableBrands, selectedBrands]);
+    return uniqueById.sort((a, b) => a.name.localeCompare(b.name, 'ko'));
+  }, [availableBrands, selectedBrandIds]);
 
   const filteredBrands = useMemo(() => {
     const keyword = brandKeyword.trim().toLowerCase();
     if (!keyword) return mergedBrandOptions;
     return mergedBrandOptions.filter((brand) =>
-      brand.toLowerCase().includes(keyword),
+      brand.name.toLowerCase().includes(keyword),
     );
   }, [mergedBrandOptions, brandKeyword]);
 
@@ -130,7 +155,7 @@ export function ProductFilterBar({
 
   const appliedChips: ChipItem[] = [
     ...selectedSizes.map((value) => ({
-      key: 'clothingSize' as const,
+      key: 'clothingSizes' as const,
       value,
       label: value,
     })),
@@ -143,16 +168,16 @@ export function ProductFilterBar({
           },
         ]
       : []),
-    ...selectedBrands.map((value) => ({
-      key: 'brand' as const,
+    ...selectedBrandIds.map((value) => ({
+      key: 'brandIds' as const,
       value,
-      label: value,
+      label: getBrandLabelById(value, mergedBrandOptions, selectedBrandIds),
     })),
   ];
 
   const tempChips = [
     ...tempSizes.map((value) => ({
-      key: 'clothingSize' as const,
+      key: 'clothingSizes' as const,
       value,
       label: value,
     })),
@@ -165,7 +190,11 @@ export function ProductFilterBar({
           },
         ]
       : []),
-    ...tempBrands.map((value) => ({ key: 'brand' as const, value, label: value })),
+    ...tempBrandIds.map((value) => ({
+      key: 'brandIds' as const,
+      value,
+      label: getBrandLabelById(value, mergedBrandOptions, tempBrandIds),
+    })),
   ];
 
   const navigateWithParams = (params: URLSearchParams) => {
@@ -177,7 +206,7 @@ export function ProductFilterBar({
   const openFilterSheet = (tab: FilterTab) => {
     setTempSizes([...selectedSizes]);
     setTempPriceRange(selectedPriceRange);
-    setTempBrands([...selectedBrands]);
+    setTempBrandIds([...selectedBrandIds]);
     if (isValidPriceRange(selectedPriceRange)) {
       const [min, max] = selectedPriceRange.split('-');
       setCustomMinPrice(min);
@@ -200,8 +229,8 @@ export function ProductFilterBar({
 
   const handleApplyFilters = () => {
     const params = new URLSearchParams(searchParams.toString());
-    setRepeatedQuery(params, 'clothingSize', tempSizes);
-    setRepeatedQuery(params, 'brand', tempBrands);
+    setRepeatedQuery(params, 'clothingSizes', tempSizes);
+    setRepeatedQuery(params, 'brandIds', tempBrandIds);
     params.delete('priceRange');
     if (tempPriceRange) {
       params.set('priceRange', tempPriceRange);
@@ -347,12 +376,15 @@ export function ProductFilterBar({
           ) : (
             <div className="space-y-3">
               {filteredBrands.map((brand) => {
-                const isSelected = tempBrands.includes(brand);
+                const brandId = String(brand.id);
+                const isSelected = tempBrandIds.includes(brandId);
                 return (
                   <button
-                    key={brand}
+                    key={brand.id}
                     type="button"
-                    onClick={() => setTempBrands((prev) => toggleValue(prev, brand))}
+                    onClick={() =>
+                      setTempBrandIds((prev) => toggleValue(prev, brandId))
+                    }
                     className="flex w-full items-center gap-3 text-left"
                   >
                     <span
@@ -376,7 +408,7 @@ export function ProductFilterBar({
                         />
                       </svg>
                     </span>
-                    <span className="text-base font-medium text-black">{brand}</span>
+                    <span className="text-base font-medium text-black">{brand.name}</span>
                   </button>
                 );
               })}
@@ -420,7 +452,7 @@ export function ProductFilterBar({
             onClick={() => openFilterSheet('brand')}
             className="border-ongil-teal text-ongil-teal h-10 rounded-full border bg-white px-4 text-base font-semibold"
           >
-            브랜드{selectedBrands.length > 0 ? selectedBrands.length : ''}
+            브랜드{selectedBrandIds.length > 0 ? selectedBrandIds.length : ''}
           </button>
 
           <button
@@ -582,7 +614,7 @@ export function ProductFilterBar({
                       key={`temp-${chip.key}-${chip.value}`}
                       type="button"
                       onClick={() => {
-                        if (chip.key === 'clothingSize') {
+                        if (chip.key === 'clothingSizes') {
                           setTempSizes((prev) => prev.filter((item) => item !== chip.value));
                           return;
                         }
@@ -592,7 +624,9 @@ export function ProductFilterBar({
                           setCustomMaxPrice('');
                           return;
                         }
-                        setTempBrands((prev) => prev.filter((item) => item !== chip.value));
+                        setTempBrandIds((prev) =>
+                          prev.filter((item) => item !== chip.value),
+                        );
                       }}
                       className="border-ongil-teal bg-ongil-mint/50 text-ongil-teal inline-flex items-center gap-2 rounded-xl border px-3 py-1 text-sm font-medium"
                     >
@@ -610,7 +644,7 @@ export function ProductFilterBar({
                       setTempPriceRange('');
                       setCustomMinPrice('');
                       setCustomMaxPrice('');
-                      setTempBrands([]);
+                      setTempBrandIds([]);
                     }}
                     className="h-12 rounded-xl bg-[#e5e5e5] text-lg font-bold text-black"
                   >

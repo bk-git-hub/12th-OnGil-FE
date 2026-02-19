@@ -7,9 +7,9 @@ interface PageProps {
   searchParams: Promise<{
     sortType?: string;
     page?: string;
-    clothingSize?: string | string[];
+    clothingSizes?: string | string[];
     priceRange?: string | string[];
-    brand?: string | string[];
+    brandIds?: string | string[];
   }>;
 }
 
