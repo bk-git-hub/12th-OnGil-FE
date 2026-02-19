@@ -15,13 +15,7 @@ interface ProductListContainerProps {
   }>;
 }
 
-const PRICE_OPTIONS = [
-  '5만원 이하',
-  '5-10만원',
-  '10-15만원',
-  '15-20만원',
-  '20만원 이상',
-] as const;
+const PRICE_RANGE_PATTERN = /^\d+-\d+$/;
 
 function normalizeArray(value?: string | string[]) {
   if (Array.isArray(value)) {
@@ -31,6 +25,13 @@ function normalizeArray(value?: string | string[]) {
     return [value];
   }
   return [];
+}
+
+function normalizePriceRange(value?: string | string[]) {
+  if (Array.isArray(value)) {
+    return value[0] ?? '';
+  }
+  return value ?? '';
 }
 
 export default async function ProductListContainer({
@@ -56,9 +57,10 @@ export default async function ProductListContainer({
   const safeClothingSize = normalizeArray(clothingSize).filter((size) =>
     ['XS', 'S', 'M', 'L', 'XL'].includes(size),
   );
-  const safePriceRange = normalizeArray(priceRange).filter((price) =>
-    PRICE_OPTIONS.includes(price as (typeof PRICE_OPTIONS)[number]),
-  );
+  const rawPriceRange = normalizePriceRange(priceRange);
+  const safePriceRange = PRICE_RANGE_PATTERN.test(rawPriceRange)
+    ? rawPriceRange
+    : '';
 
   // subCategoryId 유효성 검증
   const parsedCategoryId = Number(subCategoryId);
@@ -79,7 +81,7 @@ export default async function ProductListContainer({
         page: safePage,
         size: 36,
         clothingSize: safeClothingSize.length > 0 ? safeClothingSize : undefined,
-        priceRange: safePriceRange.length > 0 ? safePriceRange : undefined,
+        priceRange: safePriceRange || undefined,
         // 1차 구현에서는 brandId 연동 없이 브랜드 UI/URL 상태만 제공합니다.
       },
     }),

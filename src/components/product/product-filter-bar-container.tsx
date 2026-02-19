@@ -15,13 +15,7 @@ interface ProductFilterBarContainerProps {
   }>;
 }
 
-const PRICE_OPTIONS = [
-  '5만원 이하',
-  '5-10만원',
-  '10-15만원',
-  '15-20만원',
-  '20만원 이상',
-] as const;
+const PRICE_RANGE_PATTERN = /^\d+-\d+$/;
 
 function normalizeArray(value?: string | string[]) {
   if (Array.isArray(value)) {
@@ -31,6 +25,13 @@ function normalizeArray(value?: string | string[]) {
     return [value];
   }
   return [];
+}
+
+function normalizePriceRange(value?: string | string[]) {
+  if (Array.isArray(value)) {
+    return value[0] ?? '';
+  }
+  return value ?? '';
 }
 
 export default async function ProductFilterBarContainer({
@@ -62,9 +63,10 @@ export default async function ProductFilterBarContainer({
     ['XS', 'S', 'M', 'L', 'XL'].includes(size),
   );
 
-  const priceOptions = normalizeArray(query.priceRange).filter((price) =>
-    PRICE_OPTIONS.includes(price as (typeof PRICE_OPTIONS)[number]),
-  );
+  const rawPriceRange = normalizePriceRange(query.priceRange);
+  const safePriceRange = PRICE_RANGE_PATTERN.test(rawPriceRange)
+    ? rawPriceRange
+    : '';
 
   const [subCategories, result] = await Promise.all([
     Number.isFinite(parsedParentId)
@@ -77,7 +79,7 @@ export default async function ProductFilterBarContainer({
         page: 0,
         size: 36,
         clothingSize: sizeOptions.length > 0 ? sizeOptions : undefined,
-        priceRange: priceOptions.length > 0 ? priceOptions : undefined,
+        priceRange: safePriceRange || undefined,
       },
     }),
   ]);

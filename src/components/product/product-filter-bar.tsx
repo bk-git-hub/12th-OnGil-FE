@@ -42,11 +42,11 @@ const BOTTOM_SIZE_OPTIONS = [
 ];
 
 const PRICE_OPTIONS = [
-  '5만원 이하',
-  '5-10만원',
-  '10-15만원',
-  '15-20만원',
-  '20만원 이상',
+  { label: '5만원 이하', value: '0-50000' },
+  { label: '5-10만원', value: '50000-100000' },
+  { label: '10-15만원', value: '100000-150000' },
+  { label: '15-20만원', value: '150000-200000' },
+  { label: '20만원 이상', value: '200000-999999999' },
 ];
 
 function toggleValue(items: string[], value: string) {
@@ -60,14 +60,26 @@ function setRepeatedQuery(params: URLSearchParams, key: string, values: string[]
   values.forEach((value) => params.append(key, value));
 }
 
-function removeOneFilterValue(
+function removeOneMultiFilterValue(
   params: URLSearchParams,
-  key: 'clothingSize' | 'priceRange' | 'brand',
+  key: 'clothingSize' | 'brand',
   value: string,
 ) {
   const nextValues = params.getAll(key).filter((item) => item !== value);
   params.delete(key);
   nextValues.forEach((item) => params.append(key, item));
+}
+
+function normalizeNumberInput(value: string) {
+  return value.replace(/[^\d]/g, '');
+}
+
+function isValidPriceRange(value: string) {
+  return /^\d+-\d+$/.test(value);
+}
+
+function getPriceRangeLabel(value: string) {
+  return PRICE_OPTIONS.find((option) => option.value === value)?.label ?? value;
 }
 
 export function ProductFilterBar({
@@ -80,15 +92,17 @@ export function ProductFilterBar({
 
   const currentSort = searchParams.get('sortType') || ProductSortType.POPULAR;
   const selectedSizes = searchParams.getAll('clothingSize');
-  const selectedPriceRanges = searchParams.getAll('priceRange');
+  const selectedPriceRange = searchParams.get('priceRange') ?? '';
   const selectedBrands = searchParams.getAll('brand');
 
   const [openSheet, setOpenSheet] = useState<SheetType>(null);
   const [activeFilterTab, setActiveFilterTab] = useState<FilterTab>('size');
   const [tempSizes, setTempSizes] = useState<string[]>([]);
-  const [tempPriceRanges, setTempPriceRanges] = useState<string[]>([]);
+  const [tempPriceRange, setTempPriceRange] = useState('');
   const [tempBrands, setTempBrands] = useState<string[]>([]);
   const [brandKeyword, setBrandKeyword] = useState('');
+  const [customMinPrice, setCustomMinPrice] = useState('');
+  const [customMaxPrice, setCustomMaxPrice] = useState('');
 
   const sizeOptions = useMemo(() => {
     if (['팬츠', '스커트'].includes(parentCategoryName)) {
@@ -120,11 +134,15 @@ export function ProductFilterBar({
       value,
       label: value,
     })),
-    ...selectedPriceRanges.map((value) => ({
-      key: 'priceRange' as const,
-      value,
-      label: value,
-    })),
+    ...(selectedPriceRange
+      ? [
+          {
+            key: 'priceRange' as const,
+            value: selectedPriceRange,
+            label: getPriceRangeLabel(selectedPriceRange),
+          },
+        ]
+      : []),
     ...selectedBrands.map((value) => ({
       key: 'brand' as const,
       value,
@@ -138,11 +156,15 @@ export function ProductFilterBar({
       value,
       label: value,
     })),
-    ...tempPriceRanges.map((value) => ({
-      key: 'priceRange' as const,
-      value,
-      label: value,
-    })),
+    ...(tempPriceRange
+      ? [
+          {
+            key: 'priceRange' as const,
+            value: tempPriceRange,
+            label: getPriceRangeLabel(tempPriceRange),
+          },
+        ]
+      : []),
     ...tempBrands.map((value) => ({ key: 'brand' as const, value, label: value })),
   ];
 
@@ -154,8 +176,16 @@ export function ProductFilterBar({
 
   const openFilterSheet = (tab: FilterTab) => {
     setTempSizes([...selectedSizes]);
-    setTempPriceRanges([...selectedPriceRanges]);
+    setTempPriceRange(selectedPriceRange);
     setTempBrands([...selectedBrands]);
+    if (isValidPriceRange(selectedPriceRange)) {
+      const [min, max] = selectedPriceRange.split('-');
+      setCustomMinPrice(min);
+      setCustomMaxPrice(max);
+    } else {
+      setCustomMinPrice('');
+      setCustomMaxPrice('');
+    }
     setBrandKeyword('');
     setActiveFilterTab(tab);
     setOpenSheet('filters');
@@ -171,15 +201,23 @@ export function ProductFilterBar({
   const handleApplyFilters = () => {
     const params = new URLSearchParams(searchParams.toString());
     setRepeatedQuery(params, 'clothingSize', tempSizes);
-    setRepeatedQuery(params, 'priceRange', tempPriceRanges);
     setRepeatedQuery(params, 'brand', tempBrands);
+    params.delete('priceRange');
+    if (tempPriceRange) {
+      params.set('priceRange', tempPriceRange);
+    }
     navigateWithParams(params);
     setOpenSheet(null);
   };
 
   const handleRemoveChip = (chip: ChipItem) => {
     const params = new URLSearchParams(searchParams.toString());
-    removeOneFilterValue(params, chip.key, chip.value);
+    if (chip.key === 'priceRange') {
+      params.delete('priceRange');
+      navigateWithParams(params);
+      return;
+    }
+    removeOneMultiFilterValue(params, chip.key, chip.value);
     navigateWithParams(params);
   };
 
@@ -210,27 +248,69 @@ export function ProductFilterBar({
     }
 
     if (activeFilterTab === 'price') {
+      const canApplyCustomPrice =
+        customMinPrice.length > 0 &&
+        customMaxPrice.length > 0 &&
+        Number(customMinPrice) <= Number(customMaxPrice);
+
       return (
-        <div className="flex flex-wrap gap-3">
-          {PRICE_OPTIONS.map((option) => {
-            const isSelected = tempPriceRanges.includes(option);
-            return (
-              <button
-                key={option}
-                type="button"
-                onClick={() =>
-                  setTempPriceRanges((prev) => toggleValue(prev, option))
+        <div className="space-y-4">
+          <div className="flex flex-wrap gap-3">
+            {PRICE_OPTIONS.map((option) => {
+              const isSelected = tempPriceRange === option.value;
+              return (
+                <button
+                  key={option.value}
+                  type="button"
+                  onClick={() =>
+                    setTempPriceRange((prev) =>
+                      prev === option.value ? '' : option.value,
+                    )
+                  }
+                  className={`rounded-xl border px-4 py-3 text-sm font-semibold transition-colors ${
+                    isSelected
+                      ? 'border-ongil-teal bg-ongil-mint text-black'
+                      : 'border-gray-300 bg-white text-gray-900'
+                  }`}
+                >
+                  {option.label}
+                </button>
+              );
+            })}
+          </div>
+
+          <div className="rounded-xl border border-gray-200 p-3">
+            <p className="mb-2 text-sm font-semibold text-gray-800">직접 입력</p>
+            <div className="grid grid-cols-[1fr_auto_1fr] items-center gap-2">
+              <input
+                value={customMinPrice}
+                onChange={(event) =>
+                  setCustomMinPrice(normalizeNumberInput(event.target.value))
                 }
-                className={`rounded-xl border px-4 py-3 text-sm font-semibold transition-colors ${
-                  isSelected
-                    ? 'border-ongil-teal bg-ongil-mint text-black'
-                    : 'border-gray-300 bg-white text-gray-900'
-                }`}
-              >
-                {option}
-              </button>
-            );
-          })}
+                inputMode="numeric"
+                placeholder="최소 금액"
+                className="h-10 rounded-lg border border-gray-300 px-3 text-sm outline-none"
+              />
+              <span className="text-sm text-gray-500">-</span>
+              <input
+                value={customMaxPrice}
+                onChange={(event) =>
+                  setCustomMaxPrice(normalizeNumberInput(event.target.value))
+                }
+                inputMode="numeric"
+                placeholder="최대 금액"
+                className="h-10 rounded-lg border border-gray-300 px-3 text-sm outline-none"
+              />
+            </div>
+            <button
+              type="button"
+              disabled={!canApplyCustomPrice}
+              onClick={() => setTempPriceRange(`${customMinPrice}-${customMaxPrice}`)}
+              className="bg-ongil-teal mt-3 h-9 rounded-lg px-4 text-sm font-semibold text-white disabled:cursor-not-allowed disabled:bg-gray-300"
+            >
+              직접입력 적용
+            </button>
+          </div>
         </div>
       );
     }
@@ -348,7 +428,7 @@ export function ProductFilterBar({
             onClick={() => openFilterSheet('price')}
             className="border-ongil-teal text-ongil-teal h-10 rounded-full border bg-white px-4 text-base font-semibold"
           >
-            가격{selectedPriceRanges.length > 0 ? selectedPriceRanges.length : ''}
+            가격{selectedPriceRange ? '1' : ''}
           </button>
         </div>
       </div>
@@ -507,9 +587,9 @@ export function ProductFilterBar({
                           return;
                         }
                         if (chip.key === 'priceRange') {
-                          setTempPriceRanges((prev) =>
-                            prev.filter((item) => item !== chip.value),
-                          );
+                          setTempPriceRange('');
+                          setCustomMinPrice('');
+                          setCustomMaxPrice('');
                           return;
                         }
                         setTempBrands((prev) => prev.filter((item) => item !== chip.value));
@@ -527,7 +607,9 @@ export function ProductFilterBar({
                     type="button"
                     onClick={() => {
                       setTempSizes([]);
-                      setTempPriceRanges([]);
+                      setTempPriceRange('');
+                      setCustomMinPrice('');
+                      setCustomMaxPrice('');
                       setTempBrands([]);
                     }}
                     className="h-12 rounded-xl bg-[#e5e5e5] text-lg font-bold text-black"
