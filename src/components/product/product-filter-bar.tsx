@@ -1,8 +1,22 @@
 'use client';
 
-import { useState } from 'react';
-import { useRouter, useSearchParams } from 'next/navigation';
+import { useMemo, useState } from 'react';
+import { usePathname, useRouter, useSearchParams } from 'next/navigation';
 import { ProductSortType } from '@/types/enums';
+
+type FilterTab = 'size' | 'brand' | 'price';
+type SheetType = 'sort' | 'filters' | null;
+
+interface ProductFilterBarProps {
+  parentCategoryName: string;
+  availableBrands: string[];
+}
+
+interface ChipItem {
+  key: 'clothingSize' | 'priceRange' | 'brand';
+  value: string;
+  label: string;
+}
 
 const SORT_OPTIONS: { value: ProductSortType; label: string }[] = [
   { value: ProductSortType.POPULAR, label: '인기순' },
@@ -11,33 +25,221 @@ const SORT_OPTIONS: { value: ProductSortType; label: string }[] = [
   { value: ProductSortType.PRICE_HIGH, label: '높은 가격순' },
 ];
 
-export function ProductFilterBar() {
-  const router = useRouter();
-  const searchParams = useSearchParams();
-  const currentSort = searchParams.get('sortType') || ProductSortType.POPULAR;
-  const [isOpen, setIsOpen] = useState(false);
+const TOP_SIZE_OPTIONS = [
+  { value: 'XS', label: 'XS', description: '44 이하' },
+  { value: 'S', label: 'S', description: '55' },
+  { value: 'M', label: 'M', description: '66' },
+  { value: 'L', label: 'L', description: '77' },
+  { value: 'XL', label: 'XL', description: '88 이상' },
+];
 
-  const currentLabel =
-    SORT_OPTIONS.find((opt) => opt.value === currentSort)?.label || '인기순';
+const BOTTOM_SIZE_OPTIONS = [
+  { value: 'XS', label: 'XS', description: '24 이하' },
+  { value: 'S', label: 'S', description: '25,26' },
+  { value: 'M', label: 'M', description: '27,28' },
+  { value: 'L', label: 'L', description: '29,30' },
+  { value: 'XL', label: 'XL', description: '31 이상' },
+];
+
+const PRICE_OPTIONS = [
+  '5만원 이하',
+  '5-10만원',
+  '10-15만원',
+  '15-20만원',
+  '20만원 이상',
+];
+
+function toggleValue(items: string[], value: string) {
+  return items.includes(value)
+    ? items.filter((item) => item !== value)
+    : [...items, value];
+}
+
+function setRepeatedQuery(params: URLSearchParams, key: string, values: string[]) {
+  params.delete(key);
+  values.forEach((value) => params.append(key, value));
+}
+
+function removeOneFilterValue(
+  params: URLSearchParams,
+  key: 'clothingSize' | 'priceRange' | 'brand',
+  value: string,
+) {
+  const nextValues = params.getAll(key).filter((item) => item !== value);
+  params.delete(key);
+  nextValues.forEach((item) => params.append(key, item));
+}
+
+export function ProductFilterBar({
+  parentCategoryName,
+  availableBrands,
+}: ProductFilterBarProps) {
+  const router = useRouter();
+  const pathname = usePathname();
+  const searchParams = useSearchParams();
+
+  const currentSort = searchParams.get('sortType') || ProductSortType.POPULAR;
+  const selectedSizes = searchParams.getAll('clothingSize');
+  const selectedPriceRanges = searchParams.getAll('priceRange');
+  const selectedBrands = searchParams.getAll('brand');
+
+  const [openSheet, setOpenSheet] = useState<SheetType>(null);
+  const [activeFilterTab, setActiveFilterTab] = useState<FilterTab>('size');
+  const [tempSizes, setTempSizes] = useState<string[]>([]);
+  const [tempPriceRanges, setTempPriceRanges] = useState<string[]>([]);
+  const [tempBrands, setTempBrands] = useState<string[]>([]);
+  const [brandKeyword, setBrandKeyword] = useState('');
+
+  const sizeOptions = useMemo(() => {
+    if (['팬츠', '스커트'].includes(parentCategoryName)) {
+      return BOTTOM_SIZE_OPTIONS;
+    }
+    return TOP_SIZE_OPTIONS;
+  }, [parentCategoryName]);
+
+  const mergedBrandOptions = useMemo(() => {
+    return Array.from(new Set([...availableBrands, ...selectedBrands])).sort((a, b) =>
+      a.localeCompare(b, 'ko'),
+    );
+  }, [availableBrands, selectedBrands]);
+
+  const filteredBrands = useMemo(() => {
+    const keyword = brandKeyword.trim().toLowerCase();
+    if (!keyword) return mergedBrandOptions;
+    return mergedBrandOptions.filter((brand) =>
+      brand.toLowerCase().includes(keyword),
+    );
+  }, [mergedBrandOptions, brandKeyword]);
+
+  const currentSortLabel =
+    SORT_OPTIONS.find((option) => option.value === currentSort)?.label || '인기순';
+
+  const appliedChips: ChipItem[] = [
+    ...selectedSizes.map((value) => ({
+      key: 'clothingSize' as const,
+      value,
+      label: value,
+    })),
+    ...selectedPriceRanges.map((value) => ({
+      key: 'priceRange' as const,
+      value,
+      label: value,
+    })),
+    ...selectedBrands.map((value) => ({
+      key: 'brand' as const,
+      value,
+      label: value,
+    })),
+  ];
+
+  const tempChips = [
+    ...tempSizes.map((value) => ({
+      key: 'clothingSize' as const,
+      value,
+      label: value,
+    })),
+    ...tempPriceRanges.map((value) => ({
+      key: 'priceRange' as const,
+      value,
+      label: value,
+    })),
+    ...tempBrands.map((value) => ({ key: 'brand' as const, value, label: value })),
+  ];
+
+  const navigateWithParams = (params: URLSearchParams) => {
+    params.set('page', '0');
+    const query = params.toString();
+    router.push(query ? `${pathname}?${query}` : pathname, { scroll: false });
+  };
+
+  const openFilterSheet = (tab: FilterTab) => {
+    setTempSizes([...selectedSizes]);
+    setTempPriceRanges([...selectedPriceRanges]);
+    setTempBrands([...selectedBrands]);
+    setBrandKeyword('');
+    setActiveFilterTab(tab);
+    setOpenSheet('filters');
+  };
 
   const handleSortChange = (sortType: ProductSortType) => {
     const params = new URLSearchParams(searchParams.toString());
     params.set('sortType', sortType);
-    router.push(`?${params.toString()}`, { scroll: false });
-    setIsOpen(false);
+    navigateWithParams(params);
+    setOpenSheet(null);
   };
 
-  return (
-    <>
-      <div className="mb-4 flex items-center justify-end gap-2">
-        <button
-          type="button"
-          onClick={() => setIsOpen(true)}
-          className="flex items-center gap-1 rounded-md border border-gray-300 bg-white px-3 py-2 text-sm hover:bg-gray-50"
-        >
-          <span>{currentLabel}</span>
+  const handleApplyFilters = () => {
+    const params = new URLSearchParams(searchParams.toString());
+    setRepeatedQuery(params, 'clothingSize', tempSizes);
+    setRepeatedQuery(params, 'priceRange', tempPriceRanges);
+    setRepeatedQuery(params, 'brand', tempBrands);
+    navigateWithParams(params);
+    setOpenSheet(null);
+  };
+
+  const handleRemoveChip = (chip: ChipItem) => {
+    const params = new URLSearchParams(searchParams.toString());
+    removeOneFilterValue(params, chip.key, chip.value);
+    navigateWithParams(params);
+  };
+
+  const renderFilterContent = () => {
+    if (activeFilterTab === 'size') {
+      return (
+        <div className="grid grid-cols-3 gap-3">
+          {sizeOptions.map((option) => {
+            const isSelected = tempSizes.includes(option.value);
+            return (
+              <button
+                key={option.value}
+                type="button"
+                onClick={() => setTempSizes((prev) => toggleValue(prev, option.value))}
+                className={`rounded-xl border px-4 py-3 text-center text-base font-semibold transition-colors ${
+                  isSelected
+                    ? 'border-ongil-teal bg-ongil-mint text-black'
+                    : 'border-gray-300 bg-white text-gray-900'
+                }`}
+                title={option.description}
+              >
+                {option.label}
+              </button>
+            );
+          })}
+        </div>
+      );
+    }
+
+    if (activeFilterTab === 'price') {
+      return (
+        <div className="flex flex-wrap gap-3">
+          {PRICE_OPTIONS.map((option) => {
+            const isSelected = tempPriceRanges.includes(option);
+            return (
+              <button
+                key={option}
+                type="button"
+                onClick={() =>
+                  setTempPriceRanges((prev) => toggleValue(prev, option))
+                }
+                className={`rounded-xl border px-4 py-3 text-sm font-semibold transition-colors ${
+                  isSelected
+                    ? 'border-ongil-teal bg-ongil-mint text-black'
+                    : 'border-gray-300 bg-white text-gray-900'
+                }`}
+              >
+                {option}
+              </button>
+            );
+          })}
+        </div>
+      );
+    }
+
+    return (
+      <div className="flex h-full min-h-0 flex-col gap-4">
+        <div className="flex h-12 items-center rounded-full border border-ongil-teal px-4">
           <svg
-            className="h-4 w-4"
+            className="mr-2 h-5 w-5 text-gray-400"
             fill="none"
             stroke="currentColor"
             viewBox="0 0 24 24"
@@ -46,30 +248,141 @@ export function ProductFilterBar() {
               strokeLinecap="round"
               strokeLinejoin="round"
               strokeWidth={2}
-              d="M19 9l-7 7-7-7"
+              d="M21 21l-4.35-4.35M10.5 18a7.5 7.5 0 100-15 7.5 7.5 0 000 15z"
             />
           </svg>
-        </button>
+          <input
+            value={brandKeyword}
+            onChange={(event) => setBrandKeyword(event.target.value)}
+            className="h-full w-full bg-transparent text-sm outline-none"
+            placeholder="원하는 브랜드를 검색해요"
+          />
+        </div>
+
+        <div className="h-[260px] overflow-y-auto pr-1">
+          {filteredBrands.length === 0 ? (
+            <p className="py-8 text-center text-sm text-gray-500">
+              검색 결과가 없습니다.
+            </p>
+          ) : (
+            <div className="space-y-3">
+              {filteredBrands.map((brand) => {
+                const isSelected = tempBrands.includes(brand);
+                return (
+                  <button
+                    key={brand}
+                    type="button"
+                    onClick={() => setTempBrands((prev) => toggleValue(prev, brand))}
+                    className="flex w-full items-center gap-3 text-left"
+                  >
+                    <span
+                      className={`flex h-6 w-6 items-center justify-center rounded-[4px] border ${
+                        isSelected
+                          ? 'border-ongil-teal bg-ongil-teal text-white'
+                          : 'border-ongil-teal bg-white text-transparent'
+                      }`}
+                    >
+                      <svg
+                        className="h-4 w-4"
+                        fill="none"
+                        stroke="currentColor"
+                        viewBox="0 0 24 24"
+                      >
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          strokeWidth={3}
+                          d="M5 13l4 4L19 7"
+                        />
+                      </svg>
+                    </span>
+                    <span className="text-base font-medium text-black">{brand}</span>
+                  </button>
+                );
+              })}
+            </div>
+          )}
+        </div>
+      </div>
+    );
+  };
+
+  return (
+    <>
+      <div className="mb-3 overflow-x-auto pb-1">
+        <div className="flex w-max items-center gap-2">
+          <button
+            type="button"
+            onClick={() => setOpenSheet('sort')}
+            className="border-ongil-teal text-ongil-teal flex h-10 items-center gap-1 rounded-full border bg-white px-4 text-base font-semibold"
+          >
+            {currentSortLabel}
+            <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M19 9l-7 7-7-7"
+              />
+            </svg>
+          </button>
+
+          <button
+            type="button"
+            onClick={() => openFilterSheet('size')}
+            className="border-ongil-teal text-ongil-teal h-10 rounded-full border bg-white px-4 text-base font-semibold"
+          >
+            사이즈{selectedSizes.length > 0 ? selectedSizes.length : ''}
+          </button>
+
+          <button
+            type="button"
+            onClick={() => openFilterSheet('brand')}
+            className="border-ongil-teal text-ongil-teal h-10 rounded-full border bg-white px-4 text-base font-semibold"
+          >
+            브랜드{selectedBrands.length > 0 ? selectedBrands.length : ''}
+          </button>
+
+          <button
+            type="button"
+            onClick={() => openFilterSheet('price')}
+            className="border-ongil-teal text-ongil-teal h-10 rounded-full border bg-white px-4 text-base font-semibold"
+          >
+            가격{selectedPriceRanges.length > 0 ? selectedPriceRanges.length : ''}
+          </button>
+        </div>
       </div>
 
-      {/* 바텀 시트 */}
-      {isOpen && (
+      {appliedChips.length > 0 && (
+        <div className="mb-4 flex flex-wrap gap-2">
+          {appliedChips.map((chip) => (
+            <button
+              key={`${chip.key}-${chip.value}`}
+              type="button"
+              onClick={() => handleRemoveChip(chip)}
+              className="border-ongil-teal bg-ongil-mint/50 text-ongil-teal inline-flex items-center gap-2 rounded-xl border px-3 py-1.5 text-sm font-medium"
+            >
+              {chip.label}
+              <span className="text-xs">x</span>
+            </button>
+          ))}
+        </div>
+      )}
+
+      {openSheet === 'sort' && (
         <>
-          {/* 배경 오버레이 */}
           <div
             className="fixed inset-0 z-50 bg-black/10"
-            onClick={() => setIsOpen(false)}
+            onClick={() => setOpenSheet(null)}
           />
-
-          {/* 바텀 시트 */}
-          <div className="fixed inset-x-0 bottom-0 z-50 rounded-t-[22px] bg-white px-6 pt-6 pb-10 shadow-[0_-6px_20px_rgba(0,0,0,0.08)] transition-transform duration-300 ease-out">
+          <div className="fixed inset-x-0 bottom-0 z-50 rounded-t-[22px] bg-white px-6 pt-6 pb-10 shadow-[0_-6px_20px_rgba(0,0,0,0.08)]">
             <div className="mx-auto w-full max-w-7xl">
               <div className="relative mb-8 flex items-center justify-center">
-                <h3 className="text-[34px] leading-none font-bold text-black">정렬</h3>
+                <h3 className="text-2xl font-bold text-black">정렬</h3>
                 <button
                   type="button"
-                  onClick={() => setIsOpen(false)}
-                  className="absolute right-0 flex h-10 w-10 items-center justify-center rounded-full border border-[#707070] text-[#707070] hover:bg-gray-50"
+                  onClick={() => setOpenSheet(null)}
+                  className="absolute right-0 flex h-10 w-10 items-center justify-center rounded-full border border-[#707070] text-[#707070]"
                   aria-label="정렬 시트 닫기"
                 >
                   <svg
@@ -88,7 +401,7 @@ export function ProductFilterBar() {
                 </button>
               </div>
 
-              <div className="space-y-8">
+              <div className="space-y-6">
                 {SORT_OPTIONS.map((option) => (
                   <button
                     type="button"
@@ -97,15 +410,14 @@ export function ProductFilterBar() {
                     className="flex w-full items-center gap-4 text-left"
                   >
                     <span
-                      className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-[6px] border-2 ${
+                      className={`flex h-7 w-7 shrink-0 items-center justify-center rounded-[6px] border-2 ${
                         currentSort === option.value
                           ? 'border-ongil-teal bg-ongil-teal text-white'
                           : 'border-ongil-teal bg-transparent text-transparent'
                       }`}
-                      aria-hidden="true"
                     >
                       <svg
-                        className="h-5 w-5"
+                        className="h-4 w-4"
                         fill="none"
                         stroke="currentColor"
                         viewBox="0 0 24 24"
@@ -118,11 +430,118 @@ export function ProductFilterBar() {
                         />
                       </svg>
                     </span>
-                    <span className="text-[40px] leading-none font-bold text-black">
-                      {option.label}
-                    </span>
+                    <span className="text-2xl font-bold text-black">{option.label}</span>
                   </button>
                 ))}
+              </div>
+            </div>
+          </div>
+        </>
+      )}
+
+      {openSheet === 'filters' && (
+        <>
+          <div
+            className="fixed inset-0 z-50 bg-black/10"
+            onClick={() => setOpenSheet(null)}
+          />
+          <div className="fixed inset-x-0 bottom-0 z-50 rounded-t-[22px] bg-white shadow-[0_-6px_20px_rgba(0,0,0,0.08)]">
+            <div className="mx-auto w-full max-w-7xl">
+              <div className="relative flex items-center justify-end px-4 pt-4 pb-2">
+                <button
+                  type="button"
+                  onClick={() => setOpenSheet(null)}
+                  className="flex h-10 w-10 items-center justify-center rounded-full border border-[#707070] text-[#707070]"
+                  aria-label="필터 시트 닫기"
+                >
+                  <svg
+                    className="h-5 w-5"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M6 18L18 6M6 6l12 12"
+                    />
+                  </svg>
+                </button>
+              </div>
+
+              <div className="grid grid-cols-3 border-y border-gray-200 bg-[#f3f3f3]">
+                {(
+                  [
+                    ['size', '사이즈'],
+                    ['brand', '브랜드'],
+                    ['price', '가격'],
+                  ] as const
+                ).map(([tab, label]) => (
+                  <button
+                    key={tab}
+                    type="button"
+                    onClick={() => setActiveFilterTab(tab)}
+                    className={`h-20 border-r border-gray-200 text-xl font-semibold last:border-r-0 ${
+                      activeFilterTab === tab
+                        ? 'bg-white text-black'
+                        : 'bg-[#f3f3f3] text-gray-700'
+                    }`}
+                  >
+                    {label}
+                  </button>
+                ))}
+              </div>
+
+              <div className="min-h-[290px] px-4 pt-4 pb-5">{renderFilterContent()}</div>
+
+              <div className="border-t border-gray-200 px-4 pt-3 pb-4">
+                <div className="mb-3 flex min-h-11 flex-wrap gap-2">
+                  {tempChips.map((chip) => (
+                    <button
+                      key={`temp-${chip.key}-${chip.value}`}
+                      type="button"
+                      onClick={() => {
+                        if (chip.key === 'clothingSize') {
+                          setTempSizes((prev) => prev.filter((item) => item !== chip.value));
+                          return;
+                        }
+                        if (chip.key === 'priceRange') {
+                          setTempPriceRanges((prev) =>
+                            prev.filter((item) => item !== chip.value),
+                          );
+                          return;
+                        }
+                        setTempBrands((prev) => prev.filter((item) => item !== chip.value));
+                      }}
+                      className="border-ongil-teal bg-ongil-mint/50 text-ongil-teal inline-flex items-center gap-2 rounded-xl border px-3 py-1 text-sm font-medium"
+                    >
+                      {chip.label}
+                      <span className="text-xs">x</span>
+                    </button>
+                  ))}
+                </div>
+
+                <div className="grid grid-cols-[1fr_2fr] gap-3">
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setTempSizes([]);
+                      setTempPriceRanges([]);
+                      setTempBrands([]);
+                    }}
+                    className="h-12 rounded-xl bg-[#e5e5e5] text-lg font-bold text-black"
+                  >
+                    초기화
+                  </button>
+                  <button
+                    type="button"
+                    onClick={handleApplyFilters}
+                    className="bg-ongil-teal h-12 rounded-xl text-lg font-bold text-white"
+                  >
+                    상품 보기
+                  </button>
+                </div>
               </div>
             </div>
           </div>
